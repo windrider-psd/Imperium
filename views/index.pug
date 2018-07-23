@@ -1,0 +1,47 @@
+extends layout
+
+block content     
+  .container
+  .row
+    .offset-md-3.col-md-6.mx-auto.text-center
+      .header-title
+        h1 Imperium 
+        h2.wv-heading--subtitle Cadastro
+  .row
+    .offset-md-4.col-md-4.mx-auto
+      .myform.form
+        form(onsubmit="return false")#form-cadastro
+          .form-group
+            label(for="nick") Nick:
+            input.form-control.my-input(type='text', name='nick', placeholder='Nick do jogador')
+          .form-group
+            label(for="email") Email:
+            input.form-control.my-input(type='email', name='email', placeholder='exemplo@dominio.com')
+          .form-group
+            label(for="senha") Senha:
+            input.form-control.my-input(type='password', name='senha', placeholder='*******')
+          .form-group
+            label(for="confsenha") Confirmação da senha:
+            input.form-control.my-input(type='password', name='confsenha', placeholder='*******')
+          .text-center
+            button.btn.btn-block.send-button.tx-tfm(type='submit') Criar conta gratuita
+block posscripts
+  script.
+    $("#form-cadastro").on('submit', function()
+    {
+      var info = FormToAssocArray($(this));
+      $.ajax({
+        method : "POST",
+        url : "usuario/cadastrar",
+        data : info,
+        
+        success : function()
+        {
+          GerarNotificacao("Conta criada com sucesso", "success");
+        },
+        error : function(mensagem)
+        {
+          GerarNotificacao(mensagem.responseText, "danger");
+        }
+      })
+    });
