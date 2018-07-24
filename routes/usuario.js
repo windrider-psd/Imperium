@@ -1,6 +1,7 @@
 var express = require('express');
 var database = require('./../model/DBModels')
 var bcrypt = require('bcrypt');
+var sanitizer = require('sanitizer')
 var router = express.Router();
 const conexao = database.Con;
 const Usuario = database.Usuario;
@@ -14,6 +15,13 @@ function validarEmail(email) {
 router.post('/cadastrar', function(req, res) {
 
   var params = req.body;
+  if(!(params.senha && params.confsenha && params.nick && params.email))
+  {
+    res.status(400).end("Parâmetros inválidos")
+    return;
+  }
+  params.nick = sanitizer.escape(params.nick);
+  params.email = sanitizer.escape(params.email);
   if(params.senha != params.confsenha)
   {
     res.status(400).end("As senhas não são iguais.");
@@ -68,12 +76,15 @@ router.post('/cadastrar', function(req, res) {
 
 router.post('/login', function(req, res)
 {
-  if(req.session.usuario)
-    res.redirect('/inicial')
+
+  if(!(req.body.usuario && req.body.senha))
+    res.status(400).end("Parâmetros inválidos")
+  else if(req.session.usuario)
+    res.status(400).end("Usuário já logado")
   else
   {
     var params = req.body
-    
+    console.log(params)
     Usuario.findOne({where : 
       {
         $or:

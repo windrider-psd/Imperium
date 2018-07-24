@@ -102,7 +102,7 @@ const Usuario = con.define('Usuario', {
     }
 });
 
-const Admin = con.define("Admin", {
+const Admin = con.define("admin", {
     id: 
     {
         type: sequalize.INTEGER,
@@ -123,9 +123,31 @@ const Admin = con.define("Admin", {
 }, {timestamps : false})
 
 
+const Planeta = con.define('Planeta', 
+{
+    id : 
+    {
+        type: sequalize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    nome :
+    {
+        type: sequalize.STRING,
+        allowNull : false,
+        defaultValue: "Planeta",
+    }
+
+})
+
+
+Usuario.hasMany(Planeta);
+Usuario.afterCreate(function(usuario, opcoes)
+{
+    Planeta.create({UsuarioId: usuario.dataValues.id})
+});
 con.authenticate().then(function()
 {
-
     console.log("Conexao Criada");
     Usuario.sync({force : false});
     Admin.sync({force : false}).then(function()
@@ -144,6 +166,7 @@ con.authenticate().then(function()
         });
         
     });
+    Planeta.sync({force : false})
 
 }).catch(function(err)
 {
