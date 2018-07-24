@@ -1,0 +1,33 @@
+nav(style="background-color:#00299e").navbar.navbar-default.navbar-fixed-top
+    .container-fluid
+        .navbar-header
+            button(type="button" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false").navbar-toggle.collapsed
+                span.sr-only Toggle navigation
+                span.icon-bar
+                span.icon-bar
+                span.icon-bar
+            a(href="/").navbar-brand
+                img(alt="UFSM", src="/images/logo_pre.png" width="20px")
+
+        .collapse.navbar-collapse#bs-example-navbar-collapse-1
+            ul.nav.navbar-nav
+                li
+                    a(href ="/inicial") Inicial
+                li
+                    a(href="#")#logout-link Logout  
+script.
+    $("#logout-link").on('click', function()
+    {
+        $.ajax({
+            url : "usuario/logout",
+            method : "POST",
+            success : function()
+            {
+                window.location.href = "/";
+            },
+            error : function(erro)
+            {
+                GerarNotificacao(erro.responseText, "danger");
+            }
+        });
+    });

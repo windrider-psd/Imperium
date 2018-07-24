@@ -3,18 +3,11 @@ var express = require('express');
 var path = require('path');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var fs = require('fs')
+var logger = require('morgan');   
 var paginaRouter = require('./routes/paginas');
 var usuarioRouter = require('./routes/usuario');
 var browserify = require('browserify-middleware');
-var bundleCSS = "";
-var bundleCSSArquivos = fs.readdirSync(__dirname + '/public/stylesheets/bundle/', {encoding : 'utf8'});
-for(var i = 0; i < bundleCSSArquivos.length; i++)
-{
-  var css = fs.readFileSync(__dirname + '/public/stylesheets/bundle/'+bundleCSSArquivos[i], {encoding : 'utf8'});
-  bundleCSS+= css;
-}
+var session = require('express-session')
 var app = express();
 
 // view engine setup
@@ -28,12 +21,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json()); 
 app.use(bodyParser.urlencoded({ extended: true })); 
+app.use(session({resave: true, saveUninitialized : true, secret : 'uijn4unip32nur324p23u'}));
 app.get('/js/bundle_chart.js', browserify(['chartjs', 'chartjs-plugin-zoom']));
-app.get('/stylesheets/bundle_style.css', function(req, res)
-{ 
-  res.setHeader("Content-Type", 'text/css');
-  res.send(bundleCSS);
-});
 app.use('/', paginaRouter);
 app.use('/usuario', usuarioRouter);
 // catch 404 and forward to error handler
