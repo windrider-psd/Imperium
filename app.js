@@ -8,6 +8,7 @@ var paginaRouter = require('./routes/paginas');
 var usuarioRouter = require('./routes/usuario');
 var browserify = require('browserify-middleware');
 var session = require('express-session')
+
 var app = express();
 
 // view engine setup
@@ -29,7 +30,6 @@ app.use('/usuario', usuarioRouter);
 app.use(function(req, res, next) {
   next(createError(404));
 }); 
-
 // error handler
 app.use(function(err, req, res, next) {
   // set locals, only providing error in development

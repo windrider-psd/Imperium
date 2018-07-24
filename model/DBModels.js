@@ -1,4 +1,6 @@
 const sequalize = require ('sequelize')
+const bcrypt = require('bcrypt')
+require('dotenv/config')
 const Op = sequalize.Op;
 const operatorsAlias = {
     $eq: Op.eq,
@@ -38,7 +40,7 @@ const operatorsAlias = {
   };
 
 
-const con = new sequalize('Imperium', 'root', '', {
+const con = new sequalize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
     host:'localhost', 
     dialect : 'mysql',
     operatorsAliases : false,
@@ -75,6 +77,23 @@ const Usuario = con.define('Usuario', {
         type:sequalize.STRING,
         allowNull : false,
     },
+    ferias:
+    {
+        type:sequalize.BOOLEAN,
+        allowNull : false,
+        defaultValue: false
+    },
+    feriasAtivacao:
+    {
+        type:sequalize.TIME,
+        allowNull : true
+    },
+    banido :
+    {
+        type : sequalize.BOOLEAN,
+        allowNull : false,
+        defaultValue : false
+    },
     ativo : 
     {
         type : sequalize.BOOLEAN,
@@ -83,15 +102,52 @@ const Usuario = con.define('Usuario', {
     }
 });
 
+const Admin = con.define("Admin", {
+    id: 
+    {
+        type: sequalize.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    usuario: 
+    {
+        type:sequalize.STRING,
+        unique : true,
+        allowNull : false
+    },
+    senha: 
+    {
+        type:sequalize.STRING,
+        allowNull : false,
+    },
+}, {timestamps : false})
+
 
 con.authenticate().then(function()
 {
+
     console.log("Conexao Criada");
     Usuario.sync({force : false});
+    Admin.sync({force : false}).then(function()
+    {
+        bcrypt.hash(process.env.GAME_DEFAULT_ADMIN_PASSWORD, 10, function(err, hash)
+        {
+            if(err) throw err
+            Admin.count({}).then(function(contagem)
+            {
+                if(contagem == 0)
+                {
+                    Admin.create({usuario : process.env.GAME_DEFAULT_ADMIN_USERNAME, senha : hash});
+                }
+            });
+            
+        });
+        
+    });
 
 }).catch(function(err)
 {
-    console.log("conexao não criada");
+    console.log(err.parent);
 });
 
-module.exports = {Con : con, Usuario : Usuario};
+module.exports = {Con : con, Usuario : Usuario, Admin : Admin};
