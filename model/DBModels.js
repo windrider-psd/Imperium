@@ -41,7 +41,7 @@ const operatorsAlias = {
 
 
 const con = new sequalize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
-    host:'localhost', 
+    host: process.env.DB_HOST, 
     dialect : 'mysql',
     operatorsAliases : false,
     timezone : 'Brazil/East',
@@ -120,7 +120,24 @@ const Admin = con.define("admin", {
         type:sequalize.STRING,
         allowNull : false,
     },
-}, {timestamps : false})
+}, {timestamps : false});
+
+const EsqueciSenha = con.define('esqueci_senha', 
+{
+    chave : 
+    {
+        type: sequalize.STRING,
+        allowNull: false,
+    },
+    data_hora :
+    {
+        type: sequalize.TIME,
+        allowNull : false,
+        defaultValue : sequalize.NOW
+    }
+}, {timestamps : false, },);
+
+//EsqueciSenha.hasOne(Usuario, {onDelete : "CASCADE", foreignKey:'usuarioID'});
 
 
 const Planeta = con.define('Planeta', 
@@ -137,7 +154,6 @@ const Planeta = con.define('Planeta',
         allowNull : false,
         defaultValue: "Planeta",
     }
-
 })
 
 
@@ -146,10 +162,16 @@ Usuario.afterCreate(function(usuario, opcoes)
 {
     Planeta.create({UsuarioId: usuario.dataValues.id})
 });
+Usuario.hasOne(EsqueciSenha, {foreignKey : {name : "usuarioID", allowNull : false, primaryKey : true}, onDelete : "CASCADE"})
+EsqueciSenha.removeAttribute('id');
 con.authenticate().then(function()
 {
     console.log("Conexao Criada");
-    Usuario.sync({force : false});
+    Usuario.sync({force : false}).then(function()
+    {
+        Planeta.sync({force : false})
+        EsqueciSenha.sync({force : false})
+    });
     Admin.sync({force : false}).then(function()
     {
         bcrypt.hash(process.env.GAME_DEFAULT_ADMIN_PASSWORD, 10, function(err, hash)
@@ -166,11 +188,11 @@ con.authenticate().then(function()
         });
         
     });
-    Planeta.sync({force : false})
+    
 
 }).catch(function(err)
 {
     console.log(err.parent);
 });
 
-module.exports = {Con : con, Usuario : Usuario, Admin : Admin};
+module.exports = {Con : con, Usuario : Usuario, Admin : Admin, EsqeciSenha : EsqueciSenha};

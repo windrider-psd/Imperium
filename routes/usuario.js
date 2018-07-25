@@ -2,14 +2,34 @@ var express = require('express');
 var database = require('./../model/DBModels')
 var bcrypt = require('bcrypt');
 var sanitizer = require('sanitizer')
+var emailer = require('./../model/Emailer')
 var router = express.Router();
 const conexao = database.Con;
 const Usuario = database.Usuario;
-const ops = conexao.Op;
+const Esqueci = database.EsqeciSenha;
 /* GET home page. */
 function validarEmail(email) {
   var re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
   return re.test(String(email).toLowerCase());
+}
+
+function GerarChaveEsqueci()
+{
+  var text = "";
+  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+  for (var i = 0; i < 60; i++)
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+  return text;
+}
+
+function getMensagemEsqueci(req, u, chave)
+{
+  var link = req.protocol + "://"+req.headers.host+"/recuperar-senha?u="+u+"&chave="+chave;
+  return "<html><head></head><body><p>Você recebeu essa mensagem porque você requisitou a recuperação da sua senha no jogo Imperium.</p>"
+  + "<p>Para acessar alterar sua senha, clique no link abaixo</p>"
+  +  "<a href = "+link+">"+link+"</a><br /><p>Caso esteja enfrentando alguma dificuldade, contacte o suporte</p><p>Se você não requisitou a recuperação da sua senha, por favor, ignore esta mensagem</p></body></html>";
 }
 
 router.post('/cadastrar', function(req, res) {
@@ -84,7 +104,6 @@ router.post('/login', function(req, res)
   else
   {
     var params = req.body
-    console.log(params)
     Usuario.findOne({where : 
       {
         $or:
@@ -126,6 +145,119 @@ router.post('/logout', function(req, res)
     if(err) req.status(500).end(err)
     else res.status(200).end("Logout realizado com sucesso")
   })
+});
+
+router.post('/criaresqueci', function(req, res)
+{
+  var params = req.body;
+  if(req.session.usuario)
+  {
+    res.status(403).end("Requisição inválida");
+  }
+  else if(!params.email)
+  {
+    res.status(400).end("Parâmetros inválidos");
+  }
+  else if(!validarEmail(params.email))
+  {
+    res.status(400).end("Email inválido");
+  }
+  else
+  {
+    Usuario.findOne({where: {email : params.email.toLowerCase()}}).then(function(user)
+    { 
+      if(!user)
+      {
+        res.status(400).end('Nenhuma conta em este endereço de email');
+      }
+      else
+      {
+        valores = user.dataValues;
+        Esqueci.destroy({where : {usuarioID : valores.id}}).then(function()
+        {
+          var chave = GerarChaveEsqueci();
+          Esqueci.create({chave : chave, usuarioID : valores.id}).then(function(criado)
+          {
+              var mensagem = getMensagemEsqueci(req, valores.id, criado.dataValues.chave);
+              
+              emailer.enviarEmail(valores.email, "Imperium - Recuperação de senha", mensagem, function(err, info)
+              {
+                if(err)
+                {
+                  res.status(500).end("falha ao enviar email")
+                  console.err(err);
+                  criado.destroy();
+                }
+                else
+                {
+                  res.status(200).end("Requisição criada com sucesso")
+                  console.log(info)
+                }
+              });
+          }).catch(function(err){
+            res.status(500).end(err);
+
+          });;
+        });
+      }
+    });
+  }
+});
+
+router.post('/reenviaresqueci', function(req, res)
+{
+  var params = req.body;
+  if(req.session.usuario)
+  {
+    res.status(403).end("Requisição inválida");
+  }
+  else if(!params.email)
+  {
+    res.status(400).end("Parâmetros inválidos");
+  }
+  else if(!validarEmail(params.email))
+  {
+    res.status(400).end("Email inválido");
+  }
+  else
+  {
+    Usuario.findOne({where: {email : params.email.toLowerCase()}}).then(function(user)
+    {
+      if(user)
+      {
+        Esqueci.findOne({where : {usuarioID : user.dataValues.id}}).then(function(encontrado)
+        {
+          if(encontrado)
+          {
+              var mensagem = getMensagemEsqueci(req, user.dataValues.id, encontrado.dataValues.chave);
+              emailer.enviarEmail(user.dataValues.email, "Imperium - Recuperação de senha", mensagem, function(err, info)
+              {
+                if(err)
+                {
+                  res.status(500).end("falha ao enviar email")
+                  console.err(err);
+                  criado.destroy();
+                }
+                else
+                {
+                  res.status(200).end("Requisição criada com sucesso")
+                  console.log(info);
+                }
+              });
+          }
+          else
+          {
+            res.status(400).end("Requisição inválida");
+          }
+        });
+      }
+      else
+      {
+        res.status(400).end('Nenhuma conta em este endereço de email');
+      }
+    });
+  }
+
 });
 
 module.exports = router;
