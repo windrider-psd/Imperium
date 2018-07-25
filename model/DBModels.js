@@ -131,7 +131,7 @@ const EsqueciSenha = con.define('esqueci_senha',
     },
     data_hora :
     {
-        type: sequalize.TIME,
+        type: sequalize.DATE,
         allowNull : false,
         defaultValue : sequalize.NOW
     }

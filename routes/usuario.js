@@ -1,5 +1,5 @@
 var express = require('express');
-var database = require('./../model/DBModels')
+const database = require('./../model/DBModels')
 var bcrypt = require('bcrypt');
 var sanitizer = require('sanitizer')
 var emailer = require('./../model/Emailer')
@@ -257,7 +257,55 @@ router.post('/reenviaresqueci', function(req, res)
       }
     });
   }
-
 });
+
+router.post('/resetar-senha', function(req, res)
+{
+  var params = req.body;
+  if(req.session.usuario)
+  {
+    res.status(403).end("Requisição inválida");
+  }
+  else if(!(params.senha && params.confsenha && params.id && params.chave))
+  {
+    res.status(400).end("Parâmetros inválidos");
+  }
+  else if(params.senha != params.confsenha)
+  {
+    res.status(400).end("As senhas não são iguais");
+  }
+  else
+  {
+    Esqueci.findOne({where : {usuarioID : params.id, chave : params.chave}}).then(function(resultado)
+    {
+      if(!resultado)
+      {
+        res.status(400).end("Requisição inválida");
+      } 
+      else
+      {
+        bcrypt.hash(params.senha, 10, function(err, hash)
+        {
+          if(err)
+          {
+            res.status(500).end(err);
+          }
+          else
+          {
+            Usuario.update({senha : hash}, {where : {id : params.id}, limit : 1}).then(function()
+            {
+              res.status(200).end("Senha atualizada com sucesso");
+              resultado.destroy();
+            }).catch(function(err)
+            {
+              res.status(500).end(err);
+            });
+          }
+        });
+      }
+    });
+  }
+});
+
 
 module.exports = router;
