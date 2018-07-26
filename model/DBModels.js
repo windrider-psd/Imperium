@@ -1,6 +1,11 @@
 const sequalize = require ('sequelize')
 const bcrypt = require('bcrypt')
 require('dotenv/config')
+const totalX = 500;
+const totalY = 500;
+
+
+
 const Op = sequalize.Op;
 const operatorsAlias = {
     $eq: Op.eq,
@@ -157,6 +162,38 @@ const Planeta = con.define('Planeta',
 })
 
 
+const Setor = con.define('Setor',
+{
+    id:
+    {
+        type: sequalize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    nome :
+    {
+        type: sequalize.STRING,
+        allowNull : false
+    },
+    posX :
+    {
+        type: sequalize.INTEGER,
+        allowNull : false, 
+    },
+    posY : 
+    {
+        type: sequalize.INTEGER,
+        allowNull : false,
+    },
+    tamanho :
+    {
+        type: sequalize.INTEGER,
+        allowNull : false,
+    }
+});
+
+
+
 Usuario.hasMany(Planeta);
 Usuario.afterCreate(function(usuario, opcoes)
 {
@@ -164,6 +201,48 @@ Usuario.afterCreate(function(usuario, opcoes)
 });
 Usuario.hasOne(EsqueciSenha, {foreignKey : {name : "usuarioID", allowNull : false, primaryKey : true}, onDelete : "CASCADE"})
 EsqueciSenha.removeAttribute('id');
+
+
+function gerarSetores(posX, posY)
+{
+    if(posX > totalX)
+    {
+        return;
+    }
+    else
+    {
+        var aumentarX = (posY == totalY);
+        var aumentarY = (!aumentarX);
+        Setor.create({
+            posY: posY,
+            posX: posX,
+            nome : "Setor " + posX + "-" + posY,
+            tamanho: Math.floor(Math.random() * 15) + 7, 
+        }).then(function(setor)
+        {
+            if(aumentarX)
+            {
+                posX++
+                posY = 0;
+            }
+            else if(aumentarY)
+            {
+                posY++;
+            }
+            else
+            {
+                return;
+            }
+            gerarSetores(posX, posY);
+        }).catch(function(err)
+        {
+            console.error(err);
+        });
+        
+    }
+    
+}
+
 con.authenticate().then(function()
 {
     console.log("Conexao Criada");
@@ -183,6 +262,10 @@ con.authenticate().then(function()
                 {
                     Admin.create({usuario : process.env.GAME_DEFAULT_ADMIN_USERNAME, senha : hash});
                 }
+                Setor.sync({force: true}).then(function()
+                {
+                    gerarSetores(1, 1);
+                });
             });
             
         });
@@ -195,4 +278,4 @@ con.authenticate().then(function()
     console.log(err.parent);
 });
 
-module.exports = {Con : con, Usuario : Usuario, Admin : Admin, EsqeciSenha : EsqueciSenha};
+module.exports = {Con : con, Usuario : Usuario, Admin : Admin, EsqeciSenha : EsqueciSenha, Setor : Setor};

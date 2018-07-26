@@ -197,7 +197,7 @@ router.post('/criaresqueci', function(req, res)
           }).catch(function(err){
             res.status(500).end(err);
 
-          });;
+          });
         });
       }
     });
