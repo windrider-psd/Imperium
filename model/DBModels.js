@@ -1,5 +1,6 @@
 const sequalize = require ('sequelize')
 const bcrypt = require('bcrypt')
+const yargs = require('yargs').argv;
 require('dotenv/config')
 
 const totalX = Number(process.env.UNIVERSE_SIZE_X);
@@ -57,7 +58,12 @@ const con = new sequalize(process.env.DB_NAME, process.env.DB_USER, process.env.
     timezone : 'Brazil/East',
     sync : {force : true},
     //logging: true,
-    operatorsAliases: operatorsAlias 
+    operatorsAliases: operatorsAlias,
+    define:
+    {
+        collate : 'utf8_general_ci',
+        charset : 'utf8'
+    }
     });
 
 const Usuario = con.define('Usuario', {
@@ -109,6 +115,11 @@ const Usuario = con.define('Usuario', {
         type : sequalize.BOOLEAN,
         allowNull : false,
         defaultValue : false
+    },
+    chave_ativacao :
+    {
+        type: sequalize.STRING,
+        allowNull : false,
     }
 });
 
@@ -353,17 +364,6 @@ function CriarPlaneta(sol, numero, maximo, posicoestomadas, __callback)
 
 function PopularSetor(setor, __callback)
 {
-    /*if(setor.dataValues.planetario == true)
-    {
-        var posSol = Math.ceil(setor.dataValues.tamanho / 2);
-        Sol.create({luminosidade : Math.floor(Math.random() * (150 - 30 + 1)) + 30, posX : posSol, posY: posSol, setorID : setor.dataValues.id}).then(function(sol)
-        {
-            //var planetas = Math.floor(Math.random() * (Number(process.env.UNIVERSE_SYSTEM_MAX_PLANETS) - Number(process.env.UNIVERSE_SYSTEM_MIN_PLANETS) + 1)) + Number(process.env.UNIVERSE_SYSTEM_MIN_PLANETS);
-            var QuantidadePlanetas = GerarIntAleatorio(Number(process.env.UNIVERSE_SYSTEM_MAX_PLANETS), Number(process.env.UNIVERSE_SYSTEM_MIN_PLANETS));
-            CriarPlaneta(sol.dataValues, 1, QuantidadePlanetas, [], __callback);
-        });
-    }*/
-
     if(setor.dataValues.planetario == true)
     {
         var posSol = Math.ceil(setor.dataValues.tamanho / 2);
@@ -529,7 +529,8 @@ con.authenticate().then(function()
                         {
                             Asteroide.sync({force : false}).then(function()
                             {
-                                gerarSetores(1, 1);
+                                if(yargs.create)
+                                    gerarSetores(1, 1);
                             });
                             
                         });
@@ -549,4 +550,4 @@ con.authenticate().then(function()
     console.log(err.parent);
 });
 
-module.exports = {Con : con, Usuario : Usuario, Admin : Admin, EsqeciSenha : EsqueciSenha, Setor : Setor};
+module.exports = {Con : con, Usuario : Usuario, Admin : Admin, EsqeciSenha : EsqueciSenha, Setor : Setor, Planeta : Planeta};

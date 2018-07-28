@@ -1,14 +1,25 @@
 var express = require('express');
 var router = express.Router();
-const database = require('./../model/DBModels')
-const Esqueci = database.EsqeciSenha;
+const models = require('./../model/DBModels')
 /* GET home page. */
+router.all('*', function(req, res, next)
+{
+  next();
+});
 router.get('/', function(req, res) {
   if(req.session.usuario)
     res.render('inicial', { session: req.session.usuario });
   else
     res.render('login');
 });
+router.get('/opcoes', function(req, res)
+{
+  if(req.session.usuario)
+    res.render('opcoes', { session: req.session.usuario });
+  else
+    res.status(403).render('login');
+});
+
 router.get('/login', function(req, res) {
   if(req.session.usuario)
     res.render('inicial', { session: req.session.usuario });
@@ -35,7 +46,7 @@ router.get('/recuperar-senha', function(req, res){
   }
   else
   {
-    Esqueci.findOne({where : {usuarioID : uid, chave : chave}}).then(function(encontrado)
+    models.EsqeciSenha.findOne({where : {usuarioID : uid, chave : chave}}).then(function(encontrado)
     {
       if(!encontrado)
       {
@@ -47,7 +58,6 @@ router.get('/recuperar-senha', function(req, res){
         var datareq = new Date(encontrado.dataValues.data_hora);
         var diffMs = (agora - datareq); 
         var diffHrs = Math.floor((diffMs % 86400000) / 3600000); // hours
-        console.log(diffHrs);
         if(diffHrs > 72)
         {
           res.render('recuperar-senha', {erro : 2});
@@ -63,5 +73,50 @@ router.get('/recuperar-senha', function(req, res){
 
 });
 
+router.get("/ativar", function(req, res)
+{
+  var params = req.query;
+  if(!(params.u && params.chave))
+  {
+    res.status(400).render('ativar', {erro : 1}); //Link inválido
+  }
+  else if(req.session.usuario && req.session.usuario.ativo == true)
+  {
+    res.status(202).render('ativar', {erro : 2}); // Conta já ativada
+  }
+  else 
+  {
+    models.Usuario.findOne({where : {id : params.u}, attributes : ['id', 'ativo', 'chave_ativacao']}).then(function(user){
+      if(!user)
+      {
+        res.status(400).render('ativar', {erro : 1}); //Link inválido
+      }
+      else if(user.ativo == true)
+      {
+        res.status(202).render('ativar', {erro : 2}); // Conta já ativada
+      }
+      else if(user.chave_ativacao != params.chave)
+      {
+        res.status(400).render('ativar', {erro : 1}); //Link inválido
+      }
+      else
+      {
+        user.ativo = true;
+        user.save().then(function()
+        {
+          if(req.session.usuario)
+          {
+            req.session.usuario.ativo = true;
+          }
+          res.status(200).render('ativar', {erro : 0}); // Sucesso
+        }).catch(function(err)
+        {
+          res.status(500).render('ativar', {erro : 3}); //erro ao ativar
+        });
+      }
+
+    });
+  }
+});
 
 module.exports = router;

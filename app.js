@@ -8,12 +8,18 @@ var paginaRouter = require('./routes/paginas');
 var usuarioRouter = require('./routes/usuario');
 var browserify = require('browserify-middleware');
 var session = require('express-session')
+var helmet = require('helmet');
+var DDDoS = require('dddos');
 
 var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
+app.use(helmet());
+app.use(new DDDoS({
+  maxWeight: 100
+}).express('ip', 'path'));
 
 app.use(logger('dev'));
 app.use(express.json());
