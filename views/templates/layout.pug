@@ -18,11 +18,11 @@ html
     script(src="js/jquery.js")
     script(src="js/socket.io.js")
     - if(typeof(session) !== 'undefined'){
-      .script
+      script.
         const uID = !{session.id};
-        const uNick = !{session.nick};
-        const uEmail = !{session.email};
-        const uAtivo = !{session.ativo};
+        var uNick = '!{session.nick}';
+        var uEmail = '!{session.email}';
+        var uAtivo = !{session.ativo};
     -}
     
   body

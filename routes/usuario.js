@@ -4,6 +4,7 @@ var bcrypt = require('bcrypt');
 var sanitizer = require('sanitizer')
 var emailer = require('./../model/Emailer')
 var router = express.Router();
+var random = require('./../model/Aleatorio')
 const conexao = database.Con;
 const Usuario = database.Usuario;
 const Esqueci = database.EsqeciSenha;
@@ -52,70 +53,120 @@ function EnviarEmailAtivacao(req, id, chave, email)
   var mensagem = "<html><head></head><body><p>Você recebeu essa mensagem porque você criou uma conta no jogo Imperium.</p>"
   + "<p>Para ativar sua senha, clique no link abaixo</p>"
   +  "<a href = "+link+">"+link+"</a><br /><p>Caso esteja enfrentando alguma dificuldade, contacte o suporte</p><p>Se esta mensagem não para você, por favor, ignore esta mensagem</p></body></html>";
-  emailer.enviarEmail(email, "Imperium - Ativar Conta", mensagem);
+  console.log(email);
+  emailer.enviarEmail(email, "Imperium - Ativar Conta", mensagem, function(err, info)
+  {
+    if(err) console.log(err)
+    console.log(info);
+   });
 }
 
 router.post('/cadastrar', function(req, res) {
-
-  var params = req.body;
-  if(!(params.senha && params.confsenha && params.nick && params.email))
+  conexao.query("SELECT * FROM setors as setor WHERE setor.planetario = 1 and setor.usuarioID = NULL and exists(SELECT * FROM planeta as plat where plat.habitavel = 1 and plat.setorID = setor.id)").then(function(setores)
   {
-    res.status(400).end("Parâmetros inválidos")
-    return;
-  }
-  params.nick = sanitizer.escape(params.nick);
-  params.email = sanitizer.escape(params.email);
-  if(params.senha != params.confsenha)
-  {
-    res.status(400).end("As senhas não são iguais.");
-    return;
-  }
-  if(params.nick.length < 4)
-  {
-    res.status(400).end("O nick precisa conter pelo menos 4 caracteres");
-    return;
-  }
-  if(!validarEmail(params.email))
-  {
-    res.status(400).end("O email digitado não é valido");
-    return;
-  }
-  bcrypt.hash(params.senha, 10, function(err, hash)
-  {  
-    if(err)
-      res.status(500).end(err);
+    if(setores.length == 0)
+    {
+      res.status(503).end("Numero máximo de contas cadastradas alcançado");
+    }
     else
     {
-      Usuario.create({nick : params.nick, email : params.email, senha : hash, chave_ativacao : GerarChave()}).then(function(data)
+      var params = req.body;
+
+      if(!(params.senha && params.confsenha && params.nick && params.email))
       {
-        req.session.usuario = data.dataValues;
+        res.status(400).end("Parâmetros inválidos")
+        return;
+      }
+      params.nick = sanitizer.escape(params.nick);
+      params.email = sanitizer.escape(params.email);
+      if(params.senha != params.confsenha)
+      {
+        res.status(400).end("As senhas não são iguais.");
+        return;
+      }
+      if(params.nick.length < 4)
+      {
+        res.status(400).end("O nick precisa conter pelo menos 4 caracteres");
+        return;
+      }
+      if(!validarEmail(params.email))
+      {
+        res.status(400).end("O email digitado não é valido");
+        return;
+      }
+      bcrypt.hash(params.senha, 10, function(err, hash)
+      { 
         
-        res.status(200).end("Conta Cadastrada com sucesso");
-        EnviarEmailAtivacao(req, data.id, data.chave_ativacao, data.email);
-      }).catch(conexao.ValidationError, function(err)
-      {
-        var path = err.errors[0].path;
-        if(err.errors[0].type == "unique violation")
-        {
-          switch(path)
-          {
-            case "nick":
-              res.status(400).end("Nick "+params.nick + " já cadastrado. Escolha outro");
-              break;
-            case "email":
-              res.status(400).end("Email "+params.email + " já cadastrado. Escolha outro");
-              break;
-            default:
-              res.status(500).end(err.errors[0].message);
-          }
-        }
+        if(err)
+          res.status(500).end(err);
         else
         {
-          res.status(500).end(err.errors[i].message);
+         conexao.transaction().then(function(transacao)
+         {
+          Usuario.create({nick : params.nick, email : params.email, senha : hash, chave_ativacao : GerarChave()}, {transacao}).then(function(data)
+          {
+            var setorInicial 
+            while(true)
+            {
+              setorInicial = setores[random.GerarIntAleatorio(setores.length - 1, 0)];
+              break;
+              Planeta.findAll({where : {setorID : setorInicial.id}, transacao}).then(function()
+              {
+                
+              }).catch(function()
+              {
+                transacao.rollback();
+                res.status(500).end("Houve um erro ao criar a conta");
+                return;
+              })
+            }
+           
+            Setor.update({usuarioID : data.id}, {where : {id : setorInicial.id}, transacao}).then(function()
+            {
+
+              
+              transacao.commit();
+              req.session.usuario = data.dataValues;
+              res.status(200).end("Conta Cadastrada com sucesso");
+              EnviarEmailAtivacao(req, data.id, data.chave_ativacao, data.email);
+            }).catch(function(err)
+            {
+              transacao.rollback();
+              res.status(500).end("Houve um erro ao criar a conta");
+            });
+
+            
+          }).catch(conexao.ValidationError, function(err)
+          {
+            transacao.rollback();
+            var path = err.errors[0].path;
+            if(err.errors[0].type == "unique violation")
+            {
+              switch(path)
+              {
+                case "nick":
+                  res.status(400).end("Nick "+params.nick + " já cadastrado. Escolha outro");
+                  break;
+                case "email":
+                  res.status(400).end("Email "+params.email + " já cadastrado. Escolha outro");
+                  break;
+                default:
+                  res.status(500).end(err.errors[0].message);
+              }
+            }
+            else
+            {
+              res.status(500).end(err.errors[i].message);
+            }
+          })
+         }); 
+          
         }
-      })
+      });
     }
   });
+
+
   
 });
 
@@ -512,6 +563,23 @@ router.post('enviar-ativacao', function(req, res)
         res.status(200).end("Email de ativação enviado");
       }
     });
+  }
+});
+
+router.post('/enviar-ativacao', function(req, res)
+{
+  if(!req.session.usuario)
+  {
+    res.status(403).end("Requisição inválida");
+  }
+  else if(req.session.usuario.ativo)
+  {
+    res.status(400).end("Conta já está ativada");
+  }
+  else
+  {
+    EnviarEmailAtivacao(req, req.session.usuario.id, req.session.usuario.chave_ativacao, req.session.usuario.email);
+    res.status(200).end("Email enviado");
   }
 });
 

@@ -48,6 +48,30 @@ block content
           
 block posscripts
   script.
+      $("#btn-enviar-ativo").on('click', function()
+      {
+        var btn = $(this);
+        $.ajax({
+        method : "POST",
+        url : "usuario/enviar-ativacao",
+        beforeSend : function()
+        {
+          btn.html("Enviando...");
+        },
+        success : function()
+        {
+          GerarNotificacao("Mensagem enviada para " + uEmail + ".", "success");
+        },
+        error : function(mensagem)
+        {
+          GerarNotificacao(mensagem.responseText, "danger");
+        },
+        complete : function()
+        {
+          btn.html("Reenviar email de ativação");
+        }
+      });
+    });
     $("#form-alterar-nick").on('submit', function()
     {
       var info = FormToAssocArray($(this));
@@ -118,6 +142,7 @@ block posscripts
         success : function()
         {
           GerarNotificacao("Senha alterada com sucesso", "success");
+          uAtivo = true;
         },
         error : function(erro)
         {

@@ -299,7 +299,7 @@ EsqueciSenha.removeAttribute('id');
 Setor.hasOne(Sol, {foreignKey : {name : "setorID", allowNull : false}, onDelete : "CASCADE"})
 Setor.hasMany(Planeta, {foreignKey : {name : "setorID", allowNull : false}, onDelete : "CASCADE"})
 Setor.hasMany(Asteroide, {foreignKey : {name : "setorID", allowNull : false}, onDelete : "CASCADE"})
-Usuario.hasMany(Setor, {foreignKey : {name : "usuarioID", allowNull : true}, onDelete : "CASCADE"})
+Usuario.hasMany(Setor, {foreignKey : {name : "usuarioID", allowNull : true}, onDelete: "SET NULL"})
 
 function CriarPlaneta(sol, numero, maximo, posicoestomadas, __callback)
 {  
