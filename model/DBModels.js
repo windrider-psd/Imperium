@@ -5,7 +5,7 @@ require('dotenv/config')
 
 const totalX = Number(process.env.UNIVERSE_SIZE_X);
 const totalY = Number(process.env.UNIVERSE_SIZE_Y);
-
+var ready = false;
 function GerarIntAleatorio(max, min)
 {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -200,7 +200,20 @@ const Planeta = con.define('Planeta',
         type:sequalize.BOOLEAN,
         allowNull : false,
         defaultValue : false
+    },
+    recursoFerro :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0,
+    },
+    minaFerro :
+    {
+        type :  sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0
     }
+    
 }, {timestamps : false})
 
 
@@ -291,7 +304,7 @@ const Asteroide = con.define("Asteroide", {
 
 Usuario.afterDestroy(function(usuario, opcoes)
 {
-    con.query("update planeta set colonizado = 0 where exists(select * from setors where setors.usuarioID = "+usuario.id+")").spread(function()
+    con.query("update planeta set colonizado = 0, recursoFerro = 650, minaFerro = 0  where exists(select * from setors where setors.usuarioID = "+usuario.id+")").spread(function()
     {
         con.query("update asteroides set extracao = 0 where exists(select * from setors where setors.usuarioID = "+usuario.id+")").spread(function()
         {
@@ -375,7 +388,6 @@ function PopularSetor(setor, __callback)
         var posSol = Math.ceil(setor.dataValues.tamanho / 2);
         Sol.create({luminosidade : Math.floor(Math.random() * (150 - 30 + 1)) + 30, posX : posSol, posY: posSol, setorID : setor.dataValues.id}).then(function(sol)
         {
-            
             var maximo = (setor.dataValues.planetario == true) ? GerarIntAleatorio(Number(process.env.UNIVERSE_SYSTEM_MAX_PLANETS), Number(process.env.UNIVERSE_SYSTEM_MIN_PLANETS)) : 0;
             CriarPlaneta(sol.dataValues, 1, maximo, [], __callback);
         });
@@ -398,6 +410,7 @@ function CriarAsteroide(setorr,numero, maximo, posicoestomadas)
 {
     if(numero > maximo)
     {
+        ready = true;
         return;
     }
     var posX;
@@ -508,47 +521,74 @@ function gerarSetores(posX, posY)
     }
     
 }
-
+module.exports = {Con : con, Usuario :  Usuario, Admin : Admin, EsqeciSenha : EsqueciSenha, Setor : Setor, Planeta : Planeta, isReady : function(){return ready;}};
+function SyncDatabase()
+{
+    Usuario.sync({force : yargs.create}).then(function()
+    {
+        EsqueciSenha.sync({force : yargs.create})
+        Admin.sync({force : yargs.create}).then(function()
+        {
+            bcrypt.hash(process.env.GAME_DEFAULT_ADMIN_PASSWORD, 10, function(err, hash)
+            {
+                if(err) throw err
+                Admin.count({}).then(function(contagem)
+                {
+                    if(contagem == 0)
+                    {
+                        Admin.create({usuario : process.env.GAME_DEFAULT_ADMIN_USERNAME, senha : hash});
+                    }
+                    Setor.sync({force: yargs.create}).then(function()
+                    {
+                        Sol.sync({force: yargs.create}).then(function()
+                        {
+                            Planeta.sync({force : yargs.create}).then(function()
+                            {
+                                Asteroide.sync({force : yargs.create}).then(function()
+                                {
+                                    if(yargs.create)
+                                        gerarSetores(1, 1);
+                                    else
+                                    {
+                                        ready = true;
+                                    }
+                                }); 
+                            });
+                        });  
+                    });
+                }); 
+            });    
+        });
+    });
+    
+}
 con.authenticate().then(function()
 {
     console.log("Conexao Criada");
-    Usuario.sync({force : false}).then(function()
+    
+    if(yargs.create)
     {
-        EsqueciSenha.sync({force : false})
-    });
-    Admin.sync({force : false}).then(function()
-    {
-        bcrypt.hash(process.env.GAME_DEFAULT_ADMIN_PASSWORD, 10, function(err, hash)
-        {
-            if(err) throw err
-            Admin.count({}).then(function(contagem)
-            {
-                if(contagem == 0)
-                {
-                    Admin.create({usuario : process.env.GAME_DEFAULT_ADMIN_USERNAME, senha : hash});
-                }
-                Setor.sync({force: false}).then(function()
-                {
-                    Sol.sync({force: false}).then(function()
-                    {
-                        Planeta.sync({force : false}).then(function()
-                        {
-                            Asteroide.sync({force : false}).then(function()
-                            {
-                                if(yargs.create)
-                                    gerarSetores(1, 1);
-                            });
-                            
-                        });
-                    });
-                    
-                    
+        const queryInterface = con.getQueryInterface();
+        return queryInterface.showAllTables()
+        .then(tableNames => {
+            return Promise.all(tableNames.map(tableName => {
+                return queryInterface.showConstraint(tableName)
+                .then(constraints => {
+                    return Promise.all(constraints.map(constraint => {
+                        if (constraint.constraintType === 'FOREIGN KEY') {
+                            return queryInterface.removeConstraint(tableName, constraint.constraintName);
+                        }
+                    }));
                 });
-            });
-            
-        });
-        
-    });
+            }));
+        })
+        .then(SyncDatabase());
+    }
+    else
+    {
+        SyncDatabase();
+    }
+    
     
 
 }).catch(function(err)
@@ -556,4 +596,4 @@ con.authenticate().then(function()
     console.log(err.parent);
 });
 
-module.exports = {Con : con, Usuario : Usuario, Admin : Admin, EsqeciSenha : EsqueciSenha, Setor : Setor, Planeta : Planeta};
+

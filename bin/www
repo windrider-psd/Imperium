@@ -7,6 +7,9 @@
 var app = require('../app');
 var debug = require('debug')('jogo:server');
 var http = require('http');
+const Croner = require('./../model/Croner');
+Croner.Recursos.start();
+
 
 /**
  * Get port from environment and store in Express.
