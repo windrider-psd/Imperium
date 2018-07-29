@@ -23,11 +23,27 @@ html
         var uNick = '!{session.nick}';
         var uEmail = '!{session.email}';
         var uAtivo = !{session.ativo};
+        var userdata = !{userdata};
     -}
-    
+    - if(typeof(userdata) !== 'undefined')
+      - var userdataOBJ = JSON.parse(userdata);
   body
     main
+      -if(userdataOBJ)
+        each data in userdataOBJ
+          ul
+            li
+              a(href="/setor?id=" + data.setor.id)= data.setor.nome
+                |  [!{data.setor.posX}, !{data.setor.posY}]
+              ul
+                each planeta in data.planetas
+                  if(planeta.colonizado)
+                    li 
+                      a(href = "/planeta?id=" + planeta.id)= planeta.nome
+                        |  [!{planeta.posX}, !{planeta.posY}]
       block content
+      
+       
     script(src="js/bootstrap.min.js")
     script(src="js/bootbox.min.js")
     script(src="js/bootstrap-notify.min.js")

@@ -1,6 +1,11 @@
 a {
   color: #00B7FF;
 }
+main
+{
+  margin-top: 60px;
+  
+}
 .send-button{
   background: #54C7C3;
   width:100%;

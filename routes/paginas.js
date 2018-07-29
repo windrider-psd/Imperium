@@ -2,27 +2,74 @@ var express = require('express');
 var router = express.Router();
 const models = require('./../model/DBModels')
 /* GET home page. */
+
+function GetPlanetasSetor(setores, resultado, __callback, i)
+{
+  var index = (i) ? i : 0; 
+  if(index < setores.length)
+  {
+    var setor = setores[index];
+    models.Planeta.findAll({where : {setorID : setor.id}}).then(function(planetas)
+    {
+      var resPush = {setor : setor.dataValues, planetas :[]};
+      for(var j = 0; j < planetas.length; j++)
+      {
+        resPush.planetas.push(planetas[j]);
+      }
+      var proximo = index + 1;
+      resultado.push(resPush);
+      GetPlanetasSetor(setores, resultado, __callback, proximo);
+    });
+  }
+  else
+  {
+    __callback(resultado)
+  }
+
+}
+
 router.all('*', function(req, res, next)
 {
-  next();
+  if(req.session.usuario)
+  {
+    models.Setor.findAll({where : {usuarioID : req.session.usuario.id}}).then(function(setores)
+    {
+      req.userdata = {};
+      req.userdata.setores = [];
+      if(setores.length > 0)
+      {     
+        GetPlanetasSetor(setores, [], function(resultado)
+        {
+          req.userdata.setores = resultado;
+          next();
+        });
+      }
+      else
+      {
+        next();
+      }
+    }); 
+  }
+  else
+    next();
 });
 router.get('/', function(req, res) {
   if(req.session.usuario)
-    res.render('inicial', { session: req.session.usuario });
+    res.render('inicial', { session: req.session.usuario, userdata : JSON.stringify(req.userdata.setores)});
   else
     res.render('login');
 });
 router.get('/opcoes', function(req, res)
 {
   if(req.session.usuario)
-    res.render('opcoes', { session: req.session.usuario });
+    res.render('opcoes', { session: req.session.usuario, userdata : JSON.stringify(req.userdata.setores) });
   else
     res.status(403).render('login');
 });
 
 router.get('/login', function(req, res) {
   if(req.session.usuario)
-    res.render('inicial', { session: req.session.usuario });
+    res.render('inicial', { session: req.session.usuario, userdata : JSON.stringify(req.userdata.setores)  });
   else
     res.render('login');
 });
@@ -30,8 +77,10 @@ router.get('/cadastrar', function(req, res) {
   res.render('cadastrar');
 });
 router.get('/inicial', function(req, res) {
-  if(req.session.usuario) 
-    res.render('inicial', { session: req.session.usuario });
+  if(req.session.usuario)
+  {
+    res.render('inicial', { session: req.session.usuario, userdata : JSON.stringify(req.userdata.setores) });
+  }
   else 
     res.render('login');
 });
