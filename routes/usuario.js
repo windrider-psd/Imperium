@@ -53,7 +53,6 @@ function EnviarEmailAtivacao(req, id, chave, email)
   var mensagem = "<html><head></head><body><p>Você recebeu essa mensagem porque você criou uma conta no jogo Imperium.</p>"
   + "<p>Para ativar sua senha, clique no link abaixo</p>"
   +  "<a href = "+link+">"+link+"</a><br /><p>Caso esteja enfrentando alguma dificuldade, contacte o suporte</p><p>Se esta mensagem não para você, por favor, ignore esta mensagem</p></body></html>";
-  console.log(email);
   emailer.enviarEmail(email, "Imperium - Ativar Conta", mensagem, function(err, info)
   {
     if(err) console.log(err)
@@ -62,7 +61,7 @@ function EnviarEmailAtivacao(req, id, chave, email)
 }
 
 router.post('/cadastrar', function(req, res) {
-  conexao.query("SELECT * FROM setors as setor WHERE setor.planetario = 1 and setor.usuarioID = NULL and exists(SELECT * FROM planeta as plat where plat.habitavel = 1 and plat.setorID = setor.id)").then(function(setores)
+  conexao.query("SELECT * FROM setors as setor WHERE setor.planetario = 1 and setor.usuarioID is NULL and exists(SELECT * FROM planeta as plat where plat.habitavel = 1 and plat.setorID = setor.id)").spread(function(setores)
   {
     if(setores.length == 0)
     {
@@ -103,33 +102,32 @@ router.post('/cadastrar', function(req, res) {
         {
          conexao.transaction().then(function(transacao)
          {
-          Usuario.create({nick : params.nick, email : params.email, senha : hash, chave_ativacao : GerarChave()}, {transacao}).then(function(data)
+          Usuario.create({nick : params.nick, email : params.email, senha : hash, chave_ativacao : GerarChave()}, {transaction : transacao}).then(function(data)
           {
-            var setorInicial 
-            while(true)
+            var setorInicial = setores[random.GerarIntAleatorio(setores.length - 1, 0)];
+            Setor.update({usuarioID : data.id}, {where : {id : setorInicial.id}, transaction: transacao}).then(function()
             {
-              setorInicial = setores[random.GerarIntAleatorio(setores.length - 1, 0)];
-              break;
-              Planeta.findAll({where : {setorID : setorInicial.id}, transacao}).then(function()
-              {
+              
+              Planeta.findAll({where : {setorID : setorInicial.id}, transaction: transacao}).then(function(planetas){
+                var planetaInicial = planetas[random.GerarIntAleatorio(planetas.length - 1, 0)];
                 
+                Planeta.update({colonizado : true}, {where : {id : planetaInicial.id}, transaction: transacao}).then(function()
+                {
+                  transacao.commit();
+                  req.session.usuario = data.dataValues;
+                  res.status(200).end("Conta Cadastrada com sucesso");
+                  EnviarEmailAtivacao(req, data.id, data.chave_ativacao, data.email);
+                }).catch(function()
+                {
+                  transacao.rollback();
+                  res.status(500).end("Houve um erro ao criar a conta");
+                });;
               }).catch(function()
               {
                 transacao.rollback();
                 res.status(500).end("Houve um erro ao criar a conta");
-                return;
-              })
-            }
-           
-            Setor.update({usuarioID : data.id}, {where : {id : setorInicial.id}, transacao}).then(function()
-            {
-
-              
-              transacao.commit();
-              req.session.usuario = data.dataValues;
-              res.status(200).end("Conta Cadastrada com sucesso");
-              EnviarEmailAtivacao(req, data.id, data.chave_ativacao, data.email);
-            }).catch(function(err)
+              });
+            }).catch(function()
             {
               transacao.rollback();
               res.status(500).end("Houve um erro ao criar a conta");
@@ -267,7 +265,6 @@ router.post('/criaresqueci', function(req, res)
                 else
                 {
                   res.status(200).end("Requisição criada com sucesso")
-                  console.log(info)
                 }
               });
           }).catch(function(err){

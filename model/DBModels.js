@@ -289,11 +289,17 @@ const Asteroide = con.define("Asteroide", {
     }
 }, {timestamps :false});
 
-//Usuario.hasMany(Planeta);
-/*Usuario.afterCreate(function(usuario, opcoes)
+Usuario.afterDestroy(function(usuario, opcoes)
 {
-    Planeta.create({UsuarioId: usuario.dataValues.id})
-});*/
+    con.query("update planeta set colonizado = 0 where exists(select * from setors where setors.usuarioID = "+usuario.id+")").spread(function()
+    {
+        con.query("update asteroides set extracao = 0 where exists(select * from setors where setors.usuarioID = "+usuario.id+")").spread(function()
+        {
+            con.query("update setors set usuarioID = NULL where usuarioID = " + usuario.id);
+        })
+    });
+});
+
 Usuario.hasOne(EsqueciSenha, {foreignKey : {name : "usuarioID", allowNull : false, primaryKey : true}, onDelete : "CASCADE"})
 EsqueciSenha.removeAttribute('id');
 Setor.hasOne(Sol, {foreignKey : {name : "setorID", allowNull : false}, onDelete : "CASCADE"})
