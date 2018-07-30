@@ -159,8 +159,6 @@ const EsqueciSenha = con.define('esqueci_senha',
     }
 }, {timestamps : false, },);
 
-//EsqueciSenha.hasOne(Usuario, {onDelete : "CASCADE", foreignKey:'usuarioID'});
-
 
 const Planeta = con.define('Planeta', 
 {
@@ -209,6 +207,18 @@ const Planeta = con.define('Planeta',
         defaultValue : 0,
     },
     minaFerro :
+    {
+        type :  sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0
+    },
+    recursoCristal :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0,
+    },
+    minaCristal :
     {
         type :  sequalize.INTEGER,
         allowNull : false,
@@ -305,7 +315,7 @@ const Asteroide = con.define("Asteroide", {
 
 Usuario.afterDestroy(function(usuario, opcoes)
 {
-    con.query("update planeta set colonizado = 0, recursoFerro = 0, minaFerro = 0  where exists(select * from setors where setors.usuarioID = "+usuario.id+")").spread(function()
+    con.query("update planeta set colonizado = 0, recursoFerro = 0, minaFerro = 0, recursoCristal = 0, minaCristal = 0  where exists(select * from setors where setors.usuarioID = "+usuario.id+")").spread(function()
     {
         con.query("update asteroides set extracao = 0 where exists(select * from setors where setors.usuarioID = "+usuario.id+")").spread(function()
         {
@@ -570,7 +580,7 @@ function SyncDatabase()
     
 }
 
-function ClearForeignKeys(erro)
+function ClearForeignKeys()
 {
     const queryInterface = con.getQueryInterface();
         queryInterface.showAllTables().then(tableNames => {

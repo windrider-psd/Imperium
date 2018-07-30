@@ -1,8 +1,6 @@
 var models = require('./DBModels');
 var cron = require('node-cron');
 var GerenciadorRecursos = require('./GerenciadorRecursos');
-const baseFerro = Math.ceil(60 / 6);
-const baseMinaFerro = Math.ceil(45 / 6);
 var adicionarRecurso = cron.schedule('*/10 * * * * *', function()
 {
     if(models.isReady())
@@ -11,8 +9,9 @@ var adicionarRecurso = cron.schedule('*/10 * * * * *', function()
         {
             planetas.forEach(function(planeta)
             {
-                var updateFerro = GerenciadorRecursos.GetProducaoFerro(planeta.minaFerro) + planeta.recursoFerro; 
-                models.Planeta.update({recursoFerro : updateFerro}, {where : {id : planeta.id}});
+                var updateFerro = GerenciadorRecursos.ferro.GetProducao(planeta.minaFerro) + planeta.recursoFerro; 
+                var updateCristal = GerenciadorRecursos.cristal.GetProducao(planeta.minaCristal) + planeta.recursoCristal;
+                models.Planeta.update({recursoFerro : updateFerro, recursoCristal : updateCristal}, {where : {id : planeta.id}});
             });
         });
     }

@@ -107,11 +107,10 @@ router.post('/cadastrar', function(req, res) {
             var setorInicial = setores[random.GerarIntAleatorio(setores.length - 1, 0)];
             Setor.update({usuarioID : data.id}, {where : {id : setorInicial.id}, transaction: transacao}).then(function()
             {
-              
               Planeta.findAll({where : {setorID : setorInicial.id}, transaction: transacao}).then(function(planetas){
                 var planetaInicial = planetas[random.GerarIntAleatorio(planetas.length - 1, 0)];
                 
-                Planeta.update({colonizado : true, recursoFerro : 500 }, {where : {id : planetaInicial.id}, transaction: transacao}).then(function()
+                Planeta.update({colonizado : true, recursoFerro : 500, recursoCristal : 300 }, {where : {id : planetaInicial.id}, transaction: transacao}).then(function()
                 {
                   transacao.commit();
                   req.session.usuario = data.dataValues;

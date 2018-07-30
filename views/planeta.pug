@@ -14,25 +14,88 @@ block content
             br
             | Producao: 
             span.recurso-producao.text-success
+        li#recurso-cristal Cristal: 
+            br
+            | Atual: 
+            span.recurso-atual
+            br
+            | Producao: 
+            span.recurso-producao.text-success
+    h2 Edificios
+    #edificio-ferro
+        h4 Mina de ferro
+        span nivel: 
+            span.edificio-nivel
+        br
+        span Custo de melhoria
+        ul
+            li.custo-ferro Ferro: 
+                span
+            li.custo-cristal Cristal: 
+                span
+        span Diferença em produção com melhoria: 
+            b
+                span.edificio-melhoria-producao.text-success
+        br
+        button.btn.btn-success.btn-sm.btn-melhorar-edificio Melhorar
+    #edificio-cristal
+        h4 Mina de Cristal
+        span nivel: 
+            span.edificio-nivel
+        br
+        span Custo de melhoria
+        ul
+            li.custo-ferro Ferro: 
+                span
+            li.custo-cristal Cristal: 
+                span
+        span Diferença em produção com melhoria: 
+            b
+                span.edificio-melhoria-producao.text-success
+        br
+        button.btn.btn-success.btn-sm.btn-melhorar-edificio Melhorar
+
 
 
 block posscripts
     script.
         var query = window.location.search.substring(1);
         var qs = parse_query_string(query);
+        var planeta = null;
+
+        function GetEdificios()
+        {
+            var custoMinaFerro = GetCustoUpgradeMinaFerro(planeta.minaFerro + 1);
+            $("#edificio-ferro .edificio-nivel").text(planeta.minaFerro);
+            $("#edificio-ferro .custo-ferro span").text(custoMinaFerro.ferro);
+            $("#edificio-ferro .custo-cristal span").text(custoMinaFerro.cristal);
+            $("#edificio-ferro .edificio-melhoria-producao").text("+" + String(GetProducaoFerro(planeta.minaFerro + 1) - GetProducaoFerro(planeta.minaFerro)));
+
+            var custoMinaCristal = GetCustoUpgradeMinaCristal(planeta.minaFerro + 1);
+            $("#edificio-cristal .edificio-nivel").text(planeta.minaCristal);
+            $("#edificio-cristal .custo-ferro span").text(custoMinaCristal.ferro);
+            $("#edificio-cristal .custo-cristal span").text(custoMinaCristal.cristal);
+            $("#edificio-cristal .edificio-melhoria-producao").text("+" + String(GetProducaoCristal(planeta.minaCristal + 1) - GetProducaoCristal(planeta.minaCristal)));
+        }
+        function GetRecursos()
+        {
+            $("#recurso-ferro .recurso-atual").text(planeta.recursoFerro);
+            $("#recurso-ferro .recurso-producao").text("+" + GetProducaoFerro(planeta.minaCristal) * 6 + "/minuto" );
+            $("#recurso-cristal .recurso-atual").text(planeta.recursoCristal);
+            $("#recurso-cristal .recurso-producao").text("+" + GetProducaoCristal(planeta.minaCristal) * 6 + "/minuto" );
+        }
+
         for(let i = 0; i < userdata.length; i++)
         {
             var esta = false;
             let j;
             for(j = 0; j < userdata[i].planetas.length; j++)
             {
-                let planeta = userdata[i].planetas[j];
-                if(planeta.id == qs.id)
+                let planetaAtual = userdata[i].planetas[j];
+                if(planetaAtual.id == qs.id)
                 {
+                    planeta = planetaAtual;
                     esta = true;
-                    $("#nome-planeta").text(planeta.nome);
-                    $("#recurso-ferro .recurso-atual").text(planeta.recursoFerro);
-                    $("#recurso-ferro .recurso-producao").text("+" + GetProducaoFerro(planeta.minaFerro) * 6 + "/hora" );
                     break;
                 }
             }
@@ -41,4 +104,11 @@ block posscripts
                 GerarNotificacao("Planeta não encontrado", "danger");
             }
         }
+
+        $("#nome-planeta").text(planeta.nome);
+        GetRecursos();
+        GetEdificios();
+
+
+
     
