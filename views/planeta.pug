@@ -1,0 +1,44 @@
+extends templates/layout
+block titulo
+  | Visão Geral
+block content     
+    include includes/navbar
+    h1#nome-planeta
+
+    h2 Recursos
+    ul
+        li#recurso-ferro Ferro: 
+            br
+            | Atual: 
+            span.recurso-atual
+            br
+            | Producao: 
+            span.recurso-producao.text-success
+
+
+block posscripts
+    script.
+        var query = window.location.search.substring(1);
+        var qs = parse_query_string(query);
+        for(let i = 0; i < userdata.length; i++)
+        {
+            var esta = false;
+            let j;
+            for(j = 0; j < userdata[i].planetas.length; j++)
+            {
+                let planeta = userdata[i].planetas[j];
+                if(planeta.id == qs.id)
+                {
+                    esta = true;
+                    $("#nome-planeta").text(planeta.nome);
+                    $("#recurso-ferro .recurso-atual").text(planeta.recursoFerro);
+                    $("#recurso-ferro .recurso-producao").text("+" + GetProducaoFerro(planeta.minaFerro) * 6 + "/hora" );
+                    break;
+                }
+            }
+            if(!esta)
+            {
+                GerarNotificacao("Planeta não encontrado", "danger");
+            }
+        }
+    

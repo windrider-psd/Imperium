@@ -84,6 +84,14 @@ router.get('/inicial', function(req, res) {
   else 
     res.render('login');
 });
+router.get('/planeta', function(req, res) {
+  if(req.session.usuario)
+  {
+    res.render('planeta', { session: req.session.usuario, userdata : JSON.stringify(req.userdata.setores) });
+  }
+  else 
+    res.render('login');
+});
 
 router.get('/recuperar-senha', function(req, res){
   var uid = req.query.u;

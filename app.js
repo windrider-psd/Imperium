@@ -12,6 +12,8 @@ var helmet = require('helmet');
 var DDDoS = require('dddos');
 
 var app = express();
+browserify.settings.minify = true;
+browserify.settings.insertGlobals = true;
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -30,6 +32,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); 
 app.use(session({resave: true, saveUninitialized : true, secret : 'uijn4unip32nur324p23u'}));
 app.get('/js/bundle_chart.js', browserify(['chartjs', 'chartjs-plugin-zoom']));
+app.get('/js/recursos.js', browserify(__dirname + "/model/GerenciadorRecursos.js"));
 app.use('/', paginaRouter);
 app.use('/usuario', usuarioRouter);
 // catch 404 and forward to error handler
