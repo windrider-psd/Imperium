@@ -111,7 +111,7 @@ router.post('/cadastrar', function(req, res) {
               Planeta.findAll({where : {setorID : setorInicial.id}, transaction: transacao}).then(function(planetas){
                 var planetaInicial = planetas[random.GerarIntAleatorio(planetas.length - 1, 0)];
                 
-                Planeta.update({colonizado : true, recursoFerro : 500}, {where : {id : planetaInicial.id}, transaction: transacao}).then(function()
+                Planeta.update({colonizado : true, recursoFerro : 500 }, {where : {id : planetaInicial.id}, transaction: transacao}).then(function()
                 {
                   transacao.commit();
                   req.session.usuario = data.dataValues;

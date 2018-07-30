@@ -6,6 +6,7 @@ require('dotenv/config')
 const totalX = Number(process.env.UNIVERSE_SIZE_X);
 const totalY = Number(process.env.UNIVERSE_SIZE_Y);
 var ready = false;
+var readyToSync = false;
 function GerarIntAleatorio(max, min)
 {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -304,7 +305,7 @@ const Asteroide = con.define("Asteroide", {
 
 Usuario.afterDestroy(function(usuario, opcoes)
 {
-    con.query("update planeta set colonizado = 0, recursoFerro = 650, minaFerro = 0  where exists(select * from setors where setors.usuarioID = "+usuario.id+")").spread(function()
+    con.query("update planeta set colonizado = 0, recursoFerro = 0, minaFerro = 0  where exists(select * from setors where setors.usuarioID = "+usuario.id+")").spread(function()
     {
         con.query("update asteroides set extracao = 0 where exists(select * from setors where setors.usuarioID = "+usuario.id+")").spread(function()
         {
@@ -559,35 +560,42 @@ function SyncDatabase()
                 }); 
             });    
         });
+    }).catch(function(err)
+    {
+        if(yargs.create)
+            setTimeout(SyncDatabase, 3000);
+        else
+            console.error(err);
     });
     
 }
+
+function ClearForeignKeys(erro)
+{
+    const queryInterface = con.getQueryInterface();
+        queryInterface.showAllTables().then(tableNames => {
+        Promise.all(tableNames.map(tableName => {
+            queryInterface.showConstraint(tableName).then(constraints => {
+                Promise.all(constraints.map(constraint => {
+                    if (constraint.constraintType === 'FOREIGN KEY') {
+                        queryInterface.removeConstraint(tableName, constraint.constraintName);
+                    }
+                }))
+            })
+        }));
+    })
+}
+
 con.authenticate().then(function()
 {
     console.log("Conexao Criada");
     
     if(yargs.create)
     {
-        const queryInterface = con.getQueryInterface();
-        return queryInterface.showAllTables()
-        .then(tableNames => {
-            return Promise.all(tableNames.map(tableName => {
-                return queryInterface.showConstraint(tableName)
-                .then(constraints => {
-                    return Promise.all(constraints.map(constraint => {
-                        if (constraint.constraintType === 'FOREIGN KEY') {
-                            return queryInterface.removeConstraint(tableName, constraint.constraintName);
-                        }
-                    }));
-                });
-            }));
-        })
-        .then(SyncDatabase());
+        ClearForeignKeys();
     }
-    else
-    {
-        SyncDatabase();
-    }
+    
+    SyncDatabase();
     
     
 
