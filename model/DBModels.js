@@ -201,19 +201,67 @@ const Planeta = con.define('Planeta',
         allowNull : false,
         defaultValue : 0,
     },
-    minaFerro :
-    {
-        type :  sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0
-    },
     recursoCristal :
     {
         type : sequalize.INTEGER,
         allowNull : false,
         defaultValue : 0,
     },
+    recursoEletronica :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0,
+    },
+    recursoUranio :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0,
+    },
+    recursoCombustivel :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0,
+    },
+    recursoComida :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0,
+    },
+    minaFerro :
+    {
+        type :  sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0
+    },
     minaCristal :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0
+    },
+    fabricaEletronica :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0
+    },
+    minaUranio :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0
+    },
+    sintetizadorCombustivel :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0
+    },
+    fazenda :
     {
         type : sequalize.INTEGER,
         allowNull : false,
@@ -312,7 +360,7 @@ const Asteroide = con.define("Asteroide", {
 
 Usuario.afterDestroy(function(usuario, opcoes)
 {
-    con.query("update planeta set colonizado = 0, recursoFerro = 0, minaFerro = 0, recursoCristal = 0, minaCristal = 0, plantaSolar = 0, reatorFusao = 0  where exists(select * from setors where setors.usuarioID = "+usuario.id+")").spread(function()
+    con.query("update planeta set colonizado = 0, minaCristal = 0, fabricaEletronica = 0, minaUranio = 0, sintetizadorCombustivel = 0, fazenda = 0 ,recursoFerro = 0, minaFerro = 0, recursoCristal = 0, recursoEletronica = 0, recursoUranio = 0, recursoCombustivel = 0, recursoComida = 0 plantaSolar = 0, reatorFusao = 0  where exists(select * from setors where setors.usuarioID = "+usuario.id+")").spread(function()
     {
         con.query("update asteroides set extracao = 0 where exists(select * from setors where setors.usuarioID = "+usuario.id+")").spread(function()
         {
