@@ -11,14 +11,14 @@ block content
           form(onsubmit="return false")#form-alterar-nick
             .form-group
               label(for = "nick") Novo nick:
-              input(type="text", value = "" + session.nick, name = "nick").form-control
+              input(type="text", value = "", name = "nick")#nick-atual.form-control
             button(type ="submit").btn-primary.btn Alterar
         .col-md-3.col-sm-12 
           h2 Alterar Email
           form(onsubmit="return false")#form-alterar-email
             .form-group
               label(for = "email") Novo email:
-              input(type="text", value = "" + session.email, name = "email").form-control
+              input(type="text", value = "", name = "email")#email-atual.form-control
             .form-group
               label(for = "confemail") Confirmação do novo email:
               input(type="text", name = "confemail").form-control
@@ -38,7 +38,7 @@ block content
             button(type ="submit").btn-primary.btn Alterar
       .row
         h2 Conta ativada:
-          - if(session.ativo == true)
+          - if(userdata.session.ativo == true)
               b.text-success  Sim
           - else {
               b.text-danger  Não
@@ -48,6 +48,8 @@ block content
           
 block posscripts
   script.
+      $("#email-atual").val(userdata.session.email);
+      $("#nick-atual").val(userdata.session.nick);
       $("#btn-enviar-ativo").on('click', function()
       {
         var btn = $(this);
@@ -87,7 +89,7 @@ block posscripts
         success : function()
         {
           GerarNotificacao("Nick alterado com sucesso", "success");
-          uNick = info.nick;
+          userdata.session.nick = info.nick;
           $("#nav-nick").text(info.nick);
         },
         error : function(mensagem)
@@ -115,7 +117,7 @@ block posscripts
         success : function()
         {
           GerarNotificacao("Email alterado com sucesso", "success");
-          uEmail = info.email;
+          userdata.session.email = info.email;
         },
         error : function(mensagem)
         {
@@ -142,7 +144,7 @@ block posscripts
         success : function()
         {
           GerarNotificacao("Senha alterada com sucesso", "success");
-          uAtivo = true;
+          userdata.session.ativo = true;
         },
         error : function(erro)
         {

@@ -71,7 +71,7 @@ function GetCustoUpgradeMinaCristal (nivelMina)
  * @param {number} nivelFabrica O Nível da fabrica de eletronicas do planeta
  * @returns {number} Retorno um Integer da produção de eletronicas do planeta
  */
-function GetProducaoEletronicas(nivelFabrica)
+function GetProducaoEletronica(nivelFabrica)
 {
     return Math.ceil((baseEletronicaFabrica * nivelFabrica * Math.pow(1.1, nivelFabrica))) + baseEletronica
 }
@@ -80,7 +80,7 @@ function GetProducaoEletronicas(nivelFabrica)
  * @param {number} nivelMina O Nível da mina de cristal do planeta
  * @returns {{ferro : number, cristal : number, uranio : number}} 
  */
-function GetCustoUpgradeFabricaEletronicas(nivelFabrica)
+function GetCustoUpgradeFabricaEletronica(nivelFabrica)
 {
     var custoFerro = Math.ceil((112 * Math.pow(1.4, (nivelFabrica - 1))));
     var custoCristal = Math.ceil((145 * Math.pow(1.3, (nivelFabrica - 1))));
@@ -167,9 +167,31 @@ function GetCustoUpgradeFazenda(nivelFazenda)
     */
     function GetProducaoEnergiaPlantaSolar (nivelPlanta, intensidadeSolarPlaneta)
     {
-        return Math.ceil(((35 * nivelPlanta * Math.pow(1.1, nivelPlanta)) * (intensidadeSolarPlaneta / 100)));
+        return Math.ceil(((70 * nivelPlanta * Math.pow(1.1, nivelPlanta)) * (intensidadeSolarPlaneta / 100)));
     }
 
+    /**
+     * @param {number} nivelPlanta
+     * @returns {{ferro : number, cristal : number}} 
+     */
+    function GetCustoUpgradePlantaSolar(nivelPlanta)
+    {
+        var custoFerro = Math.ceil((120 * Math.pow(1.5, (nivelPlanta - 1))));
+        var custoCristal = Math.ceil((170 * Math.pow(1.4, (nivelPlanta - 1))));
+        return {ferro : custoFerro, cristal : custoCristal};
+    }
+
+    /**
+     * @param {number} nivelMina O Nível do sintentizador de combustivel
+     * @returns {{ferro : number, cristal : number, uranio : number}} 
+    */
+    function GetCustoUpgradeReatorFusao(nivelReator)
+    {
+        var custoFerro = Math.ceil((210 * Math.pow(1.3, (nivelReator - 1))));
+        var custoCristal = Math.ceil((210 * Math.pow(1.5, (nivelReator - 1))));
+        var custoUranio = Math.ceil((150 * Math.pow(2, (nivelReator - 1))));
+        return {ferro : custoFerro, cristal : custoCristal, uranio : custoUranio};
+    }
     /**
      * @param {number} nivelReator
      * @description Calcula a produção do reator de fusão no planeta
@@ -177,7 +199,7 @@ function GetCustoUpgradeFazenda(nivelFazenda)
     */
     function GetProducaoEnergiaReatorFusao(nivelReator)
     {
-        return Math.ceil(((90 * nivelReator * Math.pow(1.1, nivelReator))));
+        return Math.ceil(((200 * nivelReator * Math.pow(1.1, nivelReator))));
     }
 
     /**
@@ -193,7 +215,6 @@ function GetCustoUpgradeFazenda(nivelFazenda)
      * @description Calcula a produção de energia do planeta
      * @returns {number} A produção de energia do planeta
      */
-
     function GetEnergia(nivelPlanta, nivelReator, posSol, posPlaneta, instensidadeSol)
     {
         var intensidadeSolarPlaneta = GetIntensidadeSolarPlaneta(posSol, posPlaneta, instensidadeSol);
@@ -207,11 +228,11 @@ function GetCustoUpgradeFazenda(nivelFazenda)
      * @param {Object} [posPlaneta] A posicao x e y do planeta
      * @param {Number} [posPlaneta.x] A posição do eixo X do planeta
      * @param {Number} [posPlaneta.y] A posição do eixo Y do planeta
-     * @param {number} instensidadeSol A intensidade solar do sistema
+     * @param {number} intensidadeS A intensidade solar do sistema
      * @description Calcula a intensidade solar que um planeta recebe
      * @returns {number} Intensidade em Integer
      */
-    function GetIntensidadeSolarPlaneta (posSol, posPlaneta, instensidadeSol)
+    function GetIntensidadeSolarPlaneta (posSol, posPlaneta, intensidadeSol)
     {
         var distancia = 0;
         var x = posSol.x
@@ -240,7 +261,7 @@ function GetCustoUpgradeFazenda(nivelFazenda)
             }
             distancia++;
         }
-        return instensidadeSol - ( 9 * distancia);
+        return intensidadeSol - ( 9 * distancia);
     }
 
 (function(exports){
@@ -256,8 +277,8 @@ function GetCustoUpgradeFazenda(nivelFazenda)
     exports.GetProducaoEnergiaReatorFusao = GetProducaoEnergiaReatorFusao,
     exports.GetEnergia = GetEnergia,
     
-    exports.GetProducaoEletronicas = GetProducaoEletronicas,
-    exports.GetCustoUpgradeFabricaEletronicas = GetCustoUpgradeFabricaEletronicas,
+    exports.GetProducaoEletronica = GetProducaoEletronica,
+    exports.GetCustoUpgradeFabricaEletronica = GetCustoUpgradeFabricaEletronica,
 
     exports.GetProducaoUranio = GetProducaoUranio,
     exports.GetCustoUpgradeMinaUranio = GetCustoUpgradeMinaUranio,
@@ -266,6 +287,9 @@ function GetCustoUpgradeFazenda(nivelFazenda)
     exports.GetCustoUpgradeSintetizadorCombustivel = GetCustoUpgradeSintetizadorCombustivel,
     
     exports.GetProducaoComida = GetProducaoComida,
-    exports.GetCustoUpgradeFazenda = GetCustoUpgradeFazenda
+    exports.GetCustoUpgradeFazenda = GetCustoUpgradeFazenda,
+
+    exports.GetCustoUpgradeReatorFusao = GetCustoUpgradeReatorFusao,
+    exports.GetCustoUpgradePlantaSolar = GetCustoUpgradePlantaSolar
 
 }(typeof exports === 'undefined' ? this.GerenciadorRecursos = {} : exports));

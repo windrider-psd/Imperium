@@ -17,26 +17,21 @@ html
     link(rel='stylesheet', href='/stylesheets/style.css')
     script(src="js/jquery.js")
     script(src="js/socket.io.js")
-    - if(typeof(session) !== 'undefined'){
+    - if(typeof(userdata) !== 'undefined'){
       script.
-        const uID = !{session.id};
-        var uNick = '!{session.nick}';
-        var uEmail = '!{session.email}';
-        var uAtivo = !{session.ativo};
-        var userdata = !{userdata};
+        const userdataString = '!{JSON.stringify(userdata).replace(/[\/\(\)\']/g, "\\$&")}'
+        var userdata = JSON.parse(userdataString);
     -}
-    - if(typeof(userdata) !== 'undefined')
-      - var userdataOBJ = JSON.parse(userdata);
   body
     main
-      -if(userdataOBJ)
-        each data in userdataOBJ
+      -if(userdata)
+        each setor in userdata.setores
           ul
             li
-              a(href="/setor?id=" + data.setor.id)= data.setor.nome
-                |  [!{data.setor.posX}, !{data.setor.posY}]
+              a(href="/setor?id=" + setor.setor.id)= setor.setor.nome
+                |  [!{setor.setor.posX}, !{setor.setor.posY}]
               ul
-                each planeta in data.planetas
+                each planeta in setor.planetas
                   if(planeta.colonizado)
                     li 
                       a(href = "/planeta?id=" + planeta.id)= planeta.nome

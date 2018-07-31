@@ -8,7 +8,7 @@ nav(style="background-color:#00299e").navbar.navbar-default.navbar-fixed-top
                 span.icon-bar
             a(href="/").navbar-brand
                 img(alt="UFSM", src="/images/logo_pre.png" width="20px")
-            a.navbar-brand(href='/opcoes')#nav-nick #{session.nick}
+            a.navbar-brand(href='/opcoes')#nav-nick
 
         .collapse.navbar-collapse#bs-example-navbar-collapse-1
             ul.nav.navbar-nav
@@ -19,6 +19,7 @@ nav(style="background-color:#00299e").navbar.navbar-default.navbar-fixed-top
                 li
                     a(href="#")#logout-link Logout  
 script.
+    $("#nav-nick").html(userdata.session.nick)
     $("#logout-link").on('click', function()
     {
         $.ajax({

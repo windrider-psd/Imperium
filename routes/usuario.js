@@ -110,7 +110,7 @@ router.post('/cadastrar', function(req, res) {
               Planeta.findAll({where : {setorID : setorInicial.id}, transaction: transacao}).then(function(planetas){
                 var planetaInicial = planetas[random.GerarIntAleatorio(planetas.length - 1, 0)];
                 
-                Planeta.update({colonizado : true, recursoFerro : 500, recursoCristal : 300 }, {where : {id : planetaInicial.id}, transaction: transacao}).then(function()
+                Planeta.update({colonizado : true, recursoFerro : 500, recursoCristal : 300, recursoEletronica : 200, recursoUranio: 100, recursoComida : 500 }, {where : {id : planetaInicial.id}, transaction: transacao}).then(function()
                 {
                   transacao.commit();
                   req.session.usuario = data.dataValues;
@@ -177,6 +177,8 @@ router.post('/login', function(req, res)
   else
   {
     var params = req.body
+    params.nick = sanitizer.escape(params.nick);
+    params.email = sanitizer.escape(params.email);
     Usuario.findOne({where : 
       {
         $or:
@@ -396,6 +398,7 @@ router.post('/alterar-nick', function(req, res)
   }
   else
   {
+    params.nick = sanitizer.escape(params.nick);
     Usuario.update({nick : params.nick} ,{where : {id : req.session.usuario.id}, limit : 1}).then(function()
     {
       req.session.usuario.nick = params.nick;
@@ -443,6 +446,7 @@ router.post('/alterar-email', function(req, res)
   }
   else
   {
+    params.email = sanitizer.escape(params.email);
     Usuario.update({email : params.email} ,{where : {id : req.session.usuario.id}, limit : 1}).then(function()
     {
       req.session.usuario.nick = params.nick;

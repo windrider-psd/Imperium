@@ -21,6 +21,34 @@ block content
             br
             | Producao: 
             span.recurso-producao.text-success
+        li#recurso-uranio Urânio: 
+            br
+            | Atual: 
+            span.recurso-atual
+            br
+            | Producao: 
+            span.recurso-producao.text-success
+        li#recurso-eletronica Eletrônica: 
+            br
+            | Atual: 
+            span.recurso-atual
+            br
+            | Producao: 
+            span.recurso-producao.text-success
+        li#recurso-combustivel Combustível: 
+            br
+            | Atual: 
+            span.recurso-atual
+            br
+            | Producao: 
+            span.recurso-producao.text-success
+        li#recurso-comida Comida: 
+            br
+            | Atual: 
+            span.recurso-atual
+            br
+            | Producao: 
+            span.recurso-producao.text-success
         li#recurso-energia Energia: 
             br
             | Atual: 
@@ -45,6 +73,22 @@ block content
         button.btn.btn-success.btn-sm.btn-melhorar-edificio Melhorar
     #edificio-cristal
         h4 Mina de Cristal
+        span nivel: 
+            span.edificio-nivel
+        br
+        span Custo de melhoria
+        ul
+            li.custo-ferro Ferro: 
+                span
+            li.custo-cristal Cristal: 
+                span
+        span Diferença em produção com melhoria: 
+            b
+                span.edificio-melhoria-producao.text-success
+        br
+        button.btn.btn-success.btn-sm.btn-melhorar-edificio Melhorar]
+    #edificio-uranio
+        h4 Mina de Urânio
         span nivel: 
             span.edificio-nivel
         br
@@ -86,6 +130,58 @@ block content
                 span
             li.custo-cristal Cristal: 
                 span
+            li.custo-uranio Uranio: 
+                span
+        span Diferença em produção com melhoria: 
+            b
+                span.edificio-melhoria-producao.text-success
+        br
+        button.btn.btn-success.btn-sm.btn-melhorar-edificio Melhorar
+    #edificio-fabrica-eletronica
+        h4 Fabrica eletrônica
+        span nivel: 
+            span.edificio-nivel
+        br
+        span Custo de melhoria
+        ul
+            li.custo-ferro Ferro: 
+                span
+            li.custo-cristal Cristal: 
+                span
+        span Diferença em produção com melhoria: 
+            b
+                span.edificio-melhoria-producao.text-success
+        br
+        button.btn.btn-success.btn-sm.btn-melhorar-edificio Melhorar
+    #edificio-sintetizador-combustivel
+        h4 Sintetizador Combustível
+        span nivel: 
+            span.edificio-nivel
+        br
+        span Custo de melhoria
+        ul
+            li.custo-ferro Ferro: 
+                span
+            li.custo-cristal Cristal: 
+                span
+            li.custo-uranio Urânio: 
+                span
+        span Diferença em produção com melhoria: 
+            b
+                span.edificio-melhoria-producao.text-success
+        br
+        button.btn.btn-success.btn-sm.btn-melhorar-edificio Melhorar
+    #edificio-fazenda
+        h4 Fazenda
+        span nivel: 
+            span.edificio-nivel
+        br
+        span Custo de melhoria
+        ul
+            li.custo-ferro Ferro: 
+                span
+            li.custo-cristal Cristal: 
+                span
         span Diferença em produção com melhoria: 
             b
                 span.edificio-melhoria-producao.text-success
@@ -100,18 +196,67 @@ block posscripts
         var qs = parse_query_string(query);
         var planeta = null;
         var setor = null;
+        var posSolObj = null;
+        var posPlanetaObj = null;
         function GetEdificios()
         {
             var custoMinaFerro = GerenciadorRecursos.GetCustoUpgradeMinaFerro(planeta.minaFerro + 1);
             $("#edificio-ferro .edificio-nivel").text(planeta.minaFerro);
             $("#edificio-ferro .custo-ferro span").text(custoMinaFerro.ferro);
             $("#edificio-ferro .custo-cristal span").text(custoMinaFerro.cristal);
-            $("#edificio-ferro .edificio-melhoria-producao").text("+" + String(GerenciadorRecursos.GetProducaoFerro(planeta.minaFerro + 1) - GerenciadorRecursos.GetProducaoFerro(planeta.minaFerro)));
+            $("#edificio-ferro .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoFerro(planeta.minaFerro + 1) - GerenciadorRecursos.GetProducaoFerro(planeta.minaFerro)) * 6)+ "/minuto");
 
-            var custoMinaCristal = GetCustoUpgradeMinaCristal(planeta.minaFerro + 1);
+            var custoMinaCristal = GerenciadorRecursos.GetCustoUpgradeMinaCristal(planeta.minaFerro + 1);
             $("#edificio-cristal .edificio-nivel").text(planeta.minaCristal);
             $("#edificio-cristal .custo-ferro span").text(custoMinaCristal.ferro);
             $("#edificio-cristal .custo-cristal span").text(custoMinaCristal.cristal);
+            $("#edificio-cristal .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoCristal(planeta.minaCristal + 1) - GerenciadorRecursos.GetProducaoCristal(planeta.minaCristal)) * 6)+ "/minuto");
+
+            var custoPlantaSolar = GerenciadorRecursos.GetCustoUpgradePlantaSolar(planeta.plantaSolar + 1);
+            var intensidadeSolar = GerenciadorRecursos.GetIntensidadeSolarPlaneta(posSolObj, posPlanetaObj, setor.intensidadeSolar);
+            $("#edificio-planta-solar .edificio-nivel").text(planeta.plantaSolar);
+            $("#edificio-planta-solar .custo-ferro span").text(custoPlantaSolar.ferro);
+            $("#edificio-planta-solar .custo-cristal span").text(custoPlantaSolar.cristal);
+            $("#edificio-planta-solar .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoEnergiaPlantaSolar(planeta.plantaSolar + 1, intensidadeSolar) - GerenciadorRecursos.GetProducaoEnergiaPlantaSolar(planeta.plantaSolar, intensidadeSolar)) * 6)+ " total");
+
+            var custoReatorFusao = GerenciadorRecursos.GetCustoUpgradeReatorFusao(planeta.reatorFusao + 1);
+            $("#edificio-reator-fusao .edificio-nivel").text(planeta.reatorFusao);
+            $("#edificio-reator-fusao .custo-ferro span").text(custoReatorFusao.ferro);
+            $("#edificio-reator-fusao .custo-cristal span").text(custoReatorFusao.cristal);
+            $("#edificio-reator-fusao .custo-uranio span").text(custoReatorFusao.uranio);
+            $("#edificio-reator-fusao .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoEnergiaReatorFusao(planeta.reatorFusao + 1) - GerenciadorRecursos.GetProducaoEnergiaReatorFusao(planeta.reatorFusao)) * 6)+ " total");
+
+            var custoMinaUranio = GerenciadorRecursos.GetCustoUpgradeMinaUranio(planeta.minaUranio + 1);
+            $("#edificio-uranio .edificio-nivel").text(planeta.minaUranio);
+            $("#edificio-uranio .custo-ferro span").text(custoMinaUranio.ferro);
+            $("#edificio-uranio .custo-cristal span").text(custoMinaUranio.cristal);
+            $("#edificio-uranio .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoUranio(planeta.minaUranio + 1) - GerenciadorRecursos.GetProducaoUranio(planeta.minaUranio)) * 6)+ "/minuto");
+
+            var custoFabricaEletrônica = GerenciadorRecursos.GetCustoUpgradeFabricaEletronica(planeta.fabricaEletronica + 1);
+            $("#edificio-fabrica-eletronica .edificio-nivel").text(planeta.fabricaEletronica);
+            $("#edificio-fabrica-eletronica .custo-ferro span").text(custoFabricaEletrônica.ferro);
+            $("#edificio-fabrica-eletronica .custo-cristal span").text(custoFabricaEletrônica.cristal);
+            $("#edificio-fabrica-eletronica .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoEletronica(planeta.fabricaEletronica + 1) - GerenciadorRecursos.GetProducaoEletronica(planeta.fabricaEletronica)) * 6) + "/minuto");
+
+            var custoFabricaEletrônica = GerenciadorRecursos.GetCustoUpgradeFabricaEletronica(planeta.fabricaEletronica + 1);
+            $("#edificio-fabrica-eletronica .edificio-nivel").text(planeta.fabricaEletronica);
+            $("#edificio-fabrica-eletronica .custo-ferro span").text(custoFabricaEletrônica.ferro);
+            $("#edificio-fabrica-eletronica .custo-cristal span").text(custoFabricaEletrônica.cristal);
+            $("#edificio-fabrica-eletronica .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoEletronica(planeta.fabricaEletronica + 1) - GerenciadorRecursos.GetProducaoEletronica(planeta.fabricaEletronica)) * 6) + "/minuto");
+
+            var custoCombustivel = GerenciadorRecursos.GetCustoUpgradeFabricaEletronica(planeta.fabricaEletronica + 1);
+            $("#edificio-sintetizador-combustivel .edificio-nivel").text(planeta.sintetizadorCombustivel);
+            $("#edificio-sintetizador-combustivel .custo-ferro span").text(custoCombustivel.ferro);
+            $("#edificio-sintetizador-combustivel .custo-cristal span").text(custoCombustivel.cristal);
+            $("#edificio-sintetizador-combustivel .custo-uranio span").text(custoCombustivel.uranio);
+            $("#edificio-sintetizador-combustivel .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoCombustivel(planeta.sintetizadorCombustivel + 1) - GerenciadorRecursos.GetProducaoCombustivel(planeta.sintetizadorCombustivel)) * 6) + "/minuto");
+
+            var custoFazenda = GerenciadorRecursos.GetCustoUpgradeFazenda(planeta.fazenda + 1);
+            $("#edificio-fazenda .edificio-nivel").text(planeta.fazenda);
+            $("#edificio-fazenda .custo-ferro span").text(custoFazenda.ferro);
+            $("#edificio-fazenda .custo-cristal span").text(custoFazenda.cristal);
+            $("#edificio-fazenda .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoComida(planeta.fazenda + 1) - GerenciadorRecursos.GetProducaoComida(planeta.fazenda)) * 6) + "/minuto");
+
         }
         function GetRecursos()
         {
@@ -121,8 +266,18 @@ block posscripts
             $("#recurso-cristal .recurso-atual").text(planeta.recursoCristal);
             $("#recurso-cristal .recurso-producao").text("+" + GerenciadorRecursos.GetProducaoCristal(planeta.minaCristal) * 6 + "/minuto");
 
-            var posSolObj = {x : setor.solPosX, y : setor.solPosY};
-            var posPlanetaObj = {x : planeta.posX, y : planeta.posY};
+            $("#recurso-uranio .recurso-atual").text(planeta.recursoUranio);
+            $("#recurso-uranio .recurso-producao").text("+" + GerenciadorRecursos.GetProducaoUranio(planeta.minaUranio) * 6 + "/minuto");
+
+            $("#recurso-eletronica .recurso-atual").text(planeta.recursoEletronica);
+            $("#recurso-eletronica .recurso-producao").text("+" + GerenciadorRecursos.GetProducaoEletronica(planeta.fabricaEletronica) * 6 + "/minuto");
+
+            $("#recurso-combustivel .recurso-atual").text(planeta.recursoCombustivel);
+            $("#recurso-combustivel .recurso-producao").text("+" + GerenciadorRecursos.GetProducaoCombustivel(planeta.sintetizadorCombustivel) * 6 + "/minuto");
+
+            $("#recurso-comida .recurso-atual").text(planeta.recursoComida);
+            $("#recurso-comida .recurso-producao").text("+" + GerenciadorRecursos.GetProducaoComida(planeta.fazenda) * 6 + "/minuto");
+
             var valorEnergia = GetEnergia(planeta.plantaSolar, planeta.reatorFusao, posSolObj, posPlanetaObj, setor.intensidadeSolar);
             var positivo = (valorEnergia >= 0);
             if(positivo)
@@ -139,17 +294,19 @@ block posscripts
             }
         }
 
-        for(let i = 0; i < userdata.length; i++)
+        for(let i = 0; i < userdata.setores.length; i++)
         {
             var esta = false;
             let j;
-            for(j = 0; j < userdata[i].planetas.length; j++)
+            for(j = 0; j < userdata.setores[i].planetas.length; j++)
             {
-                let planetaAtual = userdata[i].planetas[j];
+                let planetaAtual = userdata.setores[i].planetas[j];
                 if(planetaAtual.id == qs.id)
                 {
                     planeta = planetaAtual;
-                    setor = userdata[i].setor;
+                    setor = userdata.setores[i].setor;
+                    posSolObj = {x : setor.solPosX, y : setor.solPosY};
+                    posPlanetaObj = {x : planeta.posX, y : planeta.posY};
                     esta = true;
                     break;
                 }

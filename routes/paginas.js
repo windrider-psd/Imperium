@@ -27,6 +27,15 @@ function GetPlanetasSetor(setores, resultado, __callback, i)
   }
 
 }
+/**
+ * @param {Object} req O objeto de requisição do express
+ * @description Retorna um objeto que será usado no front-end
+ * @returns {{session : Object, setores : Object}
+ */
+function getUserData(req)
+{
+  return {session : req.session.usuario, setores : req.userdata.setores};
+}
 
 router.all('*', function(req, res, next)
 {
@@ -55,21 +64,21 @@ router.all('*', function(req, res, next)
 });
 router.get('/', function(req, res) {
   if(req.session.usuario)
-    res.render('inicial', { session: req.session.usuario, userdata : JSON.stringify(req.userdata.setores)});
+    res.render('inicial', {userdata : getUserData(req)});
   else
     res.render('login');
 });
 router.get('/opcoes', function(req, res)
 {
   if(req.session.usuario)
-    res.render('opcoes', { session: req.session.usuario, userdata : JSON.stringify(req.userdata.setores) });
+    res.render('opcoes', {userdata : getUserData(req)});
   else
     res.status(403).render('login');
 });
 
 router.get('/login', function(req, res) {
   if(req.session.usuario)
-    res.render('inicial', { session: req.session.usuario, userdata : JSON.stringify(req.userdata.setores)  });
+    res.render('inicial', {userdata : getUserData(req)});
   else
     res.render('login');
 });
@@ -79,7 +88,7 @@ router.get('/cadastrar', function(req, res) {
 router.get('/inicial', function(req, res) {
   if(req.session.usuario)
   {
-    res.render('inicial', { session: req.session.usuario, userdata : JSON.stringify(req.userdata.setores) });
+    res.render('inicial', {userdata : getUserData(req)});
   }
   else 
     res.render('login');
@@ -87,7 +96,7 @@ router.get('/inicial', function(req, res) {
 router.get('/planeta', function(req, res) {
   if(req.session.usuario)
   {
-    res.render('planeta', { session: req.session.usuario, userdata : JSON.stringify(req.userdata.setores) });
+    res.render('planeta', {userdata : getUserData(req)});
   }
   else 
     res.render('login');
