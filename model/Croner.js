@@ -9,8 +9,8 @@ var adicionarRecurso = cron.schedule('*/10 * * * * *', function()
         {
             planetas.forEach(function(planeta)
             {
-                var updateFerro = GerenciadorRecursos.ferro.GetProducao(planeta.minaFerro) + planeta.recursoFerro; 
-                var updateCristal = GerenciadorRecursos.cristal.GetProducao(planeta.minaCristal) + planeta.recursoCristal;
+                var updateFerro = GerenciadorRecursos.GetProducaoFerro(planeta.minaFerro) + planeta.recursoFerro; 
+                var updateCristal = GerenciadorRecursos.GetProducaoCristal(planeta.minaCristal) + planeta.recursoCristal;
                 models.Planeta.update({recursoFerro : updateFerro, recursoCristal : updateCristal}, {where : {id : planeta.id}});
             });
         });

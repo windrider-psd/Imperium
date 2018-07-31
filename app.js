@@ -32,7 +32,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); 
 app.use(session({resave: true, saveUninitialized : true, secret : 'uijn4unip32nur324p23u'}));
 app.get('/js/bundle_chart.js', browserify(['chartjs', 'chartjs-plugin-zoom']));
-app.get('/js/recursos.js', browserify(__dirname + "/model/GerenciadorRecursos.js"));
+app.get('/js/recursos.js', function(req, res)
+{
+  res.setHeader("content-type", "application/javascript");
+  res.sendFile(__dirname + "/model/GerenciadorRecursos.js")
+});
 app.use('/', paginaRouter);
 app.use('/usuario', usuarioRouter);
 // catch 404 and forward to error handler

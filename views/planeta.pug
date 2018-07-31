@@ -21,6 +21,11 @@ block content
             br
             | Producao: 
             span.recurso-producao.text-success
+        li#recurso-energia Energia: 
+            br
+            | Atual: 
+            span.recurso-atual
+            
     h2 Edificios
     #edificio-ferro
         h4 Mina de ferro
@@ -54,6 +59,38 @@ block content
                 span.edificio-melhoria-producao.text-success
         br
         button.btn.btn-success.btn-sm.btn-melhorar-edificio Melhorar
+    #edificio-planta-solar
+        h4 Planta Solar
+        span nivel: 
+            span.edificio-nivel
+        br
+        span Custo de melhoria
+        ul
+            li.custo-ferro Ferro: 
+                span
+            li.custo-cristal Cristal: 
+                span
+        span Diferença em produção com melhoria: 
+            b
+                span.edificio-melhoria-producao.text-success
+        br
+        button.btn.btn-success.btn-sm.btn-melhorar-edificio Melhorar
+    #edificio-reator-fusao
+        h4 Reator de fusão
+        span nivel: 
+            span.edificio-nivel
+        br
+        span Custo de melhoria
+        ul
+            li.custo-ferro Ferro: 
+                span
+            li.custo-cristal Cristal: 
+                span
+        span Diferença em produção com melhoria: 
+            b
+                span.edificio-melhoria-producao.text-success
+        br
+        button.btn.btn-success.btn-sm.btn-melhorar-edificio Melhorar
 
 
 
@@ -62,27 +99,44 @@ block posscripts
         var query = window.location.search.substring(1);
         var qs = parse_query_string(query);
         var planeta = null;
-
+        var setor = null;
         function GetEdificios()
         {
-            var custoMinaFerro = GetCustoUpgradeMinaFerro(planeta.minaFerro + 1);
+            var custoMinaFerro = GerenciadorRecursos.GetCustoUpgradeMinaFerro(planeta.minaFerro + 1);
             $("#edificio-ferro .edificio-nivel").text(planeta.minaFerro);
             $("#edificio-ferro .custo-ferro span").text(custoMinaFerro.ferro);
             $("#edificio-ferro .custo-cristal span").text(custoMinaFerro.cristal);
-            $("#edificio-ferro .edificio-melhoria-producao").text("+" + String(GetProducaoFerro(planeta.minaFerro + 1) - GetProducaoFerro(planeta.minaFerro)));
+            $("#edificio-ferro .edificio-melhoria-producao").text("+" + String(GerenciadorRecursos.GetProducaoFerro(planeta.minaFerro + 1) - GerenciadorRecursos.GetProducaoFerro(planeta.minaFerro)));
 
             var custoMinaCristal = GetCustoUpgradeMinaCristal(planeta.minaFerro + 1);
             $("#edificio-cristal .edificio-nivel").text(planeta.minaCristal);
             $("#edificio-cristal .custo-ferro span").text(custoMinaCristal.ferro);
             $("#edificio-cristal .custo-cristal span").text(custoMinaCristal.cristal);
-            $("#edificio-cristal .edificio-melhoria-producao").text("+" + String(GetProducaoCristal(planeta.minaCristal + 1) - GetProducaoCristal(planeta.minaCristal)));
         }
         function GetRecursos()
         {
             $("#recurso-ferro .recurso-atual").text(planeta.recursoFerro);
-            $("#recurso-ferro .recurso-producao").text("+" + GetProducaoFerro(planeta.minaCristal) * 6 + "/minuto" );
+            $("#recurso-ferro .recurso-producao").text("+" +GerenciadorRecursos.GetProducaoFerro(planeta.minaCristal) * 6 + "/minuto");
+            
             $("#recurso-cristal .recurso-atual").text(planeta.recursoCristal);
-            $("#recurso-cristal .recurso-producao").text("+" + GetProducaoCristal(planeta.minaCristal) * 6 + "/minuto" );
+            $("#recurso-cristal .recurso-producao").text("+" + GerenciadorRecursos.GetProducaoCristal(planeta.minaCristal) * 6 + "/minuto");
+
+            var posSolObj = {x : setor.solPosX, y : setor.solPosY};
+            var posPlanetaObj = {x : planeta.posX, y : planeta.posY};
+            var valorEnergia = GetEnergia(planeta.plantaSolar, planeta.reatorFusao, posSolObj, posPlanetaObj, setor.intensidadeSolar);
+            var positivo = (valorEnergia >= 0);
+            if(positivo)
+            {
+                $("#recurso-energia .recurso-atual").text("+" + String(valorEnergia));
+                $("#recurso-energia .recurso-atual").addClass("text-success");
+                $("#recurso-energia .recurso-atual").removeClass("text-danger");
+            }
+            else
+            {
+                $("#recurso-energia .recurso-atual").text("-" + String(valorEnergia));
+                $("#recurso-energia .recurso-atual").addClass("text-danger");
+                $("#recurso-energia .recurso-atual").removeClass("text-success");
+            }
         }
 
         for(let i = 0; i < userdata.length; i++)
@@ -95,6 +149,7 @@ block posscripts
                 if(planetaAtual.id == qs.id)
                 {
                     planeta = planetaAtual;
+                    setor = userdata[i].setor;
                     esta = true;
                     break;
                 }
@@ -104,10 +159,13 @@ block posscripts
                 GerarNotificacao("Planeta não encontrado", "danger");
             }
         }
-
-        $("#nome-planeta").text(planeta.nome);
-        GetRecursos();
-        GetEdificios();
+        if(planeta)
+        {
+            $("#nome-planeta").text(planeta.nome);
+            GetRecursos();
+            GetEdificios();
+        }
+        
 
 
 

@@ -54,7 +54,6 @@ const con = new sequalize(process.env.DB_NAME, process.env.DB_USER, process.env.
     operatorsAliases : false,
     timezone : 'Brazil/East',
     sync : {force : true},
-    //logging: true,
     operatorsAliases: operatorsAlias,
     define:
     {
@@ -216,7 +215,19 @@ const Planeta = con.define('Planeta',
     },
     minaCristal :
     {
-        type :  sequalize.INTEGER,
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0
+    },
+    plantaSolar :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0
+    },
+    reatorFusao : 
+    {
+        type : sequalize.INTEGER,
         allowNull : false,
         defaultValue : 0
     }
@@ -274,31 +285,6 @@ const Setor = con.define('Setor',
     }
 }, {timestamps : false});
 
-/*const Sol = con.define("Sol",
-{
-    id:
-    {
-        type: sequalize.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-    },
-    luminosidade:
-    {
-        type : sequalize.INTEGER,
-        allowNull : false
-    },
-    posX:
-    {
-        type: sequalize.INTEGER,
-        allowNull : false,
-    },
-    posY:
-    {
-        type: sequalize.INTEGER,
-        allowNull : false,
-    }
-}, {timestamps : false});*/
-
 const Asteroide = con.define("Asteroide", {
     id:
     {
@@ -326,7 +312,7 @@ const Asteroide = con.define("Asteroide", {
 
 Usuario.afterDestroy(function(usuario, opcoes)
 {
-    con.query("update planeta set colonizado = 0, recursoFerro = 0, minaFerro = 0, recursoCristal = 0, minaCristal = 0  where exists(select * from setors where setors.usuarioID = "+usuario.id+")").spread(function()
+    con.query("update planeta set colonizado = 0, recursoFerro = 0, minaFerro = 0, recursoCristal = 0, minaCristal = 0, plantaSolar = 0, reatorFusao = 0  where exists(select * from setors where setors.usuarioID = "+usuario.id+")").spread(function()
     {
         con.query("update asteroides set extracao = 0 where exists(select * from setors where setors.usuarioID = "+usuario.id+")").spread(function()
         {
@@ -337,7 +323,6 @@ Usuario.afterDestroy(function(usuario, opcoes)
 
 Usuario.hasOne(EsqueciSenha, {foreignKey : {name : "usuarioID", allowNull : false, primaryKey : true}, onDelete : "CASCADE"})
 EsqueciSenha.removeAttribute('id');
-//Setor.hasOne(Sol, {foreignKey : {name : "setorID", allowNull : false}, onDelete : "CASCADE"})
 Setor.hasMany(Planeta, {foreignKey : {name : "setorID", allowNull : false}, onDelete : "CASCADE"})
 Setor.hasMany(Asteroide, {foreignKey : {name : "setorID", allowNull : false}, onDelete : "CASCADE"})
 Usuario.hasMany(Setor, {foreignKey : {name : "usuarioID", allowNull : true}, onDelete: "SET NULL"})
@@ -399,17 +384,12 @@ function PopularSetor(setor, __callback)
 {
     if(setor.dataValues.planetario == true)
     {
-        //var posSol = Math.ceil(setor.dataValues.tamanho / 2);
-        //Sol.create({luminosidade : Math.floor(Math.random() * (150 - 30 + 1)) + 30, posX : posSol, posY: posSol, setorID : setor.dataValues.id}).then(function(sol)
-       // {
             var maximo = random.GerarIntAleatorio(Number(process.env.UNIVERSE_SYSTEM_MAX_PLANETS), Number(process.env.UNIVERSE_SYSTEM_MIN_PLANETS));
             if(maximo > (setor.tamanho * setor.tamanho) - 1)
             {
                 maximo = (setor.tamanho * setor.tamanho) - 1;
             }
             CriarPlaneta(setor, 1, maximo, [], __callback);
-
-       // });
     }
     else
     {
@@ -563,21 +543,18 @@ function SyncDatabase()
                     }
                     Setor.sync({force: yargs.create}).then(function()
                     {
-                      //  Sol.sync({force: yargs.create}).then(function()
-                //        {
-                            Planeta.sync({force : yargs.create}).then(function()
+                        Planeta.sync({force : yargs.create}).then(function()
+                        {
+                            Asteroide.sync({force : yargs.create}).then(function()
                             {
-                                Asteroide.sync({force : yargs.create}).then(function()
+                                if(yargs.create)
+                                    gerarSetores(1, 1);
+                                else
                                 {
-                                    if(yargs.create)
-                                        gerarSetores(1, 1);
-                                    else
-                                    {
-                                        ready = true;
-                                    }
-                                }); 
-                            });
-                       // });  
+                                    ready = true;
+                                }
+                            }); 
+                        });
                     });
                 }); 
             });    
