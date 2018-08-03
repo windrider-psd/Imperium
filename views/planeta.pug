@@ -271,7 +271,7 @@ block posscripts
         function GetRecursos()
         {
             let producao = GerenciadorRecursos.GetProducaoTotal({
-                FabricaEletronica : planeta.fabricaEletronica,
+                fabricaEletronica : planeta.fabricaEletronica,
                 fazenda : planeta.fazenda,
                 minaCristal : planeta.minaCristal,
                 minaFerro : planeta.minaFerro,
@@ -300,9 +300,10 @@ block posscripts
             $("#recurso-combustivel .recurso-producao").text("+" + producao.combustivel * 6 + "/minuto");
 
             $("#recurso-comida .recurso-atual").text(planeta.recursoComida);
-            $("#recurso-comida .recurso-producao").text("+" + producao.fazenda * 6 + "/minuto");
-
-            var valorEnergia = GetEnergia(planeta.plantaSolar, planeta.reatorFusao, posSolObj, posPlanetaObj, setor.intensidadeSolar);
+            $("#recurso-comida .recurso-producao").text("+" + producao.comida * 6 + "/minuto");
+            var producaoEnergia = GetEnergia(planeta.plantaSolar, planeta.reatorFusao, posSolObj, posPlanetaObj, setor.intensidadeSolar)
+            var consumoEnergia = GetConsumoTotal(planeta.minaFerro, planeta.minaCristal, planeta.minaUranio, planeta.fabricaEletronica, planeta.sintetizadorCombustivel, planeta.fazenda);
+            var valorEnergia = producaoEnergia - consumoEnergia;
             var positivo = (valorEnergia >= 0);
             if(positivo)
             {
@@ -312,7 +313,7 @@ block posscripts
             }
             else
             {
-                $("#recurso-energia .recurso-atual").text("-" + String(valorEnergia));
+                $("#recurso-energia .recurso-atual").text(String(valorEnergia));
                 $("#recurso-energia .recurso-atual").addClass("text-danger");
                 $("#recurso-energia .recurso-atual").removeClass("text-success");
             }

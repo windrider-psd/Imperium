@@ -9,7 +9,6 @@
  * @property {number} comida
  */
 
-
 const baseFerro = Math.ceil(60 / 6);
 const baseMinaFerro = Math.ceil(90 / 6);
 
@@ -32,6 +31,19 @@ const baseEnergia = 100;
 
 /**
  * 
+ * @param {number} totalFerro 
+ * @param {number} totalCristal 
+ * @param {number} totalUranio 
+ * @description Calcula o tempo de construção em segundos
+ * @returns {number}
+ */
+function GetTempoConstrucao(totalFerro, totalCristal, totalUranio)
+{
+    return Math.ceil(((totalFerro + totalCristal + totalUranio * 2) / 5000 ) * 3600)
+}
+
+/**
+ * 
  * @param {number} nivelMinaFerro 
  * @param {number} nivelMinaCristal 
  * @param {number} nivelMinaUranio 
@@ -45,8 +57,6 @@ function GetConsumoTotal(nivelMinaFerro, nivelMinaCristal, nivelMinaUranio, nive
 {
     return GetConsumoMinaFerro(nivelMinaFerro) + GetConsumoMinaCristal(nivelMinaCristal) + GetConsumoMinaUranio(nivelMinaUranio) + GetConsumoFabricaEletronica(nivelFabricaEletronica) + GetConsumoSintetizadorCombustivel(nivelSintetizador) + GetConsumoFazenda(nivelFazenda);
 }
-
-
 
 
 /**
@@ -102,13 +112,13 @@ function GetProducaoFerro(nivelMina, consumoEnergiaTotal, totalEnergiaProduzida)
 /**
  * 
  * @param {number} nivelMinaFerro O Nível da mina de ferro do planeta
- * @returns {{ferro : number, cristal : number}} 
+ * @returns {{ferro : number, cristal : number, uranio : number}} 
  */
 function GetCustoUpgradeMinaFerro (nivelMinaFerro)
 {
     var custoFerro = Math.ceil((172 * Math.pow(1.6, (nivelMinaFerro - 1))));
     var custoCristal = Math.ceil((65 * Math.pow(1.4, (nivelMinaFerro - 1))));
-    return {ferro : custoFerro, cristal : custoCristal};
+    return {ferro : custoFerro, cristal : custoCristal, uranio : 0};
 }
 
 
@@ -119,7 +129,7 @@ function GetCustoUpgradeMinaFerro (nivelMinaFerro)
  */
 function GetConsumoMinaFerro (nivelMina)
 {
-    return 20 * nivelMina * Math.pow(1.1, nivelMina);
+    return Math.ceil(20 * nivelMina * Math.pow(1.1, nivelMina));
 }
 
 
@@ -137,13 +147,13 @@ function GetProducaoCristal (nivelMina, consumoEnergiaTotal, totalEnergiaProduzi
 
 /**
  * @param {number} nivelMina O Nível da mina de cristal do planeta
- * @returns {{ferro : number, cristal : number}} 
+ * @returns {{ferro : number, cristal : number, uranio : number} 
  */
 function GetCustoUpgradeMinaCristal (nivelMina)
 {
     var custoFerro = Math.ceil((185 * Math.pow(1.5, (nivelMina - 1))));
     var custoCristal = Math.ceil((92 * Math.pow(1.5, (nivelMina - 1))));
-    return {ferro : custoFerro, cristal : custoCristal};
+    return {ferro : custoFerro, cristal : custoCristal, uranio : 0};
 }
 /**
  * @param {number} nivelMina O nivel da mina de cristal
@@ -152,7 +162,7 @@ function GetCustoUpgradeMinaCristal (nivelMina)
  */
 function GetConsumoMinaCristal (nivelMina)
 {
-    return 20 * nivelMina * Math.pow(1.1, nivelMina);
+    return Math.ceil(20 * nivelMina * Math.pow(1.1, nivelMina));
 }
 
 //Eletronica
@@ -188,7 +198,7 @@ function GetCustoUpgradeFabricaEletronica(nivelFabrica)
  */
 function GetConsumoFabricaEletronica (nivelFabrica)
 {
-    return 30 * nivelFabrica * Math.pow(1.1, nivelFabrica);
+    return Math.ceil(30 * nivelFabrica * Math.pow(1.1, nivelFabrica));
 }
 
 //Uranio
@@ -204,13 +214,13 @@ function GetProducaoUranio(nivelMina, consumoEnergiaTotal, totalEnergiaProduzida
 
 /**
  * @param {number} nivelMina O Nível da mina de urânio do planeta
- * @returns {{ferro : number, cristal : number}} 
+ * @returns {{ferro : number, cristal : number, uranio : number}} 
  */
 function GetCustoUpgradeMinaUranio(nivelMina)
 {
     var custoFerro = Math.ceil((175 * Math.pow(2.1, (nivelMina - 1))));
     var custoCristal = Math.ceil((190 * Math.pow(1.2, (nivelMina - 1))));
-    return {ferro : custoFerro, cristal : custoCristal};
+    return {ferro : custoFerro, cristal : custoCristal, uranio : 0};
 }
 
 
@@ -221,7 +231,7 @@ function GetCustoUpgradeMinaUranio(nivelMina)
  */
 function GetConsumoMinaUranio (nivelMina)
 {
-    return 40 * nivelMina * Math.pow(1.1, nivelMina);
+    return Math.ceil(40 * nivelMina * Math.pow(1.1, nivelMina));
 }
 
 
@@ -258,7 +268,7 @@ function GetCustoUpgradeSintetizadorCombustivel(nivelSintetizador)
  */
 function GetConsumoSintetizadorCombustivel (nivelSintetizador)
 {
-    return 40 * nivelSintetizador * Math.pow(1.1, nivelSintetizador);
+    return Math.ceil(40 * nivelSintetizador * Math.pow(1.1, nivelSintetizador));
 }
 
 
@@ -275,13 +285,13 @@ function GetProducaoComida(nivelFazenda, consumoEnergiaTotal, totalEnergiaProduz
 
 /**
  * @param {number} nivelFazenda O Nível da fazenda
- * @returns {{ferro : number, cristal : number}} 
+ * @returns {{ferro : number, cristal : number, uranio : number}} 
  */
 function GetCustoUpgradeFazenda(nivelFazenda)
 {
     var custoFerro = Math.ceil((70 * Math.pow(1.7, (nivelFazenda - 1))));
     var custoCristal = Math.ceil((70 * Math.pow(1.7, (nivelFazenda - 1))));
-    return {ferro : custoFerro, cristal : custoCristal};
+    return {ferro : custoFerro, cristal : custoCristal, uranio : 0};
 }
 
 /**
@@ -291,7 +301,7 @@ function GetCustoUpgradeFazenda(nivelFazenda)
  */
 function GetConsumoFazenda (nivelFazenda)
 {
-    return 20 * nivelFazenda * Math.pow(1.1, nivelFazenda);
+    return Math.ceil(20 * nivelFazenda * Math.pow(1.1, nivelFazenda));
 }
 
 
@@ -312,13 +322,13 @@ function GetConsumoFazenda (nivelFazenda)
 
     /**
      * @param {number} nivelPlanta
-     * @returns {{ferro : number, cristal : number}} 
+     * @returns {{ferro : number, cristal : number, uranio : number}} 
      */
     function GetCustoUpgradePlantaSolar(nivelPlanta)
     {
         var custoFerro = Math.ceil((120 * Math.pow(1.5, (nivelPlanta - 1))));
         var custoCristal = Math.ceil((170 * Math.pow(1.4, (nivelPlanta - 1))));
-        return {ferro : custoFerro, cristal : custoCristal};
+        return {ferro : custoFerro, cristal : custoCristal, uranio : 0};
     }
 
     /**
@@ -390,7 +400,7 @@ function GetConsumoFazenda (nivelFazenda)
             }
             else if(x > posPlaneta.x)
             {
-                x__;
+                x--;
             }
             if(y < posPlaneta.y)
             {
@@ -440,6 +450,9 @@ function GetConsumoFazenda (nivelFazenda)
     exports.GetConsumoMinaUranio = GetConsumoMinaUranio,
     exports.GetConsumoSintetizadorCombustivel = GetConsumoSintetizadorCombustivel,
 
-    exports.GetProducaoTotal = GetProducaoTotal
+    exports.GetProducaoTotal = GetProducaoTotal,
+    exports.GetConsumoTotal = GetConsumoTotal,
+
+    exports.GetTempoConstrucao = GetTempoConstrucao
 
 }(typeof exports === 'undefined' ? this.GerenciadorRecursos = {} : exports));

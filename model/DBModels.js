@@ -122,7 +122,7 @@ const Usuario = con.define('Usuario', {
 const Admin = con.define("admin", {
     id: 
     {
-        type: sequalize.INTEGER,
+        type: sequalize.BIGINT,
         autoIncrement: true,
         primaryKey: true
     },
@@ -153,7 +153,6 @@ const EsqueciSenha = con.define('esqueci_senha',
         defaultValue : sequalize.NOW
     }
 }, {timestamps : false, },);
-
 
 const Planeta = con.define('Planeta', 
 {
@@ -358,7 +357,30 @@ const Asteroide = con.define("Asteroide", {
     }
 }, {timestamps :false});
 
-
+const Construcao = con.define("Construcao", {
+    id:
+    {
+        type: sequalize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    edificio:
+    {
+        type:sequalize.STRING,
+        allowNull : false
+    },
+    inicio:
+    {
+        type: sequalize.DATE,
+        allowNull : false,
+        defaultValue : sequalize.NOW
+    },
+    duracao:
+    {
+        type:sequalize.INTEGER,
+        allowNull : false
+    }
+}, {timestamps : false});
 
 
 Usuario.hasOne(EsqueciSenha, {foreignKey : {name : "usuarioID", allowNull : false, primaryKey : true}, onDelete : "CASCADE"})
@@ -366,6 +388,7 @@ EsqueciSenha.removeAttribute('id');
 Setor.hasMany(Planeta, {foreignKey : {name : "setorID", allowNull : false}, onDelete : "CASCADE"})
 Setor.hasMany(Asteroide, {foreignKey : {name : "setorID", allowNull : false}, onDelete : "CASCADE"})
 Usuario.hasMany(Setor, {foreignKey : {name : "usuarioID", allowNull : true}, onDelete: "SET NULL"})
+Planeta.hasMany(Construcao,  {foreignKey : {name : "planetaID", allowNull : false}, onDelete: "CASCADE"})
 
 //Popula o setor depois de sua criacao
 Setor.afterCreate((instancia) =>
@@ -557,7 +580,7 @@ function gerarSetores()
         }
     }
 }
-module.exports = {Con : con, Usuario :  Usuario, Admin : Admin, EsqeciSenha : EsqueciSenha, Setor : Setor, Planeta : Planeta, isReady : function(){return ready;}};
+module.exports = {Con : con, Usuario :  Usuario, Admin : Admin, EsqeciSenha : EsqueciSenha, Setor : Setor, Planeta : Planeta, Construcao : Construcao, isReady : function(){return ready;}};
 function SyncDatabase()
 {
     Usuario.sync({force : yargs.create}).then(function()
@@ -580,13 +603,23 @@ function SyncDatabase()
                         {
                             Asteroide.sync({force : yargs.create}).then(function()
                             {
-                                if(yargs.create)
-                                    gerarSetores();
-                                else
+
+                                Construcao.sync({force : yargs.create}).then(() =>
                                 {
-                                    ready = true;
-                                }
-                            }); 
+                                    if(yargs.create)
+                                    {
+                                        gerarSetores();
+                                        ready = true;
+                                    }
+                                    else
+                                    {
+                                        ready = true;
+                                    }
+                                });
+                                
+                            });
+                            
+                            
                         });
                     });
                 }); 
@@ -620,6 +653,7 @@ function ClearForeignKeys()
         }));
     })
 }
+
 
 con.authenticate().then(function()
 {
