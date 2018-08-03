@@ -13,9 +13,30 @@ var adicionarRecurso = cron.schedule('*/10 * * * * *', function()
         {
             planetas.forEach(function(planeta)
             {
-                var updateFerro = GerenciadorRecursos.GetProducaoFerro(planeta.minaFerro) + planeta.recursoFerro; 
-                var updateCristal = GerenciadorRecursos.GetProducaoCristal(planeta.minaCristal) + planeta.recursoCristal;
-                models.Planeta.update({recursoFerro : updateFerro, recursoCristal : updateCristal}, {where : {id : planeta.id}});
+                models.Setor.findOne({where : {id : planeta.setorID}}).then((setor) =>{
+
+                    console.log(setor);
+                    let producao = GerenciadorRecursos.GetProducaoTotal({
+                        FabricaEletronica : planeta.fabricaEletronica,
+                        fazenda : planeta.fazenda,
+                        minaCristal : planeta.minaCristal,
+                        minaFerro : planeta.minaFerro,
+                        minaUranio : planeta.minaUranio,
+                        sintetizador : planeta.sintetizadorCombustivel
+                    }, planeta.plantaSolar, planeta.reatorFusao, {
+                        x: setor.posSolX,
+                        y : setor.posSolY
+                    }, {
+                        x : planeta.posX,
+                        y : planeta.posY
+                    }, setor.intensidadeSolar);
+
+
+                    var updateFerro = producao.minaFerro + planeta.recursoFerro; 
+                    var updateCristal = producao.minaCristal + planeta.recursoCristal;
+                    models.Planeta.update({recursoFerro : updateFerro, recursoCristal : updateCristal}, {where : {id : planeta.id}});
+
+                });
             });
         });
     }

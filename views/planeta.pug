@@ -270,23 +270,37 @@ block posscripts
         }
         function GetRecursos()
         {
+            let producao = GerenciadorRecursos.GetProducaoTotal({
+                FabricaEletronica : planeta.fabricaEletronica,
+                fazenda : planeta.fazenda,
+                minaCristal : planeta.minaCristal,
+                minaFerro : planeta.minaFerro,
+                minaUranio : planeta.minaUranio,
+                sintetizador : planeta.sintetizadorCombustivel
+            }, planeta.plantaSolar, planeta.reatorFusao, {
+                x : setor.solPosX,
+                y : setor.solPosY
+            }, {
+                x : planeta.posX,
+                y : planeta.posY
+            }, setor.intensidadeSolar);
             $("#recurso-ferro .recurso-atual").text(planeta.recursoFerro);
-            $("#recurso-ferro .recurso-producao").text("+" +GerenciadorRecursos.GetProducaoFerro(planeta.minaCristal) * 6 + "/minuto");
+            $("#recurso-ferro .recurso-producao").text("+" + producao.ferro * 6 + "/minuto");
             
             $("#recurso-cristal .recurso-atual").text(planeta.recursoCristal);
-            $("#recurso-cristal .recurso-producao").text("+" + GerenciadorRecursos.GetProducaoCristal(planeta.minaCristal) * 6 + "/minuto");
+            $("#recurso-cristal .recurso-producao").text("+" + producao.cristal * 6 + "/minuto");
 
             $("#recurso-uranio .recurso-atual").text(planeta.recursoUranio);
-            $("#recurso-uranio .recurso-producao").text("+" + GerenciadorRecursos.GetProducaoUranio(planeta.minaUranio) * 6 + "/minuto");
+            $("#recurso-uranio .recurso-producao").text("+" + producao.uranio * 6 + "/minuto");
 
             $("#recurso-eletronica .recurso-atual").text(planeta.recursoEletronica);
-            $("#recurso-eletronica .recurso-producao").text("+" + GerenciadorRecursos.GetProducaoEletronica(planeta.fabricaEletronica) * 6 + "/minuto");
+            $("#recurso-eletronica .recurso-producao").text("+" + producao.eletronica * 6 + "/minuto");
 
             $("#recurso-combustivel .recurso-atual").text(planeta.recursoCombustivel);
-            $("#recurso-combustivel .recurso-producao").text("+" + GerenciadorRecursos.GetProducaoCombustivel(planeta.sintetizadorCombustivel) * 6 + "/minuto");
+            $("#recurso-combustivel .recurso-producao").text("+" + producao.combustivel * 6 + "/minuto");
 
             $("#recurso-comida .recurso-atual").text(planeta.recursoComida);
-            $("#recurso-comida .recurso-producao").text("+" + GerenciadorRecursos.GetProducaoComida(planeta.fazenda) * 6 + "/minuto");
+            $("#recurso-comida .recurso-producao").text("+" + producao.fazenda * 6 + "/minuto");
 
             var valorEnergia = GetEnergia(planeta.plantaSolar, planeta.reatorFusao, posSolObj, posPlanetaObj, setor.intensidadeSolar);
             var positivo = (valorEnergia >= 0);
