@@ -54,7 +54,7 @@ function GetConsumoTotal(nivelMinaFerro, nivelMinaCristal, nivelMinaUranio, nive
  * @param {number} [niveis.minaFerro] 
  * @param {number} [niveis.minaCristal]
  * @param {number} [niveis.minaUranio]
- * @param {number} [niveis.FabricaEletronica]
+ * @param {number} [niveis.fabricaEletronica]
  * @param {number} [niveis.sintetizador]
  * @param {number} [niveis.fazenda]
  * @param {Object} [posSol] O vetor de posição do sol
@@ -95,7 +95,7 @@ function GetProducaoTotal(niveis, nivelPlanta, nivelReator, posSol, posPlaneta, 
  */
 function GetProducaoFerro(nivelMina, consumoEnergiaTotal, totalEnergiaProduzida)
 {
-    let multiplicador = (totalEnergiaProduzida - consumo < 0) ? (totalEnergiaProduzida / consumoEnergiaTotal) : 1
+    let multiplicador = (totalEnergiaProduzida - consumoEnergiaTotal < 0) ? (totalEnergiaProduzida / consumoEnergiaTotal) : 1
     return Math.ceil((baseMinaFerro * nivelMina * Math.pow(1.1, nivelMina)) * multiplicador) + baseFerro
 }
 
@@ -131,7 +131,7 @@ function GetConsumoMinaFerro (nivelMina)
  */
 function GetProducaoCristal (nivelMina, consumoEnergiaTotal, totalEnergiaProduzida)
 {
-    let multiplicador = (totalEnergiaProduzida - consumo < 0) ? (totalEnergiaProduzida / consumoEnergiaTotal) : 1
+    let multiplicador = (totalEnergiaProduzida - consumoEnergiaTotal < 0) ? (totalEnergiaProduzida / consumoEnergiaTotal) : 1
     return Math.ceil((baseMinaCristal * nivelMina * Math.pow(1.1,nivelMina)) * multiplicador) + baseCristal
 }
 
@@ -163,7 +163,7 @@ function GetConsumoMinaCristal (nivelMina)
  */
 function GetProducaoEletronica(nivelFabrica, consumoEnergiaTotal, totalEnergiaProduzida)
 {
-    let multiplicador = (totalEnergiaProduzida - consumo < 0) ? (totalEnergiaProduzida / consumoEnergiaTotal) : 1
+    let multiplicador = (totalEnergiaProduzida - consumoEnergiaTotal < 0) ? (totalEnergiaProduzida / consumoEnergiaTotal) : 1
     return Math.ceil((baseEletronicaFabrica * nivelFabrica * Math.pow(1.1, nivelFabrica)) * multiplicador ) + baseEletronica
 }
 
@@ -198,7 +198,7 @@ function GetConsumoFabricaEletronica (nivelFabrica)
  */
 function GetProducaoUranio(nivelMina, consumoEnergiaTotal, totalEnergiaProduzida)
 {
-    let multiplicador = (totalEnergiaProduzida - consumo < 0) ? (totalEnergiaProduzida / consumoEnergiaTotal) : 1
+    let multiplicador = (totalEnergiaProduzida - consumoEnergiaTotal < 0) ? (totalEnergiaProduzida / consumoEnergiaTotal) : 1
     return Math.ceil((baseMinaUranio * nivelMina * Math.pow(1.1, nivelMina)) * multiplicador) + baseUranio
 }
 
@@ -231,9 +231,9 @@ function GetConsumoMinaUranio (nivelMina)
  * @param {number} nivelSintetizador O Nível do sintentizador de combustivel
  * @returns {number} Retorno um Integer da produção de combustivel do planeta
  */
-function GetProducaoCombustivel(nivelSintetizado, consumoEnergiaTotal, totalEnergiaProduzidar)
+function GetProducaoCombustivel(nivelSintetizador, consumoEnergiaTotal, totalEnergiaProduzida)
 {
-    let multiplicador = (totalEnergiaProduzida - consumo < 0) ? (totalEnergiaProduzida / consumoEnergiaTotal) : 1
+    let multiplicador = (totalEnergiaProduzida - consumoEnergiaTotal < 0) ? (totalEnergiaProduzida / consumoEnergiaTotal) : 1
     return Math.ceil((baseSintetizadorCombustivel * nivelSintetizador * Math.pow(1.1, nivelSintetizador)) * multiplicador) + baseCombustivel
 }
 
@@ -269,7 +269,7 @@ function GetConsumoSintetizadorCombustivel (nivelSintetizador)
  */
 function GetProducaoComida(nivelFazenda, consumoEnergiaTotal, totalEnergiaProduzida)
 {
-    let multiplicador = (totalEnergiaProduzida - consumo < 0) ? (totalEnergiaProduzida / consumoEnergiaTotal) : 1
+    let multiplicador = (totalEnergiaProduzida - consumoEnergiaTotal < 0) ? (totalEnergiaProduzida / consumoEnergiaTotal) : 1
     return Math.ceil((baseFazenda * nivelFazenda * Math.pow(1.1, nivelFazenda)) * multiplicador) + baseComida
 }
 
@@ -377,8 +377,6 @@ function GetConsumoFazenda (nivelFazenda)
         var distancia = 0;
         var x = posSol.x
         var y = posSol.y
-        console.log(posPlaneta)
-        console.log(posSol);
         while(true)
         {
             
