@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer')
 require('dotenv/config')
+
 const transportador =  nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 465,
@@ -10,13 +11,22 @@ const transportador =  nodemailer.createTransport({
         pass : process.env.EMAIL_PASSWORD
     }   
 });
-var enviar = function (destino, assunto, mensagem, __callback)
+
+
+/**
+ * 
+ * @param {string} destino O endereço de email do destinatário
+ * @param {string} assunto O assunto da mensagem
+ * @param {string} conteudo O conteudo da mensagem
+ * @param {function(err, info):void} __callback Callback(err, info) chamado quando o envio terminar
+ */
+function enviarEmail (destino, assunto, conteudo, __callback)
 {
     var opcoes = {
         from : process.env.EMAIL_USER,
         to : destino,
         subject: assunto,
-        html: mensagem
+        html: conteudo
     };
 
     transportador.sendMail(opcoes, function(err, info)
@@ -26,6 +36,17 @@ var enviar = function (destino, assunto, mensagem, __callback)
     });
 }
 
+/**
+ * @param {String} email O email a ser validado
+ * @description Analisa o email fornecido e retorna true se for valido e false se não for valido
+ * @returns {boolean}
+ */
+function validarEmail(email)
+{
+    var re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+    return re.test(String(email).toLowerCase());
+}
 module.exports = {
-    enviarEmail : enviar
+    enviarEmail : enviarEmail,
+    validarEmail : validarEmail
 }

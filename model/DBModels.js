@@ -358,6 +358,23 @@ const Asteroide = con.define("Asteroide", {
     }
 }, {timestamps :false});
 
+
+
+
+Usuario.hasOne(EsqueciSenha, {foreignKey : {name : "usuarioID", allowNull : false, primaryKey : true}, onDelete : "CASCADE"})
+EsqueciSenha.removeAttribute('id');
+Setor.hasMany(Planeta, {foreignKey : {name : "setorID", allowNull : false}, onDelete : "CASCADE"})
+Setor.hasMany(Asteroide, {foreignKey : {name : "setorID", allowNull : false}, onDelete : "CASCADE"})
+Usuario.hasMany(Setor, {foreignKey : {name : "usuarioID", allowNull : true}, onDelete: "SET NULL"})
+
+//Popula o setor depois de sua criacao
+Setor.afterCreate((instancia) =>
+{
+    PopularSetor(instancia);
+}
+)
+
+//Reseta os attributos dos planetas e asteroides do usuario após o usuário ser apagado da base de dados
 Usuario.afterDestroy(function(usuario, opcoes)
 {
     con.query("update planeta set colonizado = 0, minaCristal = 0, fabricaEletronica = 0, minaUranio = 0, sintetizadorCombustivel = 0, fazenda = 0 ,recursoFerro = 0, minaFerro = 0, recursoCristal = 0, recursoEletronica = 0, recursoUranio = 0, recursoCombustivel = 0, recursoComida = 0 plantaSolar = 0, reatorFusao = 0  where exists(select * from setors where setors.usuarioID = "+usuario.id+")").spread(function()
@@ -369,208 +386,176 @@ Usuario.afterDestroy(function(usuario, opcoes)
     });
 });
 
-Usuario.hasOne(EsqueciSenha, {foreignKey : {name : "usuarioID", allowNull : false, primaryKey : true}, onDelete : "CASCADE"})
-EsqueciSenha.removeAttribute('id');
-Setor.hasMany(Planeta, {foreignKey : {name : "setorID", allowNull : false}, onDelete : "CASCADE"})
-Setor.hasMany(Asteroide, {foreignKey : {name : "setorID", allowNull : false}, onDelete : "CASCADE"})
-Usuario.hasMany(Setor, {foreignKey : {name : "usuarioID", allowNull : true}, onDelete: "SET NULL"})
-
-function CriarPlaneta(setor, numero, maximo, posicoestomadas, __callback)
-{  
-    if(numero > maximo)
-    {
-        __callback(setor);
-        return;
-    }
-    else
-    {
-
-            var posX;
-            var posY;
-            while(true)
-            {
-            
-                posX = random.GerarIntAleatorio(setor.dataValues.tamanho, 0);
-                posY = random.GerarIntAleatorio(setor.dataValues.tamanho, 0);
-                if(posX == setor.solPosX && posY == setor.solPosY)
-                {
-                    continue;
-                }
-                var esta = false;
-                for(var i = 0; i < posicoestomadas.length; i++)
-                {
-                    if(posicoestomadas[i].x == posX && posicoestomadas[i].y == posY)
-                    {
-                        esta = true;
-                        break;
-                    }
-                }
-                if(!esta)
-                {
-                    break;
-                }
-                
-            }
-            
-            var tamanho = random.GerarIntAleatorio(Number(process.env.UNIVERSE_PLANET_MAX_SIZE), Number(process.env.UNIVERSE_PLANET_MIN_SIZE));
-            var valorHabitavel = random.GerarIntAleatorio(100, 0);
-            var habitavel = (valorHabitavel <= process.env.UNIVERSE_SYSTEM_HABITABLE_PLANET_RATIO)
-            Planeta.create({habitavel : habitavel, posX: posX, posY: posY, tamanho : tamanho, setorID : setor.id}).then(function()
-            {
-                posicoestomadas.push({x: posX, y: posY});
-                var proximo = numero + 1;
-    
-                CriarPlaneta(setor, proximo, maximo, posicoestomadas, __callback);
-            });
-    }
-}
-
-
-
-
-function PopularSetor(setor, __callback)
+/**
+ * @param {object} setor O Modelo do tipo sequelize do setor 
+ * @param {number} posX A posicao do eixo X do planeta
+ * @param {number} posY A posicao do eixo Y do planeta
+ */
+function CriarPlaneta(setor, posX, posY)
 {
-    if(setor.dataValues.planetario == true)
+    var tamanho = random.GerarIntAleatorio(Number(process.env.UNIVERSE_PLANET_MAX_SIZE), Number(process.env.UNIVERSE_PLANET_MIN_SIZE));
+    var valorHabitavel = random.GerarIntAleatorio(100, 0);
+    var habitavel = (valorHabitavel <= process.env.UNIVERSE_SYSTEM_HABITABLE_PLANET_RATIO)
+    Planeta.create({habitavel : habitavel, posX: posX, posY: posY, tamanho : tamanho, setorID : setor.id}).catch((err) =>
     {
-            var maximo = random.GerarIntAleatorio(Number(process.env.UNIVERSE_SYSTEM_MAX_PLANETS), Number(process.env.UNIVERSE_SYSTEM_MIN_PLANETS));
-            if(maximo > (setor.tamanho * setor.tamanho) - 1)
-            {
-                maximo = (setor.tamanho * setor.tamanho) - 1;
-            }
-            CriarPlaneta(setor, 1, maximo, [], __callback);
-    }
-    else
-    {
-        var quantidadeAsteroids = random.GerarIntAleatorio(Number(process.env.UNIVERSE_ASTEROIDS_MAX), Number(process.env.UNIVERSE_ASTEROIDS_MIN));
-        var posDisponiveis  = (setor.dataValues.tamanho * setor.dataValues.tamanho);
-        if(quantidadeAsteroids > posDisponiveis)
+        if(err.name == "TimeoutError")
         {
-            quantidadeAsteroids = posDisponiveis;
+            setTimeout(() =>
+            {
+                CriarPlaneta(setor, posX, posY);
+            }, 100);
         }
-        CriarAsteroide(setor, 1,  quantidadeAsteroids, []);
-    }
-    
-}
-
-
-function CriarAsteroide(setorr,numero, maximo, posicoestomadas)
-{
-    if(numero > maximo)
-    {
-        ready = true;
-        return;
-    }
-    var posX;
-    var posY;
-    while(true)
-    {
-        posX = random.GerarIntAleatorio(setorr.dataValues.tamanho, 0);
-        posY = random.GerarIntAleatorio(setorr.dataValues.tamanho, 0);
-        var esta = false;
-        for(var i = 0; i < posicoestomadas.length; i++)
+        else
         {
-            if(posicoestomadas.x == posX && posicoestomadas.y == posY)
-            {
-                esta = true;
-                break;
-            }
+            console.log('\x1b[31m%s\x1b[0m', err);
         }
-        if(!esta)
-        {
-            break;
-        } 
-    }
-    Asteroide.create({posX : posX, posY: posY, setorID : setorr.id}).then(function()
-    {
-        posicoestomadas.push({x: posX, y : posY});
-        var proximo = numero + 1;
-
-        CriarAsteroide(setorr, proximo, maximo, posicoestomadas);
-    });
-}
-
-
-function PopularSetores()
-{
-    Setor.findAll({}).then(function(setores)
-    {
-        for(var i = 0; i < setores.length; i++)
-        {
-            var setor = setores[i];
-
-            PopularSetor(setor, function(setorr)
-            {
-                Planeta.findAll({where : {setorID : setorr.dataValues.id}, attributes : ['posX', 'posY']}).then(function(planetas)
-                {
-                   var quantidadeAsteroids = random.GerarIntAleatorio(Number(process.env.UNIVERSE_ASTEROIDS_MAX), Number(process.env.UNIVERSE_ASTEROIDS_MIN));
-                   var posDisponiveis  = (setorr.dataValues.tamanho * setorr.dataValues.tamanho)  - planetas.length - 1;
-                   if(quantidadeAsteroids > posDisponiveis)
-                   {
-                       quantidadeAsteroids = posDisponiveis;
-                   }
-
-                   var posicoes  = new Array();
-                   posicoes.push({x: setorr.solPosX, y: setorr.solPosY});
-                   for(var j = 0; j < planetas.length; j++)
-                   {
-                       posicoes.push({x : planetas[j].dataValues.posX, y : planetas[j].dataValues.posY});
-                   }
-                    
-                    CriarAsteroide(setorr, 1,  quantidadeAsteroids, posicoes);
-                });
-            });
-
-            
-        }
-    });
-}
-
-
-function gerarSetores(posX, posY)
-{
-    if(posX > totalX)
-    {
-        PopularSetores();
-    }
-    else
-    {
-        var aumentarX = (posY == totalY);
-        var aumentarY = (!aumentarX);
-        var valorPlanetario = random.GerarIntAleatorio(100, 0);
-        var planetario = (valorPlanetario <= process.env.UNIVERSE_SYSTEM_PROB)
-        var tamanho = random.GerarIntAleatorio(Number(process.env.UNIVERSE_SYSTEM_MAX_SIZE), Number(process.env.UNIVERSE_SYSTEM_MIN_SIZE));
-        Setor.create({
-            posY: posY,
-            posX: posX,
-            nome : "Setor " + posX + "-" + posY,
-            tamanho: tamanho, 
-            planetario : planetario,
-            intensidadeSolar : (planetario) ? random.GerarIntAleatorio(200, 70) : null,
-            solPosX : (planetario) ? Math.ceil (tamanho / 2) : null,
-            solPosY : (planetario) ? Math.ceil (tamanho / 2)  : null
-        }).then(function(setor)
-        {
-            if(aumentarX)
-            {
-                posX++
-                posY = 1;
-            }
-            else if(aumentarY)
-            {
-                posY++;
-            }
-            else
-            {
-                return;
-            }
-            gerarSetores(posX, posY);
-        }).catch(function(err)
-        {
-            console.error(err);
-        });
         
+    });
+}
+
+/**
+ * @param {object} setor O Modelo do tipo sequelize do setor 
+ * @param {number} posX A posicao do eixo X do asteroide
+ * @param {number} posY A posicao do eixo Y do asteroide
+ */
+function CriarAsteroide(setor, posX, posY)
+{
+    Asteroide.create({posX : posX, posY: posY, setorID : setor.id}).catch((err) =>{
+        if(err.name == "TimeoutError")
+        {
+            setTimeout(()=>
+            {
+                CriarAsteroide(setor, posX, posY);
+            }, 100);
+        }
+        else
+        {
+            console.log('\x1b[31m%s\x1b[0m', err);
+        }
+    });
+}
+
+/**
+ * @param {number} posX A posição do eixo X do setor
+ * @param {number} posY A posição do eixo Y do setor
+ * @description Cria um setor dada o vetor [posX, posY]
+ */
+function CriarSetor(posX, posY)
+{
+    let valorPlanetario = random.GerarIntAleatorio(100, 0);
+    let planetario = (valorPlanetario <= process.env.UNIVERSE_SYSTEM_PROB)
+    let tamanho = random.GerarIntAleatorio(Number(process.env.UNIVERSE_SYSTEM_MAX_SIZE), Number(process.env.UNIVERSE_SYSTEM_MIN_SIZE));
+    Setor.create({
+        posY: posY,
+        posX: posX,
+        nome : "Setor " + posX + "-" + posY,
+        tamanho: tamanho, 
+        planetario : planetario,
+        intensidadeSolar : (planetario) ? random.GerarIntAleatorio(200, 70) : null,
+        solPosX : (planetario) ? Math.ceil (tamanho / 2) : null,
+        solPosY : (planetario) ? Math.ceil (tamanho / 2)  : null
+    }).catch((err) =>
+    {
+        if(err.name == "TimeoutError")
+        {
+            setTimeout(() =>
+            {
+                CriarSetor(posX, posY);
+            }, 100);
+        }
+        else
+        {
+            console.log('\x1b[31m%s\x1b[0m', err);
+        }
+    });
+}
+
+/**
+ * @param {object} setor O modelo sequelize do setor
+ * @description Popula o setor fornecido com asteroides e planetas (se é um setor planetário)
+ */
+function PopularSetor(setor)
+{
+    var posicoesTomadas = new Array(); //Array que armazeda posições de objetos de setor já tomadas
+
+    /**
+     * @param {number} x //A posicao do eixo X
+     * @param {number} y //A posicao do eixo Y
+     * @description Retorna se o vetor de x e y já está tomada na variável de posicoes tomadas
+     * @returns {boolean}
+     */
+    var isPosicaoTomada = function(x, y)
+    {
+        for(let i = 0; i < posicoesTomadas.length; i++)
+        {
+            if(posicoesTomadas[i].x == x && posicoesTomadas[i].y == y)
+                return true
+        }
+        return false
     }
-    
+
+    //Se o setor for planetario, ira criar o planetas antes dos anteroides
+    if(setor.planetario == true)
+    {   
+        //A posição do sol do setor
+        var posSol = Math.ceil(setor.tamanho / 2);
+        posicoesTomadas.push({x : posSol, y : posSol}); 
+        
+        //Total de planetas
+        var maximo = random.GerarIntAleatorio(Number(process.env.UNIVERSE_SYSTEM_MAX_PLANETS), Number(process.env.UNIVERSE_SYSTEM_MIN_PLANETS));
+        if(maximo > (setor.tamanho * setor.tamanho) - 1)
+        {
+            maximo = (setor.tamanho * setor.tamanho) - 1;
+        }
+
+        for(let i = 0; i < maximo; i++)
+        {
+            let posX;
+            let posY;
+            do
+            {
+                posX = random.GerarIntAleatorio(setor.tamanho, 0);
+                posY = random.GerarIntAleatorio(setor.tamanho, 0);
+            }while(isPosicaoTomada(posX, posY))
+
+            posicoesTomadas.push({x : posX, y : posY});
+            CriarPlaneta(setor, posX, posY);
+        }
+    }
+
+    //total de asteroides que serão criados
+    var quantidadeAsteroids = random.GerarIntAleatorio(Number(process.env.UNIVERSE_ASTEROIDS_MAX), Number(process.env.UNIVERSE_ASTEROIDS_MIN));
+    quantidadeAsteroids = (quantidadeAsteroids > posicoesTomadas.length) ? quantidadeAsteroids : posicoesTomadas.length
+
+    for(let i = 0; i < quantidadeAsteroids; i++)
+    {
+        let posX;
+        let posY;
+        do
+        {
+            posX = random.GerarIntAleatorio(setor.tamanho, 0);
+            posY = random.GerarIntAleatorio(setor.tamanho, 0);
+        }while(isPosicaoTomada(posX, posY))
+
+        posicoesTomadas.push({x : posX, y : posY});
+        CriarAsteroide(setor, posX, posY);
+    }
+}
+
+
+
+/**
+ * @description Cria os setores do universo.
+ */
+function gerarSetores()
+{
+    for(let posX = 0; posX < process.env.UNIVERSE_SIZE_X; posX++)
+    {
+        for(let posY = 0; posY < process.env. UNIVERSE_SIZE_Y; posY++)
+        {
+            CriarSetor(posX, posY);
+        }
+    }
 }
 module.exports = {Con : con, Usuario :  Usuario, Admin : Admin, EsqeciSenha : EsqueciSenha, Setor : Setor, Planeta : Planeta, isReady : function(){return ready;}};
 function SyncDatabase()
@@ -596,7 +581,7 @@ function SyncDatabase()
                             Asteroide.sync({force : yargs.create}).then(function()
                             {
                                 if(yargs.create)
-                                    gerarSetores(1, 1);
+                                    gerarSetores();
                                 else
                                 {
                                     ready = true;
@@ -617,6 +602,9 @@ function SyncDatabase()
     
 }
 
+/**
+ *  @description Apaga todas as constrains da base de dados
+ */
 function ClearForeignKeys()
 {
     const queryInterface = con.getQueryInterface();

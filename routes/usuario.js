@@ -10,22 +10,7 @@ const Usuario = database.Usuario;
 const Esqueci = database.EsqeciSenha;
 const Setor = database.Setor;
 const Planeta = database.Planeta;
-/* GET home page. */
-function validarEmail(email) {
-  var re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
-  return re.test(String(email).toLowerCase());
-}
 
-function GerarChave()
-{
-  var text = "";
-  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-  for (var i = 0; i < 60; i++)
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-  return text;
-}
 
 function getMensagemEsqueci(req, u, chave)
 {
@@ -88,7 +73,7 @@ router.post('/cadastrar', function(req, res) {
         res.status(400).end("O nick precisa conter pelo menos 4 caracteres");
         return;
       }
-      if(!validarEmail(params.email))
+      if(!emailer.validarEmail(params.email))
       {
         res.status(400).end("O email digitado não é valido");
         return;
@@ -102,7 +87,7 @@ router.post('/cadastrar', function(req, res) {
         {
          conexao.transaction().then(function(transacao)
          {
-          Usuario.create({nick : params.nick, email : params.email, senha : hash, chave_ativacao : GerarChave()}, {transaction : transacao}).then(function(data)
+          Usuario.create({nick : params.nick, email : params.email, senha : hash, chave_ativacao : random.GerarStringAleatoria(60)}, {transaction : transacao}).then(function(data)
           {
             var setorInicial = setores[random.GerarIntAleatorio(setores.length - 1, 0)];
             Setor.update({usuarioID : data.id}, {where : {id : setorInicial.id}, transaction: transacao}).then(function()
@@ -233,7 +218,7 @@ router.post('/criaresqueci', function(req, res)
   {
     res.status(400).end("Parâmetros inválidos");
   }
-  else if(!validarEmail(params.email))
+  else if(!emailer.validarEmail(params.email))
   {
     res.status(400).end("Email inválido");
   }
@@ -250,7 +235,7 @@ router.post('/criaresqueci', function(req, res)
         valores = user.dataValues;
         Esqueci.destroy({where : {usuarioID : valores.id}}).then(function()
         {
-          var chave = GerarChave();
+          var chave = random.GerarStringAleatoria(60);
           Esqueci.create({chave : chave, usuarioID : valores.id}).then(function(criado)
           {
               var mensagem = getMensagemEsqueci(req, valores.id, criado.dataValues.chave);
@@ -289,7 +274,7 @@ router.post('/reenviaresqueci', function(req, res)
   {
     res.status(400).end("Parâmetros inválidos");
   }
-  else if(!validarEmail(params.email))
+  else if(!emailer.validarEmail(params.email))
   {
     res.status(400).end("Email inválido");
   }

@@ -5,188 +5,198 @@ block content
     include includes/navbar
     h1#nome-planeta
 
-    h2 Recursos
-    ul
-        li#recurso-ferro Ferro: 
-            br
-            | Atual: 
-            span.recurso-atual
-            br
-            | Producao: 
-            span.recurso-producao.text-success
-        li#recurso-cristal Cristal: 
-            br
-            | Atual: 
-            span.recurso-atual
-            br
-            | Producao: 
-            span.recurso-producao.text-success
-        li#recurso-uranio Urânio: 
-            br
-            | Atual: 
-            span.recurso-atual
-            br
-            | Producao: 
-            span.recurso-producao.text-success
-        li#recurso-eletronica Eletrônica: 
-            br
-            | Atual: 
-            span.recurso-atual
-            br
-            | Producao: 
-            span.recurso-producao.text-success
-        li#recurso-combustivel Combustível: 
-            br
-            | Atual: 
-            span.recurso-atual
-            br
-            | Producao: 
-            span.recurso-producao.text-success
-        li#recurso-comida Comida: 
-            br
-            | Atual: 
-            span.recurso-atual
-            br
-            | Producao: 
-            span.recurso-producao.text-success
-        li#recurso-energia Energia: 
-            br
-            | Atual: 
-            span.recurso-atual
+    
+    .container
+        h2 Recursos
+        .row
+            #recurso-ferro.col-md-3 Ferro: 
+                br
+                | Atual: 
+                span.recurso-atual
+                br
+                | Producao: 
+                span.recurso-producao.text-success
+            #recurso-cristal.col-md-3 Cristal: 
+                br
+                | Atual: 
+                span.recurso-atual
+                br
+                | Producao: 
+                span.recurso-producao.text-success
+            #recurso-uranio.col-md-3 Urânio: 
+                br
+                | Atual: 
+                span.recurso-atual
+                br
+                | Producao: 
+                span.recurso-producao.text-success
+        .row
+            hr
+            #recurso-eletronica.col-md-3 Eletrônica: 
+                br
+                | Atual: 
+                span.recurso-atual
+                br
+                | Producao: 
+                span.recurso-producao.text-success
+            #recurso-combustivel.col-md-3 Combustível: 
+                br
+                | Atual: 
+                span.recurso-atual
+                br
+                | Producao: 
+                span.recurso-producao.text-success
+            #recurso-comida.col-md-3 Comida: 
+                br
+                | Atual: 
+                span.recurso-atual
+                br
+                | Producao: 
+                span.recurso-producao.text-success
+        .row
+            hr
+            #recurso-energia.col-md-3 Energia: 
+                br
+                | Atual: 
+                span.recurso-atual
             
-    h2 Edificios
-    #edificio-ferro
-        h4 Mina de ferro
-        span nivel: 
-            span.edificio-nivel
-        br
-        span Custo de melhoria
-        ul
-            li.custo-ferro Ferro: 
-                span
-            li.custo-cristal Cristal: 
-                span
-        span Diferença em produção com melhoria: 
-            b
-                span.edificio-melhoria-producao.text-success
-        br
-        button.btn.btn-success.btn-sm.btn-melhorar-edificio Melhorar
-    #edificio-cristal
-        h4 Mina de Cristal
-        span nivel: 
-            span.edificio-nivel
-        br
-        span Custo de melhoria
-        ul
-            li.custo-ferro Ferro: 
-                span
-            li.custo-cristal Cristal: 
-                span
-        span Diferença em produção com melhoria: 
-            b
-                span.edificio-melhoria-producao.text-success
-        br
-        button.btn.btn-success.btn-sm.btn-melhorar-edificio Melhorar]
-    #edificio-uranio
-        h4 Mina de Urânio
-        span nivel: 
-            span.edificio-nivel
-        br
-        span Custo de melhoria
-        ul
-            li.custo-ferro Ferro: 
-                span
-            li.custo-cristal Cristal: 
-                span
-        span Diferença em produção com melhoria: 
-            b
-                span.edificio-melhoria-producao.text-success
-        br
-        button.btn.btn-success.btn-sm.btn-melhorar-edificio Melhorar
-    #edificio-planta-solar
-        h4 Planta Solar
-        span nivel: 
-            span.edificio-nivel
-        br
-        span Custo de melhoria
-        ul
-            li.custo-ferro Ferro: 
-                span
-            li.custo-cristal Cristal: 
-                span
-        span Diferença em produção com melhoria: 
-            b
-                span.edificio-melhoria-producao.text-success
-        br
-        button.btn.btn-success.btn-sm.btn-melhorar-edificio Melhorar
-    #edificio-reator-fusao
-        h4 Reator de fusão
-        span nivel: 
-            span.edificio-nivel
-        br
-        span Custo de melhoria
-        ul
-            li.custo-ferro Ferro: 
-                span
-            li.custo-cristal Cristal: 
-                span
-            li.custo-uranio Uranio: 
-                span
-        span Diferença em produção com melhoria: 
-            b
-                span.edificio-melhoria-producao.text-success
-        br
-        button.btn.btn-success.btn-sm.btn-melhorar-edificio Melhorar
-    #edificio-fabrica-eletronica
-        h4 Fabrica eletrônica
-        span nivel: 
-            span.edificio-nivel
-        br
-        span Custo de melhoria
-        ul
-            li.custo-ferro Ferro: 
-                span
-            li.custo-cristal Cristal: 
-                span
-        span Diferença em produção com melhoria: 
-            b
-                span.edificio-melhoria-producao.text-success
-        br
-        button.btn.btn-success.btn-sm.btn-melhorar-edificio Melhorar
-    #edificio-sintetizador-combustivel
-        h4 Sintetizador Combustível
-        span nivel: 
-            span.edificio-nivel
-        br
-        span Custo de melhoria
-        ul
-            li.custo-ferro Ferro: 
-                span
-            li.custo-cristal Cristal: 
-                span
-            li.custo-uranio Urânio: 
-                span
-        span Diferença em produção com melhoria: 
-            b
-                span.edificio-melhoria-producao.text-success
-        br
-        button.btn.btn-success.btn-sm.btn-melhorar-edificio Melhorar
-    #edificio-fazenda
-        h4 Fazenda
-        span nivel: 
-            span.edificio-nivel
-        br
-        span Custo de melhoria
-        ul
-            li.custo-ferro Ferro: 
-                span
-            li.custo-cristal Cristal: 
-                span
-        span Diferença em produção com melhoria: 
-            b
-                span.edificio-melhoria-producao.text-success
-        br
-        button.btn.btn-success.btn-sm.btn-melhorar-edificio Melhorar
+    .container
+        .row
+            h2 Edificios
+            #edificio-ferro.col-md-3
+                h4 Mina de ferro
+                span nivel: 
+                    span.edificio-nivel
+                br
+                span Custo de melhoria
+                ul
+                    li.custo-ferro Ferro: 
+                        span
+                    li.custo-cristal Cristal: 
+                        span
+                span Diferença em produção com melhoria: 
+                    b
+                        span.edificio-melhoria-producao.text-success
+                br
+                button.btn.btn-success.btn-sm.btn-melhorar-edificio Melhorar
+            #edificio-cristal.col-md-3
+                h4 Mina de Cristal
+                span nivel: 
+                    span.edificio-nivel
+                br
+                span Custo de melhoria
+                ul
+                    li.custo-ferro Ferro: 
+                        span
+                    li.custo-cristal Cristal: 
+                        span
+                span Diferença em produção com melhoria: 
+                    b
+                        span.edificio-melhoria-producao.text-success
+                br
+                button.btn.btn-success.btn-sm.btn-melhorar-edificio Melhorar
+            #edificio-uranio.col-md-3
+                h4 Mina de Urânio
+                span nivel: 
+                    span.edificio-nivel
+                br
+                span Custo de melhoria
+                ul
+                    li.custo-ferro Ferro: 
+                        span
+                    li.custo-cristal Cristal: 
+                        span
+                span Diferença em produção com melhoria: 
+                    b
+                        span.edificio-melhoria-producao.text-success
+                br
+                button.btn.btn-success.btn-sm.btn-melhorar-edificio Melhorar
+            #edificio-planta-solar.col-md-3
+                h4 Planta Solar
+                span nivel: 
+                    span.edificio-nivel
+                br
+                span Custo de melhoria
+                ul
+                    li.custo-ferro Ferro: 
+                        span
+                    li.custo-cristal Cristal: 
+                        span
+                span Diferença em produção com melhoria: 
+                    b
+                        span.edificio-melhoria-producao.text-success
+                br
+                button.btn.btn-success.btn-sm.btn-melhorar-edificio Melhorar
+        .row
+            hr
+            #edificio-reator-fusao.col-md-3
+                h4 Reator de fusão
+                span nivel: 
+                    span.edificio-nivel
+                br
+                span Custo de melhoria
+                ul
+                    li.custo-ferro Ferro: 
+                        span
+                    li.custo-cristal Cristal: 
+                        span
+                    li.custo-uranio Uranio: 
+                        span
+                span Diferença em produção com melhoria: 
+                    b
+                        span.edificio-melhoria-producao.text-success
+                br
+                button.btn.btn-success.btn-sm.btn-melhorar-edificio Melhorar
+            #edificio-fabrica-eletronica.col-md-3
+                h4 Fabrica eletrônica
+                span nivel: 
+                    span.edificio-nivel
+                br
+                span Custo de melhoria
+                ul
+                    li.custo-ferro Ferro: 
+                        span
+                    li.custo-cristal Cristal: 
+                        span
+                span Diferença em produção com melhoria: 
+                    b
+                        span.edificio-melhoria-producao.text-success
+                br
+                button.btn.btn-success.btn-sm.btn-melhorar-edificio Melhorar
+            #edificio-sintetizador-combustivel.col-md-3
+                h4 Sintetizador Combustível
+                span nivel: 
+                    span.edificio-nivel
+                br
+                span Custo de melhoria
+                ul
+                    li.custo-ferro Ferro: 
+                        span
+                    li.custo-cristal Cristal: 
+                        span
+                    li.custo-uranio Urânio: 
+                        span
+                span Diferença em produção com melhoria: 
+                    b
+                        span.edificio-melhoria-producao.text-success
+                br
+                button.btn.btn-success.btn-sm.btn-melhorar-edificio Melhorar
+            #edificio-fazenda.col-md-3
+                h4 Fazenda
+                span nivel: 
+                    span.edificio-nivel
+                br
+                span Custo de melhoria
+                ul
+                    li.custo-ferro Ferro: 
+                        span
+                    li.custo-cristal Cristal: 
+                        span
+                span Diferença em produção com melhoria: 
+                    b
+                        span.edificio-melhoria-producao.text-success
+                br
+                button.btn.btn-success.btn-sm.btn-melhorar-edificio Melhorar
 
 
 

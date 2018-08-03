@@ -1,11 +1,15 @@
 var models = require('./DBModels');
 var cron = require('node-cron');
 var GerenciadorRecursos = require('./GerenciadorRecursos');
+
+/**
+ * @description Cron job para adicionar recursos para os jogadores
+ */
 var adicionarRecurso = cron.schedule('*/10 * * * * *', function()
 {
     if(models.isReady())
     {
-        models.Planeta.findAll({where : {colonizado : true}}).then(function(planetas)
+        models.Planeta.findAll({where : {colonizado : true}}).then((planetas) =>
         {
             planetas.forEach(function(planeta)
             {
@@ -17,6 +21,7 @@ var adicionarRecurso = cron.schedule('*/10 * * * * *', function()
     }
     
 })
+
 
 module.exports = {
     Recursos : adicionarRecurso
