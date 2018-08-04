@@ -36,6 +36,113 @@ const baseFazenda = Math.ceil(48 / 6)
 
 const baseEnergia = 100;
 
+const construcoes = ['minaFerro', 'minaCristal', 'fabricaEletronica', 'minaUranio', 'sintetizadorCombustivel', 'fazenda', 'plantaSolar', 'reatorFusao'];
+
+/**
+ * @param {string} construcao 
+ * @description Pega o id da construção
+ * @returns {number} Retorno o ou o ID ou -1 se for o parâmetro foi inválido 
+ */
+function GetEdificioID(construcao)
+{
+    return construcoes.indexOf(construcao);
+}
+
+/**
+ * @param {number} id O ID do edificio
+ * @description Converte o id do edificio para String (nome da coluna)
+ * @returns {string|boolean} Retorna o nome da coluna se o parâmetro foi valido ou false se não foi válido
+ */
+function EdificioIDParaString(id)
+{
+    if(typeof(id) !== 'number')
+    { 
+        if(!isNaN(id))
+        {
+            id = Number(id);
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    if(id >= construcoes.length || id < 0)
+        return false;
+    else
+        return construcoes[id]
+}
+
+
+/**
+ * @param {number|string} id O id do edificio ou a valor de string do id
+ * @param {number} nivel O nível do edificio    
+ * @description Retorna o custo de um edificio pelo seu id
+ * @return {CustoEdificio|boolean} O custo do edificio ou false se o id fornecido for inválido 
+ */
+function GetCustoEdificioPorId(id, nivel)
+{
+    if(typeof(id) === 'number')
+    {
+        id = EdificioIDParaString(id);
+        if(id === false)
+            return false
+    }
+    else
+    {
+        switch(id)
+        {
+            case 'minaFerro':
+                return GetCustoUpgradeMinaFerro(nivel);
+            case 'minaCristal':
+                return GetCustoUpgradeMinaCristal(nivel);
+            case 'fabricaEletronica':
+                return GetCustoUpgradeFabricaEletronica(nivel);
+            case 'minaUranio':
+                return GetCustoUpgradeMinaUranio(nivel)
+            case 'sintetizadorCombustivel':
+                return GetCustoUpgradeSintetizadorCombustivel (nivel)
+            case 'fazenda': 
+                return GetCustoUpgradeFazenda (nivel)
+            case 'plantaSolar':
+                return GetCustoUpgradePlantaSolar (nivel)
+            case 'reatorFusao':
+                return GetCustoUpgradeReatorFusao (nivel)
+            default:
+                return false
+        }
+    } 
+    
+}
+/**
+ * @param {string|number} id 
+ * @description Verifica se o id fornecido é valido para edificios
+ * @returns {boolean} true se é valido. false se não é valido
+ */
+function VerificarIDEdificio(id)
+{
+    if(typeof(id) == 'number')
+    {
+        return EdificioIDParaString(id) !== false;
+    }
+    else if(typeof(id) == 'string')
+    {
+        if(isNaN(id)) //Não é numero
+        {
+            return GetEdificioID(id) != -1;
+        }
+        else
+        {
+            return EdificioIDParaString(Number(id)) === false;
+        }
+    }
+    else
+    {
+        return false;
+    }
+}
+
+
 /**
  * 
  * @param {number} totalFerro 
@@ -455,6 +562,10 @@ function GetConsumoFazenda (nivelFazenda)
     exports.GetProducaoTotal = GetProducaoTotal,
     exports.GetConsumoTotal = GetConsumoTotal,
 
-    exports.GetTempoConstrucao = GetTempoConstrucao
+    exports.GetTempoConstrucao = GetTempoConstrucao,
+    exports.GetEdificioID = GetEdificioID,
+    exports.EdificioIDParaString  = EdificioIDParaString,
+    exports.GetCustoEdificioPorId = GetCustoEdificioPorId,
+    exports.VerificarIDEdificio = VerificarIDEdificio
 
 }(typeof exports === 'undefined' ? this.GerenciadorRecursos = {} : exports));

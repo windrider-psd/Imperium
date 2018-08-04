@@ -1,6 +1,10 @@
 var models = require('./DBModels');
 var cron = require('node-cron');
 var GR = require('./GerenciadorRecursos');
+/**
+ * @type {Array.<{planetaID : number, edificioID : number, timeout : function}>}
+ * @description Array que armazena as construções para serem executadas (timeout)
+ */
 var construcoes = new Array();
 /**
  * @description Cron job para adicionar recursos para os jogadores
@@ -31,52 +35,74 @@ var adicionarRecurso = cron.schedule('*/10 * * * * *', function()
                     let updateFerro = producao.ferro + planeta.recursoFerro; 
                     let updateCristal = producao.cristal + planeta.recursoCristal;
                     models.Planeta.update({recursoFerro : updateFerro, recursoCristal : updateCristal}, {where : {id : planeta.id}});
-
                 });
             });
         });
     }
 })
+
+
 /**
- * @param {number} planetaID O id do planeta da construção
- * @param {number} edificio O nome da coluna do edificio
+ * @param {number} planetaID O ID do planeta da construção
+ * @param {number} edificio O ID do edificio
  * @param {number} duracao A duração da construção em segundos
+ * @param {function} callback callback(err, construcao)
  * @description Adiciona uma construção à um planeta
  */
-function AdicionarConstrucao(planetaID, edificio, duracao)
+function AdicionarConstrucao(planetaID, edificioID, duracao, callback)
 {
-    models.Construcao.create({planetaID : planetaID, edificio : edificio, duracao : duracao}).then((construcao)=>
+    if(typeof(edificioID) !== 'number')
     {
-        let timeout = setTimeout(() => 
+        callback("O edificioID precisa ser um número");
+    }
+
+    else if(GR.VerificarIDEdificio(edificioID) === false)
+    {
+        callback("edificioID inválido", null)
+    }
+    else
+    {
+        models.Construcao.create({planetaID : planetaID, edificioID : edificioID, duracao : duracao}).then((construcao)=>
         {
-            models.Planeta.findOne({where : {id : planetaID}}).then((planeta) =>{
-                let valorObj = {};
-                valorObj[edificio] = edificio;
-                planeta[edificio] = planeta[edificio] + 1;
-                planeta.save();
-            });
-            RemoverConstrucao(construcao.id);
-        }, duracao * 1000);
-        construcoes.push({id : construcao.id, timeout : timeout});
-       
-    })
+            let timeout = setTimeout(() => 
+            {
+                models.Planeta.findOne({where : {id : planetaID}}).then((planeta) =>{
+
+                    let edificio = GR.EdificioIDParaString(construcao.edificioID); 
+                    planeta[edificio] = planeta[edificio] + 1;
+                    planeta.save().then(() =>
+                    {
+                        console.log("salvou");
+                    }).catch((err) => {
+                        console.log(err);
+                    });
+                });
+                RemoverConstrucao(construcao.planetaID, construcao.edificioID);
+            }, duracao * 1000);
+            construcoes.push({planetaID : planetaID, edificioID : edificioID, timeout : timeout});
+            if(typeof(callback) == 'function')
+                callback(null, construcao)
+        }).catch((err) =>
+        {
+            callback(err, null);
+        });
+    }
 }
 
 /**
- * 
- * @param {number} idConstrucao O id da construção
+ * @param {number} idPlaneta O id da construção
+ * @param {number} idEdificio O id do edificio
  * @description Remove uma construção de um planeta
  */
-function RemoverConstrucao(idConstrucao)
+function RemoverConstrucao(idPlaneta, idEdificio)
 {
     for(let i = 0; i < construcoes.length; i++)
     {
-        if(construcoes[i].id == idConstrucao)
+        if(construcoes[i].planetaID == idPlaneta && construcoes[i].edificioID == idEdificio)
         {
             clearTimeout(construcoes[i].timeout);
-            models.Construcao.destroy({where : {id : construcoes[i].id}});
+            models.Construcao.destroy({where : {planetaID : construcoes[i].planetaID, edificioID : construcoes[i].edificioID}});
             construcoes.splice(i, 1);
-            console.log("Eliminou");
             break;
         }
     }

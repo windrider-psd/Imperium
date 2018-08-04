@@ -6,7 +6,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');   
 var paginaRouter = require('./routes/paginas');
 var usuarioRouter = require('./routes/usuario');
-var edificiosRouter = require("./routes/edificios");
+var edificiosRouter = require("./routes/edificio");
 var browserify = require('browserify-middleware');
 var session = require('express-session')
 var helmet = require('helmet');
@@ -40,7 +40,7 @@ app.get('/js/recursos.js', function(req, res)
 });
 app.use('/', paginaRouter);
 app.use('/usuario', usuarioRouter);
-app.use('/edificios', edificiosRouter);
+app.use('/edificio', edificiosRouter);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));

@@ -358,22 +358,17 @@ const Asteroide = con.define("Asteroide", {
 }, {timestamps :false});
 
 const Construcao = con.define("Construcao", {
-    id:
+    edificioID:
     {
-        type: sequalize.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-    },
-    edificio:
-    {
-        type:sequalize.STRING,
-        allowNull : false
+        type:sequalize.TINYINT,
+        allowNull : false,
+        primaryKey : true,
     },
     inicio:
     {
         type: sequalize.DATE,
         allowNull : false,
-        defaultValue : sequalize.NOW
+        defaultValue : sequalize.NOW,
     },
     duracao:
     {
@@ -388,7 +383,7 @@ EsqueciSenha.removeAttribute('id');
 Setor.hasMany(Planeta, {foreignKey : {name : "setorID", allowNull : false}, onDelete : "CASCADE"})
 Setor.hasMany(Asteroide, {foreignKey : {name : "setorID", allowNull : false}, onDelete : "CASCADE"})
 Usuario.hasMany(Setor, {foreignKey : {name : "usuarioID", allowNull : true}, onDelete: "SET NULL"})
-Planeta.hasMany(Construcao,  {foreignKey : {name : "planetaID", allowNull : false}, onDelete: "CASCADE"})
+Planeta.hasMany(Construcao,  {foreignKey : {name : "planetaID", allowNull : false, primaryKey : true}, onDelete: "CASCADE"})
 
 //Popula o setor depois de sua criacao
 Setor.afterCreate((instancia) =>
