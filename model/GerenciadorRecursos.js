@@ -9,6 +9,13 @@
  * @property {number} comida
  */
 
+/**
+ * @typedef {Object} CustoEdificio
+ * @property {number} ferro
+ * @property {number} cristal
+ * @property {number} uranio
+ */
+
 const baseFerro = Math.ceil(60 / 6);
 const baseMinaFerro = Math.ceil(90 / 6);
 
@@ -112,12 +119,12 @@ function GetProducaoFerro(nivelMina, consumoEnergiaTotal, totalEnergiaProduzida)
 /**
  * 
  * @param {number} nivelMinaFerro O Nível da mina de ferro do planeta
- * @returns {{ferro : number, cristal : number, uranio : number}} 
+ * @returns {CustoEdificio} 
  */
 function GetCustoUpgradeMinaFerro (nivelMinaFerro)
 {
-    var custoFerro = Math.ceil((172 * Math.pow(1.6, (nivelMinaFerro - 1))));
-    var custoCristal = Math.ceil((65 * Math.pow(1.4, (nivelMinaFerro - 1))));
+    let custoFerro = Math.ceil((172 * Math.pow(1.6, (nivelMinaFerro - 1))));
+    let custoCristal = Math.ceil((65 * Math.pow(1.4, (nivelMinaFerro - 1))));
     return {ferro : custoFerro, cristal : custoCristal, uranio : 0};
 }
 
@@ -147,12 +154,12 @@ function GetProducaoCristal (nivelMina, consumoEnergiaTotal, totalEnergiaProduzi
 
 /**
  * @param {number} nivelMina O Nível da mina de cristal do planeta
- * @returns {{ferro : number, cristal : number, uranio : number} 
+ * @returns {CustoEdificio} 
  */
 function GetCustoUpgradeMinaCristal (nivelMina)
 {
-    var custoFerro = Math.ceil((185 * Math.pow(1.5, (nivelMina - 1))));
-    var custoCristal = Math.ceil((92 * Math.pow(1.5, (nivelMina - 1))));
+    let custoFerro = Math.ceil((185 * Math.pow(1.5, (nivelMina - 1))));
+    let custoCristal = Math.ceil((92 * Math.pow(1.5, (nivelMina - 1))));
     return {ferro : custoFerro, cristal : custoCristal, uranio : 0};
 }
 /**
@@ -179,13 +186,13 @@ function GetProducaoEletronica(nivelFabrica, consumoEnergiaTotal, totalEnergiaPr
 
 /**
  * @param {number} nivelMina O Nível da mina de cristal do planeta
- * @returns {{ferro : number, cristal : number, uranio : number}} 
+ * @returns {CustoEdificio} 
  */
 function GetCustoUpgradeFabricaEletronica(nivelFabrica)
 {
-    var custoFerro = Math.ceil((112 * Math.pow(1.4, (nivelFabrica - 1))));
-    var custoCristal = Math.ceil((145 * Math.pow(1.3, (nivelFabrica - 1))));
-    var custoUranio = Math.ceil((36 * Math.pow(1.1, (nivelFabrica - 1))));
+    let custoFerro = Math.ceil((112 * Math.pow(1.4, (nivelFabrica - 1))));
+    let custoCristal = Math.ceil((145 * Math.pow(1.3, (nivelFabrica - 1))));
+    let custoUranio = Math.ceil((36 * Math.pow(1.1, (nivelFabrica - 1))));
     return {ferro : custoFerro, cristal : custoCristal, uranio : custoUranio};
 }
 
@@ -214,12 +221,12 @@ function GetProducaoUranio(nivelMina, consumoEnergiaTotal, totalEnergiaProduzida
 
 /**
  * @param {number} nivelMina O Nível da mina de urânio do planeta
- * @returns {{ferro : number, cristal : number, uranio : number}} 
+ * @returns {CustoEdificio} 
  */
 function GetCustoUpgradeMinaUranio(nivelMina)
 {
-    var custoFerro = Math.ceil((175 * Math.pow(2.1, (nivelMina - 1))));
-    var custoCristal = Math.ceil((190 * Math.pow(1.2, (nivelMina - 1))));
+    let custoFerro = Math.ceil((175 * Math.pow(2.1, (nivelMina - 1))));
+    let custoCristal = Math.ceil((190 * Math.pow(1.2, (nivelMina - 1))));
     return {ferro : custoFerro, cristal : custoCristal, uranio : 0};
 }
 
@@ -250,13 +257,13 @@ function GetProducaoCombustivel(nivelSintetizador, consumoEnergiaTotal, totalEne
 
 /**
  * @param {number} nivelMina O Nível do sintentizador de combustivel
- * @returns {{ferro : number, cristal : number, uranio : number}} 
+ * @returns {CustoEdificio} 
  */
 function GetCustoUpgradeSintetizadorCombustivel(nivelSintetizador)
 {
-    var custoFerro = Math.ceil((175 * Math.pow(1.2, (nivelSintetizador - 1))));
-    var custoCristal = Math.ceil((190 * Math.pow(2.1, (nivelSintetizador - 1))));
-    var custoUranio = Math.ceil((70 * Math.pow(1.2, (nivelSintetizador - 1))));
+    let custoFerro = Math.ceil((175 * Math.pow(1.2, (nivelSintetizador - 1))));
+    let custoCristal = Math.ceil((190 * Math.pow(2.1, (nivelSintetizador - 1))));
+    let custoUranio = Math.ceil((70 * Math.pow(1.2, (nivelSintetizador - 1))));
     return {ferro : custoFerro, cristal : custoCristal, uranio : custoUranio};
 }
 
@@ -285,12 +292,12 @@ function GetProducaoComida(nivelFazenda, consumoEnergiaTotal, totalEnergiaProduz
 
 /**
  * @param {number} nivelFazenda O Nível da fazenda
- * @returns {{ferro : number, cristal : number, uranio : number}} 
+ * @returns {CustoEdificio} 
  */
 function GetCustoUpgradeFazenda(nivelFazenda)
 {
-    var custoFerro = Math.ceil((70 * Math.pow(1.7, (nivelFazenda - 1))));
-    var custoCristal = Math.ceil((70 * Math.pow(1.7, (nivelFazenda - 1))));
+    let custoFerro = Math.ceil((70 * Math.pow(1.7, (nivelFazenda - 1))));
+    let custoCristal = Math.ceil((70 * Math.pow(1.7, (nivelFazenda - 1))));
     return {ferro : custoFerro, cristal : custoCristal, uranio : 0};
 }
 
@@ -322,24 +329,24 @@ function GetConsumoFazenda (nivelFazenda)
 
     /**
      * @param {number} nivelPlanta
-     * @returns {{ferro : number, cristal : number, uranio : number}} 
+     * @returns {CustoEdificio} 
      */
     function GetCustoUpgradePlantaSolar(nivelPlanta)
     {
-        var custoFerro = Math.ceil((120 * Math.pow(1.5, (nivelPlanta - 1))));
-        var custoCristal = Math.ceil((170 * Math.pow(1.4, (nivelPlanta - 1))));
+        let custoFerro = Math.ceil((120 * Math.pow(1.5, (nivelPlanta - 1))));
+        let custoCristal = Math.ceil((170 * Math.pow(1.4, (nivelPlanta - 1))));
         return {ferro : custoFerro, cristal : custoCristal, uranio : 0};
     }
 
     /**
      * @param {number} nivelMina O Nível do sintentizador de combustivel
-     * @returns {{ferro : number, cristal : number, uranio : number}} 
+     * @returns {CustoEdificio} 
     */
     function GetCustoUpgradeReatorFusao(nivelReator)
     {
-        var custoFerro = Math.ceil((210 * Math.pow(1.3, (nivelReator - 1))));
-        var custoCristal = Math.ceil((210 * Math.pow(1.5, (nivelReator - 1))));
-        var custoUranio = Math.ceil((150 * Math.pow(2, (nivelReator - 1))));
+        let custoFerro = Math.ceil((210 * Math.pow(1.3, (nivelReator - 1))));
+        let custoCristal = Math.ceil((210 * Math.pow(1.5, (nivelReator - 1))));
+        let custoUranio = Math.ceil((150 * Math.pow(2, (nivelReator - 1))));
         return {ferro : custoFerro, cristal : custoCristal, uranio : custoUranio};
     }
     /**
@@ -367,7 +374,7 @@ function GetConsumoFazenda (nivelFazenda)
      */
     function GetEnergia(nivelPlanta, nivelReator, posSol, posPlaneta, instensidadeSol)
     {
-        var intensidadeSolarPlaneta = GetIntensidadeSolarPlaneta(posSol, posPlaneta, instensidadeSol);
+        let intensidadeSolarPlaneta = GetIntensidadeSolarPlaneta(posSol, posPlaneta, instensidadeSol);
         return GetProducaoEnergiaPlantaSolar(nivelPlanta, intensidadeSolarPlaneta) + GetProducaoEnergiaReatorFusao(nivelReator) + baseEnergia;
     }
 
@@ -384,16 +391,11 @@ function GetConsumoFazenda (nivelFazenda)
      */
     function GetIntensidadeSolarPlaneta (posSol, posPlaneta, intensidadeSol)
     {
-        var distancia = 0;
-        var x = posSol.x
-        var y = posSol.y
-        while(true)
+        let distancia = 0;
+        let x = posSol.x
+        let y = posSol.y
+        while(x != posPlaneta.x && y != posPlaneta.y)
         {
-            
-            if(x == posPlaneta.x && y == posPlaneta.y)
-            {
-                break;
-            }
             if(x < posPlaneta.x)
             {
                 x++;

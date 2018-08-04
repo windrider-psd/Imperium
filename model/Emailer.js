@@ -15,10 +15,10 @@ const transportador =  nodemailer.createTransport({
 
 /**
  * 
- * @param {string} destino O endereço de email do destinatário
- * @param {string} assunto O assunto da mensagem
- * @param {string} conteudo O conteudo da mensagem
- * @param {function(err, info):void} __callback Callback(err, info) chamado quando o envio terminar
+ * @param {String} destino O endereço de email do destinatário
+ * @param {String} assunto O assunto da mensagem
+ * @param {String} conteudo O conteudo da mensagem
+ * @param {Function} __callback callback(err, info)
  */
 function enviarEmail (destino, assunto, conteudo, __callback)
 {
@@ -35,6 +35,7 @@ function enviarEmail (destino, assunto, conteudo, __callback)
             __callback(err, info);   
     });
 }
+
 
 /**
  * @param {String} email O email a ser validado

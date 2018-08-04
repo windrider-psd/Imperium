@@ -1,32 +1,11 @@
 var express = require('express');
 var router = express.Router();
 const models = require('./../model/DBModels')
-/* GET home page. */
+const MUtils = require('./../model/DBModelsUtils')
 
-function GetPlanetasSetor(setores, resultado, __callback, i)
-{
-  var index = (i) ? i : 0; 
-  if(index < setores.length)
-  {
-    var setor = setores[index];
-    models.Planeta.findAll({where : {setorID : setor.id}}).then(function(planetas)
-    {
-      var resPush = {setor : setor.dataValues, planetas :[]};
-      for(var j = 0; j < planetas.length; j++)
-      {
-        resPush.planetas.push(planetas[j]);
-      }
-      var proximo = index + 1;
-      resultado.push(resPush);
-      GetPlanetasSetor(setores, resultado, __callback, proximo);
-    });
-  }
-  else
-  {
-    __callback(resultado)
-  }
 
-}
+
+
 /**
  * @param {Object} req O objeto de requisição do express
  * @description Retorna um objeto que será usado no front-end
@@ -47,7 +26,7 @@ router.all('*', function(req, res, next)
       req.userdata.setores = [];
       if(setores.length > 0)
       {     
-        GetPlanetasSetor(setores, [], function(resultado)
+        MUtils.GetInfoSetores(setores, (resultado) =>
         {
           req.userdata.setores = resultado;
           next();

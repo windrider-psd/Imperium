@@ -318,10 +318,8 @@ block posscripts
                 $("#recurso-energia .recurso-atual").removeClass("text-success");
             }
         }
-
         for(let i = 0; i < userdata.setores.length; i++)
         {
-            var esta = false;
             let j;
             for(j = 0; j < userdata.setores[i].planetas.length; j++)
             {
@@ -332,13 +330,8 @@ block posscripts
                     setor = userdata.setores[i].setor;
                     posSolObj = {x : setor.solPosX, y : setor.solPosY};
                     posPlanetaObj = {x : planeta.posX, y : planeta.posY};
-                    esta = true;
                     break;
                 }
-            }
-            if(!esta)
-            {
-                GerarNotificacao("Planeta não encontrado", "danger");
             }
         }
         if(planeta)
@@ -346,6 +339,10 @@ block posscripts
             $("#nome-planeta").text(planeta.nome);
             GetRecursos();
             GetEdificios();
+        }
+        else
+        {
+            GerarNotificacao("Planeta não encontrado", 'danger');
         }
         
 
