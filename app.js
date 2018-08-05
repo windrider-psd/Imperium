@@ -11,6 +11,8 @@ var browserify = require('browserify-middleware');
 var session = require('express-session')
 var helmet = require('helmet');
 var DDDoS = require('dddos');
+var RedisStore = require('connect-redis')(session);
+var redis = require('redis').createClient({host : 'localhost', port : 6379});
 
 var app = express();
 browserify.settings.minify = true;
@@ -31,7 +33,11 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json()); 
 app.use(bodyParser.urlencoded({ extended: true })); 
-app.use(session({resave: true, saveUninitialized : true, secret : 'uijn4unip32nur324p23u'}));
+app.use(session({
+  store : new RedisStore({host : 'localhost', port : 6379, client : redis}),
+  resave: true,
+  saveUninitialized : false, 
+  secret : 'uijn4unip32nur324p23u'}));
 app.get('/js/bundle_chart.js', browserify(['chartjs', 'chartjs-plugin-zoom']));
 app.get('/js/recursos.js', function(req, res)
 {

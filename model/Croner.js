@@ -2,7 +2,7 @@ var models = require('./DBModels');
 var cron = require('node-cron');
 var GR = require('./GerenciadorRecursos');
 /**
- * @type {Array.<{planetaID : number, edificioID : number, timeout : function}>}
+ * @type {Array.<{planetaID : number, edificioID : number, timeout : NodeJS.Timer}>}
  * @description Array que armazena as construções para serem executadas (timeout)
  */
 var construcoes = new Array();
@@ -41,6 +41,26 @@ var adicionarRecurso = cron.schedule('*/10 * * * * *', function()
     }
 })
 
+/**
+ * @param {number} edificioID 
+ * @param {number} planetaID 
+ * @param {number} duracao 
+ * @return {NodeJS.Timer}
+ */
+function CriarConstrucaoTimer(edificioID, planetaID, duracao)
+{
+    return setTimeout(() => 
+    {
+        models.Planeta.findOne({where : {id : planetaID}}).then((planeta) =>{
+
+            let edificio = GR.EdificioIDParaString(edificioID); 
+            planeta[edificio] = planeta[edificio] + 1;
+            planeta.save();
+        });
+        RemoverConstrucao(planetaID, edificioID);
+    }, duracao * 1000);
+}
+
 
 /**
  * @param {number} planetaID O ID do planeta da construção
@@ -64,7 +84,7 @@ function AdicionarConstrucao(planetaID, edificioID, duracao, callback)
     {
         models.Construcao.create({planetaID : planetaID, edificioID : edificioID, duracao : duracao}).then((construcao)=>
         {
-            let timeout = setTimeout(() => 
+            /*let timeout = setTimeout(() => 
             {
                 models.Planeta.findOne({where : {id : planetaID}}).then((planeta) =>{
 
@@ -77,9 +97,11 @@ function AdicionarConstrucao(planetaID, edificioID, duracao, callback)
                         console.log(err);
                     });
                 });
+                
                 RemoverConstrucao(construcao.planetaID, construcao.edificioID);
-            }, duracao * 1000);
-            construcoes.push({planetaID : planetaID, edificioID : edificioID, timeout : timeout});
+            }, duracao * 1000);*/
+            let timer = CriarConstrucaoTimer(edificioID, planetaID, duracao)
+            construcoes.push({planetaID : planetaID, edificioID : edificioID, timeout : timer});
             if(typeof(callback) == 'function')
                 callback(null, construcao)
         }).catch((err) =>
@@ -107,6 +129,23 @@ function RemoverConstrucao(idPlaneta, idEdificio)
         }
     }
 }
+
+var recuperarConstrucoes = setInterval(() =>{
+    if(models.isReady())
+    {
+        clearInterval(recuperarConstrucoes);
+        models.Construcao.findAll({}).then((construcoesModel) =>{
+            
+            for(let i = 0; i  < construcoesModel.length; i++)
+            {
+                let timer = CriarConstrucaoTimer(construcoesModel[i].edificioID, construcoesModel[i].planetaID, construcoesModel[i].duracao);
+                construcoes.push({planetaID : construcoesModel[i].planetaID, edificioID : construcoesModel[i].edificioID, timeout : timer});
+            }
+            
+        });
+    }
+}, 5000)
+
    
 
 module.exports = {

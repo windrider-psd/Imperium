@@ -3,9 +3,6 @@ var router = express.Router();
 const models = require('./../model/DBModels')
 const MUtils = require('./../model/DBModelsUtils')
 
-
-
-
 /**
  * @param {Object} req O objeto de requisição do express
  * @description Retorna um objeto que será usado no front-end

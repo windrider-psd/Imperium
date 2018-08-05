@@ -202,7 +202,7 @@ router.post('/logout', function(req, res)
 {
   req.session.destroy(function(err)
   {
-    if(err) req.status(500).end(err)
+    if(err) res.status(500).end(err)
     else res.status(200).end("Logout realizado com sucesso")
   })
 });
