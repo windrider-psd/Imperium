@@ -6,11 +6,11 @@ const MUtils = require('./../model/DBModelsUtils')
 /**
  * @param {Object} req O objeto de requisição do express
  * @description Retorna um objeto que será usado no front-end
- * @returns {{session : Object, setores : Object}
+ * @returns {{session : Object, sessionID : number, setores : Object}
  */
 function getUserData(req)
 {
-  return {session : req.session.usuario, setores : req.userdata.setores};
+  return {session : req.session.usuario, sessionID: req.sessionID, setores : req.userdata.setores};
 }
 
 router.all('*', function(req, res, next)

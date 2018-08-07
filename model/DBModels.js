@@ -4,8 +4,6 @@ const yargs = require('yargs').argv;
 const random = require('./Aleatorio');
 require('dotenv/config')
 
-const totalX = Number(process.env.UNIVERSE_SIZE_X);
-const totalY = Number(process.env.UNIVERSE_SIZE_Y);
 var ready = false;
 
 
@@ -153,6 +151,7 @@ const EsqueciSenha = con.define('esqueci_senha',
         defaultValue : sequalize.NOW
     }
 }, {timestamps : false, },);
+
 
 const Planeta = con.define('Planeta', 
 {

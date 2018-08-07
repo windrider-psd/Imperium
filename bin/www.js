@@ -4,12 +4,26 @@
  * Module dependencies.
  */
 
-var app = require('../app');
 var debug = require('debug')('jogo:server');
 var http = require('http');
 const Croner = require('./../model/Croner');
-Croner.Recursos.start();
+var io = require('./../model/io');
+const yargs = require('yargs').argv
+var session = require('express-session')
+var RedisStore = require('connect-redis')(session);
+var redis = require('redis').createClient({host : 'localhost', port : 6379});
 
+const portaServidoIO = (yargs.ioPort) ? yargs.ioPort : 2000;
+var armazenadorSessao = new RedisStore({host : 'localhost', port : 6379, client : redis})
+var sessaomiddleware = session({
+  store : armazenadorSessao,
+  resave: true,
+  saveUninitialized : false, 
+  secret : 'uijn4unip32nur324p23u'});
+
+var app = require('../app')(sessaomiddleware);
+io.CriarSocket(app, portaServidoIO, sessaomiddleware, armazenadorSessao);
+app.locals.ioPort = portaServidoIO;
 
 /**
  * Get port from environment and store in Express.
@@ -85,6 +99,7 @@ function onError(error) {
  */
 
 function onListening() {
+  Croner.Recursos.start();
   var addr = server.address();
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr

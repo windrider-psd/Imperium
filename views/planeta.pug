@@ -254,6 +254,9 @@ block content
 
 block posscripts
     script.
+        
+
+
         var query = window.location.search.substring(1);
         var qs = parse_query_string(query);
         var planeta = null;
@@ -391,10 +394,11 @@ block posscripts
                 {
                     let dataEdificio = $(this).data('edificio');
                     let edificioID = planeta.construcoes[i].edificioID;
-                    let teste = GerenciadorRecursos.GetEdificioID(dataEdificio);
-                    if(teste == edificioID)
+
+                    let diferenca = (new Date().getTime() - new Date(planeta.construcoes[i].inicio).getTime()) / 1000
+                    if(GerenciadorRecursos.GetEdificioID(dataEdificio) == edificioID)
                     {
-                        setEdificioMelhoria($(this), planeta.construcoes[i].duracao, planeta.construcoes[i].id);
+                        setEdificioMelhoria($(this),planeta.construcoes[i].duracao - diferenca.toFixed(0), planeta.construcoes[i].id);
                         return;
                     }
                 });
@@ -441,6 +445,17 @@ block posscripts
             GetRecursos();
             GetEdificios();
             GetConstrucoes();
+
+            socket.on('recurso-planeta ' + planeta.id, function(update)
+            {
+                $("#recurso-ferro .recurso-atual").text(update.recursoFerro);
+                $("#recurso-cristal .recurso-atual").text(update.recursoCristal);
+                $("#recurso-uranio .recurso-atual").text(update.recursoUranio);
+                $("#recurso-eletronica .recurso-atual").text(update.recursoEletronica);
+                $("#recurso-combustivel .recurso-atual").text(update.recursoCombustivel);
+                $("#recurso-comida .recurso-atual").text(update.recursoComida);
+            })
+
         }
         else
         {
@@ -451,6 +466,7 @@ block posscripts
         {
             let btn = $(this);
             let divEdificio = $(this).closest('.edificio');
+            let nivel = divEdificio.find(".edificio-nivel").text();
             let edificio = divEdificio.data('edificio');
             $.ajax({
                 url : 'edificio/melhorar',
@@ -465,6 +481,12 @@ block posscripts
                 {
                     GerarNotificacao("Edificio sendo melhorado", 'success');
                     setEdificioMelhoria(divEdificio, resposta.duracao, resposta.edificioID);
+                    let custo = GerenciadorRecursos.GetCustoEdificioPorId(edificio, planeta[edificio] + 1)
+                    
+                    $("#recurso-ferro .recurso-atual").text($("#recurso-ferro .recurso-atual").text() - custo.ferro);
+                    $("#recurso-cristal .recurso-atual").text($("#recurso-cristal .recurso-atual").text() - custo.cristal);
+                    $("#recurso-uranio .recurso-atual").text($("#recurso-uranio .recurso-atual").text() - custo.uranio);
+
                 },
                 error : function(err)
                 {

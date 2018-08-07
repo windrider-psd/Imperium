@@ -1,6 +1,7 @@
 var models = require('./DBModels');
 var cron = require('node-cron');
 var GR = require('./GerenciadorRecursos');
+var io = require('./io');
 /**
  * @type {Array.<{planetaID : number, edificioID : number, timeout : NodeJS.Timer}>}
  * @description Array que armazena as construções para serem executadas (timeout)
@@ -13,30 +14,54 @@ var adicionarRecurso = cron.schedule('*/10 * * * * *', function()
 {
     if(models.isReady())
     {
-        models.Planeta.findAll({where : {colonizado : true}}).then((planetas) =>
-        {
-            planetas.forEach(function(planeta)
+
+        models.Usuario.findAll({attributes : ['id']}).then((usuarios) => {
+            
+            usuarios.forEach((usuario) =>
             {
-                models.Setor.findOne({where : {id : planeta.setorID}}).then((setor) =>{
-                    let producao = GR.GetProducaoTotal({
-                        fabricaEletronica : planeta.fabricaEletronica,
-                        fazenda : planeta.fazenda,
-                        minaCristal : planeta.minaCristal,
-                        minaFerro : planeta.minaFerro,
-                        minaUranio : planeta.minaUranio,
-                        sintetizador : planeta.sintetizadorCombustivel
-                    }, planeta.plantaSolar, planeta.reatorFusao, {
-                        x: setor.solPosX,
-                        y : setor.solPosY
-                    }, {
-                        x : planeta.posX,
-                        y : planeta.posY
-                    }, setor.intensidadeSolar);
-                    let updateFerro = producao.ferro + planeta.recursoFerro; 
-                    let updateCristal = producao.cristal + planeta.recursoCristal;
-                    models.Planeta.update({recursoFerro : updateFerro, recursoCristal : updateCristal}, {where : {id : planeta.id}});
+                models.Setor.findAll({where : {usuarioID :usuario.id}, attributes: ['id', 'solPosX', 'solPosY', 'solPosX', 'intensidadeSolar']}).then((setores) =>
+                {
+                    setores.forEach((setor) =>
+                    {
+                        models.Planeta.findAll({where : {colonizado : true, setorID : setor.id}}).then((planetas) =>
+                        {
+                            planetas.forEach((planeta) =>
+                            {
+                                let producao = GR.GetProducaoTotal({
+                                    fabricaEletronica : planeta.fabricaEletronica,
+                                    fazenda : planeta.fazenda,
+                                    minaCristal : planeta.minaCristal,
+                                    minaFerro : planeta.minaFerro,
+                                    minaUranio : planeta.minaUranio,
+                                    sintetizador : planeta.sintetizadorCombustivel
+                                }, planeta.plantaSolar, planeta.reatorFusao, {
+                                    x: setor.solPosX,
+                                    y : setor.solPosY
+                                }, {
+                                    x : planeta.posX,
+                                    y : planeta.posY
+                                }, setor.intensidadeSolar);
+                                let updateFerro = producao.ferro + planeta.recursoFerro; 
+                                let updateCristal = producao.cristal + planeta.recursoCristal;
+                                let updateEletronica = producao.eletronica + planeta.recursoEletronica;
+                                let updateComida = producao.comida + planeta.recursoComida;
+                                let updateUranio = producao.uranio + planeta.recursoUranio;
+                                let updateComustivel = producao.combustivel + planeta.recursoCombustivel;
+                                let update = {
+                                    recursoFerro : updateFerro, 
+                                    recursoCristal : updateCristal,
+                                    recursoEletronica : updateEletronica, 
+                                    recursoCombustivel : updateComustivel,
+                                    recursoComida : updateComida,
+                                    recursoUranio : updateUranio
+                                }
+                                models.Planeta.update(update, {where : {id : planeta.id}});
+                                io.EmitirParaSessao(usuario.id, 'recurso-planeta ' + planeta.id, update);
+                            });
+                        })  
+                    }) 
                 });
-            });
+            })  
         });
     }
 })
@@ -84,22 +109,6 @@ function AdicionarConstrucao(planetaID, edificioID, duracao, callback)
     {
         models.Construcao.create({planetaID : planetaID, edificioID : edificioID, duracao : duracao}).then((construcao)=>
         {
-            /*let timeout = setTimeout(() => 
-            {
-                models.Planeta.findOne({where : {id : planetaID}}).then((planeta) =>{
-
-                    let edificio = GR.EdificioIDParaString(construcao.edificioID); 
-                    planeta[edificio] = planeta[edificio] + 1;
-                    planeta.save().then(() =>
-                    {
-                        console.log("salvou");
-                    }).catch((err) => {
-                        console.log(err);
-                    });
-                });
-                
-                RemoverConstrucao(construcao.planetaID, construcao.edificioID);
-            }, duracao * 1000);*/
             let timer = CriarConstrucaoTimer(edificioID, planetaID, duracao)
             construcoes.push({planetaID : planetaID, edificioID : edificioID, timeout : timer});
             if(typeof(callback) == 'function')

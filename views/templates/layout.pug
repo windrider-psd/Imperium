@@ -21,6 +21,11 @@ html
       script.
         const userdataString = '!{JSON.stringify(userdata).replace(/[\/\(\)\']/g, "\\$&")}'
         var userdata = JSON.parse(userdataString);
+        const socket = io.connect('!{enderecoIP}:!{ioPort}')
+        socket.on('connect', function()
+        {
+          socket.emit('init', userdata.sessionID);
+        });
     -}
   body
     main

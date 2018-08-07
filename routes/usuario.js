@@ -183,6 +183,7 @@ router.post('/login', function(req, res)
             res.status(500).end(err)
           else if(comparacao)
           {
+            delete resultado.dataValues.senha
             req.session.usuario = resultado.dataValues;
             res.status(200).end("Login realizado")
           }
@@ -502,7 +503,7 @@ router.post('/alterar-senha', function(req, res)
                 user.senha = hash;
                 user.save().then(function()
                 {
-                  req.session.usuario.senha = hash;
+                 // req.session.usuario.senha = hash;
                   emailer.enviarEmail(req.session.usuario.email, "Imperium - Troca de senha", getMensagemTrocaSenha());
                   res.status(200).end("Senha alterada com sucesso");
                 }).catch(function()
