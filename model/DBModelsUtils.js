@@ -1,4 +1,5 @@
 const models = require('./DBModels');
+
 /**
  * @param {number} planetaID 
  * @description Extrai as construções de um planeta
