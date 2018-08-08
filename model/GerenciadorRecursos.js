@@ -16,23 +16,23 @@
  * @property {number} uranio
  */
 
-const baseFerro = Math.ceil(60 / 6);
-const baseMinaFerro = Math.ceil(90 / 6);
+const baseFerro = 60 / 6
+const baseMinaFerro = 90 / 6
 
-const baseCristal = Math.ceil(30 / 6);
-const baseMinaCristal = Math.ceil(55 / 6);
+const baseCristal = 30 / 6
+const baseMinaCristal = 55 / 6
 
-const baseEletronica  = Math.ceil(15 / 6);
-const baseEletronicaFabrica = Math.ceil(30 / 6);
+const baseEletronica  = 15 / 6
+const baseEletronicaFabrica = 30 / 6
 
-const baseUranio = Math.ceil(6 / 6);
-const baseMinaUranio = (18 / 6);
+const baseUranio = 6 / 6
+const baseMinaUranio = 18 / 6
 
-const baseCombustivel = Math.ceil(0 / 6);
-const baseSintetizadorCombustivel = Math.ceil(12 / 6);
+const baseCombustivel = 0 / 6
+const baseSintetizadorCombustivel = 12 / 6
 
-const baseComida = Math.ceil(78 / 6);
-const baseFazenda = Math.ceil(48 / 6)
+const baseComida = 78 / 6
+const baseFazenda = 48 / 6
 
 const baseEnergia = 100;
 
@@ -133,7 +133,7 @@ function VerificarIDEdificio(id)
         }
         else
         {
-            return EdificioIDParaString(Number(id)) === false;
+            return EdificioIDParaString(Number(id)) !== false;
         }
     }
     else
@@ -220,7 +220,7 @@ function GetProducaoTotal(niveis, nivelPlanta, nivelReator, posSol, posPlaneta, 
 function GetProducaoFerro(nivelMina, consumoEnergiaTotal, totalEnergiaProduzida)
 {
     let multiplicador = (totalEnergiaProduzida - consumoEnergiaTotal < 0) ? (totalEnergiaProduzida / consumoEnergiaTotal) : 1
-    return Math.ceil((baseMinaFerro * nivelMina * Math.pow(1.1, nivelMina)) * multiplicador) + baseFerro
+    return Math.ceil((baseMinaFerro * nivelMina * Math.pow(1.1, nivelMina)) * multiplicador + baseFerro)
 }
 
 /**
@@ -256,7 +256,7 @@ function GetConsumoMinaFerro (nivelMina)
 function GetProducaoCristal (nivelMina, consumoEnergiaTotal, totalEnergiaProduzida)
 {
     let multiplicador = (totalEnergiaProduzida - consumoEnergiaTotal < 0) ? (totalEnergiaProduzida / consumoEnergiaTotal) : 1
-    return Math.ceil((baseMinaCristal * nivelMina * Math.pow(1.1,nivelMina)) * multiplicador) + baseCristal
+    return Math.ceil((baseMinaCristal * nivelMina * Math.pow(1.1,nivelMina)) * multiplicador + baseCristal)
 }
 
 /**
@@ -288,7 +288,7 @@ function GetConsumoMinaCristal (nivelMina)
 function GetProducaoEletronica(nivelFabrica, consumoEnergiaTotal, totalEnergiaProduzida)
 {
     let multiplicador = (totalEnergiaProduzida - consumoEnergiaTotal < 0) ? (totalEnergiaProduzida / consumoEnergiaTotal) : 1
-    return Math.ceil((baseEletronicaFabrica * nivelFabrica * Math.pow(1.1, nivelFabrica)) * multiplicador ) + baseEletronica
+    return Math.ceil((baseEletronicaFabrica * nivelFabrica * Math.pow(1.1, nivelFabrica)) * multiplicador  + baseEletronica)
 }
 
 /**
@@ -323,7 +323,7 @@ function GetConsumoFabricaEletronica (nivelFabrica)
 function GetProducaoUranio(nivelMina, consumoEnergiaTotal, totalEnergiaProduzida)
 {
     let multiplicador = (totalEnergiaProduzida - consumoEnergiaTotal < 0) ? (totalEnergiaProduzida / consumoEnergiaTotal) : 1
-    return Math.ceil((baseMinaUranio * nivelMina * Math.pow(1.1, nivelMina)) * multiplicador) + baseUranio
+    return Math.ceil((baseMinaUranio * nivelMina * Math.pow(1.1, nivelMina) * multiplicador) + baseUranio)
 }
 
 /**
@@ -358,7 +358,7 @@ function GetConsumoMinaUranio (nivelMina)
 function GetProducaoCombustivel(nivelSintetizador, consumoEnergiaTotal, totalEnergiaProduzida)
 {
     let multiplicador = (totalEnergiaProduzida - consumoEnergiaTotal < 0) ? (totalEnergiaProduzida / consumoEnergiaTotal) : 1
-    return Math.ceil((baseSintetizadorCombustivel * nivelSintetizador * Math.pow(1.1, nivelSintetizador)) * multiplicador) + baseCombustivel
+    return Math.ceil((baseSintetizadorCombustivel * nivelSintetizador * Math.pow(1.1, nivelSintetizador)) * multiplicador + baseCombustivel)
 }
 
 
@@ -394,7 +394,7 @@ function GetConsumoSintetizadorCombustivel (nivelSintetizador)
 function GetProducaoComida(nivelFazenda, consumoEnergiaTotal, totalEnergiaProduzida)
 {
     let multiplicador = (totalEnergiaProduzida - consumoEnergiaTotal < 0) ? (totalEnergiaProduzida / consumoEnergiaTotal) : 1
-    return Math.ceil((baseFazenda * nivelFazenda * Math.pow(1.1, nivelFazenda)) * multiplicador) + baseComida
+    return Math.ceil((baseFazenda * nivelFazenda * Math.pow(1.1, nivelFazenda)) * multiplicador + baseComida)
 }
 
 /**

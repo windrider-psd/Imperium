@@ -1,63 +1,11 @@
 extends templates/layout
 block titulo
-  | Visão Geral
+  | Planeta
 block content     
     include includes/navbar
     h1#nome-planeta
-    .container
-        h2 Recursos
-        .row
-            #recurso-ferro.col-md-3 Ferro: 
-                br
-                | Atual: 
-                span.recurso-atual
-                br
-                | Producao: 
-                span.recurso-producao.text-success
-            #recurso-cristal.col-md-3 Cristal: 
-                br
-                | Atual: 
-                span.recurso-atual
-                br
-                | Producao: 
-                span.recurso-producao.text-success
-            #recurso-uranio.col-md-3 Urânio: 
-                br
-                | Atual: 
-                span.recurso-atual
-                br
-                | Producao: 
-                span.recurso-producao.text-success
-        .row
-            hr
-            #recurso-eletronica.col-md-3 Eletrônica: 
-                br
-                | Atual: 
-                span.recurso-atual
-                br
-                | Producao: 
-                span.recurso-producao.text-success
-            #recurso-combustivel.col-md-3 Combustível: 
-                br
-                | Atual: 
-                span.recurso-atual
-                br
-                | Producao: 
-                span.recurso-producao.text-success
-            #recurso-comida.col-md-3 Comida: 
-                br
-                | Atual: 
-                span.recurso-atual
-                br
-                | Producao: 
-                span.recurso-producao.text-success
-        .row
-            hr
-            #recurso-energia.col-md-3 Energia: 
-                br
-                | Atual: 
-                span.recurso-atual
-            
+    include ./includes/recursos
+
     .container
         .row
             h2 Edificios
@@ -253,262 +201,23 @@ block content
                 button.btn-calcelar-melhoria.btn.btn-warning.btn-sm.hidden Calcelar Melhoria
 
 block posscripts
+    script(src="js/meta/view_planeta_parser.js")
+    script(src="js/meta/view_edificios.js")
+    script(src="js/meta/view_recursos.js")
     script.
-        
-
-
-        var query = window.location.search.substring(1);
-        var qs = parse_query_string(query);
-        var planeta = null;
-        var setor = null;
-        var posSolObj = null;
-        var posPlanetaObj = null;
-        var idPlaneta;
-
-        function GetEdificios()
-        {
-            let custo = GerenciadorRecursos.GetCustoUpgradeMinaFerro(planeta.minaFerro + 1);
-            let tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.uranio);
-            $("#edificio-ferro .edificio-nivel").text(planeta.minaFerro);
-            $("#edificio-ferro .custo-ferro span").text(custo.ferro);
-            $("#edificio-ferro .custo-cristal span").text(custo.cristal);
-            $("#edificio-ferro .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoFerro(planeta.minaFerro + 1) - GerenciadorRecursos.GetProducaoFerro(planeta.minaFerro)) * 6)+ "/minuto");
-            $("#edificio-ferro .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
-
-            custo = GerenciadorRecursos.GetCustoUpgradeMinaCristal(planeta.minaFerro + 1);
-            tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.uranio);
-            $("#edificio-cristal .edificio-nivel").text(planeta.minaCristal);
-            $("#edificio-cristal .custo-ferro span").text(custo.ferro);
-            $("#edificio-cristal .custo-cristal span").text(custo.cristal);
-            $("#edificio-cristal .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoCristal(planeta.minaCristal + 1) - GerenciadorRecursos.GetProducaoCristal(planeta.minaCristal)) * 6)+ "/minuto");
-            $("#edificio-cristal .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
-
-            custo = GerenciadorRecursos.GetCustoUpgradePlantaSolar(planeta.plantaSolar + 1);
-            tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.uranio);
-            let intensidadeSolar = GerenciadorRecursos.GetIntensidadeSolarPlaneta(posSolObj, posPlanetaObj, setor.intensidadeSolar);
-            $("#edificio-planta-solar .edificio-nivel").text(planeta.plantaSolar);
-            $("#edificio-planta-solar .custo-ferro span").text(custo.ferro);
-            $("#edificio-planta-solar .custo-cristal span").text(custo.cristal);
-            $("#edificio-planta-solar .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoEnergiaPlantaSolar(planeta.plantaSolar + 1, intensidadeSolar) - GerenciadorRecursos.GetProducaoEnergiaPlantaSolar(planeta.plantaSolar, intensidadeSolar)) * 6)+ " total");
-            $("#edificio-planta-solar .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
-
-            custo = GerenciadorRecursos.GetCustoUpgradeReatorFusao(planeta.reatorFusao + 1);
-            tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.uranio);
-            $("#edificio-reator-fusao .edificio-nivel").text(planeta.reatorFusao);
-            $("#edificio-reator-fusao .custo-ferro span").text(custo.ferro);
-            $("#edificio-reator-fusao .custo-cristal span").text(custo.cristal);
-            $("#edificio-reator-fusao .custo-uranio span").text(custo.uranio);
-            $("#edificio-reator-fusao .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoEnergiaReatorFusao(planeta.reatorFusao + 1) - GerenciadorRecursos.GetProducaoEnergiaReatorFusao(planeta.reatorFusao)) * 6)+ " total");
-            $("#edificio-reator-fusao .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
-
-            custo = GerenciadorRecursos.GetCustoUpgradeMinaUranio(planeta.minaUranio + 1);
-            tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.uranio);
-            $("#edificio-uranio .edificio-nivel").text(planeta.minaUranio);
-            $("#edificio-uranio .custo-ferro span").text(custo.ferro);
-            $("#edificio-uranio .custo-cristal span").text(custo.cristal);
-            $("#edificio-uranio .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoUranio(planeta.minaUranio + 1) - GerenciadorRecursos.GetProducaoUranio(planeta.minaUranio)) * 6)+ "/minuto");
-            $("#edificio-uranio .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
-
-            custo = GerenciadorRecursos.GetCustoUpgradeFabricaEletronica(planeta.fabricaEletronica + 1);
-            tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.uranio);
-            $("#edificio-fabrica-eletronica .edificio-nivel").text(planeta.fabricaEletronica);
-            $("#edificio-fabrica-eletronica .custo-ferro span").text(custo.ferro);
-            $("#edificio-fabrica-eletronica .custo-cristal span").text(custo.cristal);
-            $("#edificio-fabrica-eletronica .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoEletronica(planeta.fabricaEletronica + 1) - GerenciadorRecursos.GetProducaoEletronica(planeta.fabricaEletronica)) * 6) + "/minuto");
-            $("#edificio-fabrica-eletronica .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
-
-            custo = GerenciadorRecursos.GetCustoUpgradeSintetizadorCombustivel(planeta.fabricaEletronica + 1);
-            tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.uranio);
-            $("#edificio-sintetizador-combustivel .edificio-nivel").text(planeta.sintetizadorCombustivel);
-            $("#edificio-sintetizador-combustivel .custo-ferro span").text(custo.ferro);
-            $("#edificio-sintetizador-combustivel .custo-cristal span").text(custo.cristal);
-            $("#edificio-sintetizador-combustivel .custo-uranio span").text(custo.uranio);
-            $("#edificio-sintetizador-combustivel .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoCombustivel(planeta.sintetizadorCombustivel + 1) - GerenciadorRecursos.GetProducaoCombustivel(planeta.sintetizadorCombustivel)) * 6) + "/minuto");
-            $("#edificio-sintetizador-combustivel .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
-
-            custo = GerenciadorRecursos.GetCustoUpgradeFazenda(planeta.fazenda + 1);
-            tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.uranio);
-            $("#edificio-fazenda .edificio-nivel").text(planeta.fazenda);
-            $("#edificio-fazenda .custo-ferro span").text(custo.ferro);
-            $("#edificio-fazenda .custo-cristal span").text(custo.cristal);
-            $("#edificio-fazenda .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoComida(planeta.fazenda + 1) - GerenciadorRecursos.GetProducaoComida(planeta.fazenda)) * 6) + "/minuto");
-            $("#edificio-fazenda .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
-        }
-        function GetRecursos()
-        {
-            let producao = GerenciadorRecursos.GetProducaoTotal({
-                fabricaEletronica : planeta.fabricaEletronica,
-                fazenda : planeta.fazenda,
-                minaCristal : planeta.minaCristal,
-                minaFerro : planeta.minaFerro,
-                minaUranio : planeta.minaUranio,
-                sintetizador : planeta.sintetizadorCombustivel
-            }, planeta.plantaSolar, planeta.reatorFusao, {
-                x : setor.solPosX,
-                y : setor.solPosY
-            }, {
-                x : planeta.posX,
-                y : planeta.posY
-            }, setor.intensidadeSolar);
-            $("#recurso-ferro .recurso-atual").text(planeta.recursoFerro);
-            $("#recurso-ferro .recurso-producao").text("+" + producao.ferro * 6 + "/minuto");
-            
-            $("#recurso-cristal .recurso-atual").text(planeta.recursoCristal);
-            $("#recurso-cristal .recurso-producao").text("+" + producao.cristal * 6 + "/minuto");
-
-            $("#recurso-uranio .recurso-atual").text(planeta.recursoUranio);
-            $("#recurso-uranio .recurso-producao").text("+" + producao.uranio * 6 + "/minuto");
-
-            $("#recurso-eletronica .recurso-atual").text(planeta.recursoEletronica);
-            $("#recurso-eletronica .recurso-producao").text("+" + producao.eletronica * 6 + "/minuto");
-
-            $("#recurso-combustivel .recurso-atual").text(planeta.recursoCombustivel);
-            $("#recurso-combustivel .recurso-producao").text("+" + producao.combustivel * 6 + "/minuto");
-
-            $("#recurso-comida .recurso-atual").text(planeta.recursoComida);
-            $("#recurso-comida .recurso-producao").text("+" + producao.comida * 6 + "/minuto");
-            let producaoEnergia = GetEnergia(planeta.plantaSolar, planeta.reatorFusao, posSolObj, posPlanetaObj, setor.intensidadeSolar)
-            let consumoEnergia = GetConsumoTotal(planeta.minaFerro, planeta.minaCristal, planeta.minaUranio, planeta.fabricaEletronica, planeta.sintetizadorCombustivel, planeta.fazenda);
-            let valorEnergia = producaoEnergia - consumoEnergia;
-            let positivo = (valorEnergia >= 0);
-            if(positivo)
-            {
-                $("#recurso-energia .recurso-atual").text("+" + String(valorEnergia));
-                $("#recurso-energia .recurso-atual").addClass("text-success");
-                $("#recurso-energia .recurso-atual").removeClass("text-danger");
-            }
-            else
-            {
-                $("#recurso-energia .recurso-atual").text(String(valorEnergia));
-                $("#recurso-energia .recurso-atual").addClass("text-danger");
-                $("#recurso-energia .recurso-atual").removeClass("text-success");
-            }
-        }
-        function GetConstrucoes()
-        {
-            let divs = $(".edificio")
-            for(let i = 0; i < planeta.construcoes.length; i++)
-            {
-
-                divs.each(function()
-                {
-                    let dataEdificio = $(this).data('edificio');
-                    let edificioID = planeta.construcoes[i].edificioID;
-
-                    let diferenca = (new Date().getTime() - new Date(planeta.construcoes[i].inicio).getTime()) / 1000
-                    if(GerenciadorRecursos.GetEdificioID(dataEdificio) == edificioID)
-                    {
-                        setEdificioMelhoria($(this),planeta.construcoes[i].duracao - diferenca.toFixed(0), planeta.construcoes[i].id);
-                        return;
-                    }
-                });
-            }
-        }
-        function setEdificioMelhoria(JEdificio, tempo, id)
-        {
-            let btnUpgrade = JEdificio.find(".btn-ugrade-edificio");
-            let btnCancelar = JEdificio.find(".btn-calcelar-melhoria");
-            let tempoMelhoria = JEdificio.find(".edificio-tempo-melhoria-depois");
-            JEdificio.find(".edificio-tempo-melhoria-antes").hide();
-            btnUpgrade.removeClass("btn-success");
-            btnUpgrade.addClass("btn-primary");
-            btnUpgrade.text("Edificio sendo melhorado");
-            btnUpgrade.prop('disabled', true);
-            btnCancelar.removeClass('hidden');
-            btnCancelar.data('id', id);
-            tempoMelhoria.find("span").text(tempo);
-            tempoMelhoria.find("JEdificio");
-            tempoMelhoria.removeClass("hidden");
-
-            
-        }
-        for(let i = 0; i < userdata.setores.length; i++)
-        {
-            let j;
-            for(j = 0; j < userdata.setores[i].planetas.length; j++)
-            {
-                let planetaAtual = userdata.setores[i].planetas[j];
-                if(planetaAtual.id == qs.id)
-                {
-                    planeta = planetaAtual;
-                    setor = userdata.setores[i].setor;
-                    posSolObj = {x : setor.solPosX, y : setor.solPosY};
-                    posPlanetaObj = {x : planeta.posX, y : planeta.posY};
-                    idPlaneta = qs.id;
-                    break;
-                }
-            }
-        }
         if(planeta)
         {
             $("#nome-planeta").text(planeta.nome);
+            $("title").text(planeta.nome + " - Imperium");
             GetRecursos();
             GetEdificios();
             GetConstrucoes();
-
-            socket.on('recurso-planeta ' + planeta.id, function(update)
-            {
-                $("#recurso-ferro .recurso-atual").text(update.recursoFerro);
-                $("#recurso-cristal .recurso-atual").text(update.recursoCristal);
-                $("#recurso-uranio .recurso-atual").text(update.recursoUranio);
-                $("#recurso-eletronica .recurso-atual").text(update.recursoEletronica);
-                $("#recurso-combustivel .recurso-atual").text(update.recursoCombustivel);
-                $("#recurso-comida .recurso-atual").text(update.recursoComida);
-            })
-
         }
         else
         {
             GerarNotificacao("Planeta não encontrado", 'danger');
         }
         
-        $(".btn-ugrade-edificio").on('click', function()
-        {
-            let btn = $(this);
-            let divEdificio = $(this).closest('.edificio');
-            let nivel = divEdificio.find(".edificio-nivel").text();
-            let edificio = divEdificio.data('edificio');
-            $.ajax({
-                url : 'edificio/melhorar',
-                data : {planeta : idPlaneta, edificio : edificio},
-                method : "POST",
-                dataType : 'JSON',
-                beforeSend : function()
-                {
-                    btn.text("Processando");
-                },
-                success : function(resposta)
-                {
-                    GerarNotificacao("Edificio sendo melhorado", 'success');
-                    setEdificioMelhoria(divEdificio, resposta.duracao, resposta.edificioID);
-                    let custo = GerenciadorRecursos.GetCustoEdificioPorId(edificio, planeta[edificio] + 1)
-                    
-                    $("#recurso-ferro .recurso-atual").text($("#recurso-ferro .recurso-atual").text() - custo.ferro);
-                    $("#recurso-cristal .recurso-atual").text($("#recurso-cristal .recurso-atual").text() - custo.cristal);
-                    $("#recurso-uranio .recurso-atual").text($("#recurso-uranio .recurso-atual").text() - custo.uranio);
-
-                },
-                error : function(err)
-                {
-                    GerarNotificacao(err.responseText, "danger");
-                },
-                complete : function()
-                {
-                    btn.text("Melhorar");
-                }
-                
-            })
-        });
-
-        setInterval(function(){
-            let tempos = $(".edificio-tempo-melhoria-depois");
-            tempos.each(function()
-            {
-                let valor = $(this).find('span');
-                if(valor.text() > 0)
-                    valor.text(String(Number(valor.text()) - 1));
-            })
-        }, 1000)
 
 
 

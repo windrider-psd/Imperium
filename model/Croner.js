@@ -149,6 +149,8 @@ var recuperarConstrucoes = setInterval(() =>{
             {
                 let timer = CriarConstrucaoTimer(construcoesModel[i].edificioID, construcoesModel[i].planetaID, construcoesModel[i].duracao);
                 construcoes.push({planetaID : construcoesModel[i].planetaID, edificioID : construcoesModel[i].edificioID, timeout : timer});
+                construcoesModel[i].inicio = new Date();
+                construcoesModel[i].save();
             }
             
         });

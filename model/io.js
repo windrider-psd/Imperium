@@ -38,19 +38,22 @@ function AdicionarCliente(idcliente, socket)
 function RemoverCliente(idcliente, socket)
 {
     let cliente = clientes[idcliente];
-    
-    for(let i = 0; i <= cliente.length; i++)
+    if(typeof(cliente) !== 'undefined')
     {
-        if(cliente[i].handshake.sessionID == socket.handshake.sessionID)
+        for(let i = 0; i <= cliente.length; i++)
         {
-            cliente.splice(i, 1);
-            break;
+            if(cliente[i].handshake.sessionID == socket.handshake.sessionID)
+            {
+                cliente.splice(i, 1);
+                break;
+            }
+        }
+        if(cliente.length == 0)
+        {
+            clientes.splice(clientes.indexOf(cliente), 1);
         }
     }
-    if(cliente.length == 0)
-    {
-        clientes.splice(clientes.indexOf(cliente), 1);
-    }
+    
 }
 
 

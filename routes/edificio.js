@@ -3,6 +3,7 @@ var router = express.Router();
 const models = require('./../model/DBModels')
 const GR = require('./../model/GerenciadorRecursos')
 const croner = require('./../model/Croner');
+const io = require('./../model/io')
 
 router.post('/melhorar', function(req, res)
 {
@@ -101,5 +102,48 @@ router.post('/melhorar', function(req, res)
         }
     }
 });
+
+router.post('/cancelar-melhoria', function(req, res)
+{
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else
+    {
+        /**
+         * @type {{planeta : number,  edificio: number|string}}
+         */
+        let params = req.body
+        console.log(params);
+        if(!params.planeta || !params.edificio)
+            res.status(400).end("Parâmetros inválidos")
+        else if(!GR.VerificarIDEdificio(params.edificio))
+            res.status(400).end("Edificio inválido")
+        else
+        {
+            if(typeof(params.edificio) === 'string')
+            {
+                if(isNaN(params.edificio))
+                    params.edificio = GR.GetEdificioID(params.edificio)
+                else
+                    params.edificio = Number(params.edificio)
+            }
+
+            models.Con.query('SELECT * FROM planeta WHERE id = ' + Number(params.planeta) + ' and exists (select * from setors where usuarioID  = '+ req.session.usuario.id +' and setors.id = planeta.setorID) limit 1').spread((planeta) =>
+            {
+                if(planeta.length == 0)
+                    res.status(400).end('Planeta não encontrado');
+                else
+                {   
+                    croner.RemoverConstrucao(params.planeta, params.edificio);
+                    io.EmitirParaSessao(req.session.usuario.id, 'cancelar-melhoria', {edificio : params.edificio});
+                    res.status(200).end("Construção cancelada com sucesso");
+                }
+                   
+            });
+        }
+        
+    }
+        
+})
 
 module.exports = router;
