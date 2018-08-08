@@ -399,7 +399,6 @@ con.authenticate().then(function()
 {
     console.log("Conexao Criada");
     ready = true;
-
 }).catch(function(err)
 {
     console.log(err.parent);

@@ -23,11 +23,12 @@ router.all('*', function(req, res, next)
       req.userdata.setores = [];
       if(setores.length > 0)
       {     
-        MUtils.GetInfoSetores(setores, (resultado) =>
+        MUtils.getSetoresInfo(setores).then((resultado) =>
         {
           req.userdata.setores = resultado;
           next();
-        });
+        })
+
       }
       else
       {

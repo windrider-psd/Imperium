@@ -196,7 +196,7 @@ $(".btn-ugrade-edificio").on('click', function()
 socket.on('cancelar-melhoria', function(data)
 {
     let stringEdificio = GerenciadorRecursos.EdificioIDParaString(data.edificio);
-    let JEdificio = $(".edificio").data('edificio', stringEdificio);
+    let JEdificio = $(".edificio[data-edificio='"+stringEdificio+"']");
 
     UndoMelhoria(JEdificio);
 });

@@ -1,4 +1,5 @@
 const models = require('./DBModels');
+var BlueBird = require('bluebird');
 
 /**
  * @param {number} planetaID 
@@ -18,45 +19,109 @@ function GetConstrucoesPlaneta(planetaID, callback)
     })
 }
 
-/**
- * @param {Object[]} setores A array dos setores de modelo Sequelize
- * @description Extrai informações dos setores (planetas e construções)
- * @param {Function} callback callback(resultado : Array)
- */
-async function GetInfoSetores(setores, callback)
+function GetConstPlaneta(planetaID)
 {
-  let resultado = new Array();
-  for(let i = 0; i < setores.length; i++)
-  {
-      await models.Planeta.findAll({where : {setorID : setores[i].id}}).then((planetas) =>
-      {
-        let resPush = {setor : setores[i].dataValues, planetas :[]};
-        for(let j = 0; j < planetas.length; j++)
+    return new BlueBird((resolve, reject) => {
+        let resultado = new Array();
+        models.Construcao.findAll({where : {planetaID : planetaID}}).then((construcoes) =>
         {
-            let encontrarFunction = function(planeta)
+            for(let i = 0; i < construcoes.length; i++)
             {
-                GetConstrucoesPlaneta(planeta.id, (construcoes) =>
-                {
-                    planeta.construcoes = construcoes;
-                    resPush.planetas.push(planeta);
-                    if(j == planetas.length - 1)
-                    {
-                        resultado.push(resPush);
-                        if(i == setores.length - 1)
-                        {
-                            callback(resultado);
-                        }
-                    }
-                })
+                resultado.push(construcoes[i].dataValues);
             }
-            encontrarFunction(planetas[j].dataValues);        
+            resolve({planeta: planetaID, construcoes : resultado});
+        })
+    });
+}
+
+function EncontrarPlanetasSetor(setorID)
+{
+    return new BlueBird((resolve, reject) =>{
+
+        models.Planeta.findAll({where : {setorID : setorID}}).then((planetas) =>
+        {
+            let promessaAll = new Array();
+            for(let i = 0; i < planetas.length; i++)
+            {
+                planetas[i] = planetas[i].dataValues;
+            }
+            for(let i = 0; i < planetas.length; i++)
+            {
+                promessaAll.push(GetConstPlaneta(planetas[i].id));
+            }
+            BlueBird.all(promessaAll).then((resultado) =>
+            {
+
+                for(let i = 0; i < planetas.length; i++)
+                {
+                    planetas[i].construcoes = new Array();
+                    for(let j = 0; j < resultado.length; j++)
+                    {
+                        if(resultado[j].planeta == planetas[i].id)
+                        {
+                            planetas[i].construcoes = resultado[j].construcoes;
+                            break;
+                        }
+                        
+                    }
+                }
+
+                resolve({setor : setorID, planetas : planetas});
+            });
+        }).catch((err) =>
+        {
+            reject(err);
+        }); 
+
+    });
+}
+
+
+/**
+ * @param {Array.<Object>} setores
+ */
+function getSetoresInfo(setores)
+{
+    for(let i = 0; i < setores.length; i++)
+    {
+        setores[i] = setores[i].dataValues;
+    }
+
+    return new BlueBird((resolve, reject) =>
+    {    
+        let retorno = new Array();
+        let promesasSetores = new Array();
+        for(let i = 0; i < setores.length; i++)
+        {
+            promesasSetores.push(EncontrarPlanetasSetor(setores[i].id));
         }
-      }); 
-  }
+
+        BlueBird.all(promesasSetores).then((resultado) => 
+        {
+            for(let i = 0; i < setores.length; i++)
+            {
+                for(let j = 0; j < resultado.length; j++)
+                {
+                    if(resultado[j].setor == setores[i].id)
+                    {
+                        retorno.push({setor : setores[i], planetas : resultado[j].planetas});
+                        break;
+                    }
+                    
+                }
+            }
+           
+            resolve(retorno);
+        }).catch((err) =>
+        {
+            reject(err);
+        })
+    })
+
 }
 
 module.exports = 
 {
-    GetInfoSetores : GetInfoSetores,
-    GetConstrucoesPlaneta : GetConstrucoesPlaneta
+    GetConstrucoesPlaneta : GetConstrucoesPlaneta,
+    getSetoresInfo : getSetoresInfo
 }
