@@ -42,12 +42,28 @@ var adicionarRecurso = cron.schedule('*/10 * * * * *', function()
                                     x : planeta.posX,
                                     y : planeta.posY
                                 }, setor.intensidadeSolar);
-                                let updateFerro = producao.ferro + planeta.recursoFerro; 
-                                let updateCristal = producao.cristal + planeta.recursoCristal;
-                                let updateEletronica = producao.eletronica + planeta.recursoEletronica;
-                                let updateComida = producao.comida + planeta.recursoComida;
-                                let updateUranio = producao.uranio + planeta.recursoUranio;
-                                let updateComustivel = producao.combustivel + planeta.recursoCombustivel;
+
+                                let capacidade = GR.GetTotalArmazenamentoRecursos(planeta.armazem);
+                                
+
+                                let soma = producao.ferro + planeta.recursoFerro;
+                                let updateFerro = (soma < capacidade) ? soma : capacidade; 
+
+                                soma = producao.cristal + planeta.recursoCristal;
+                                let updateCristal = (soma < capacidade) ? soma : capacidade; 
+                                
+                                soma = producao.eletronica + planeta.recursoEletronica;
+                                let updateEletronica = (soma < capacidade) ? soma : capacidade; 
+
+                                soma = producao.comida + planeta.recursoComida;
+                                let updateComida = (soma < capacidade) ? soma : capacidade; 
+                                
+                                soma = producao.uranio + planeta.recursoUranio;
+                                let updateUranio = (soma < capacidade) ? soma : capacidade; 
+
+                                soma = producao.combustivel + planeta.recursoCombustivel;
+                                let updateComustivel = (soma < capacidade) ? soma : capacidade; 
+                                
                                 let update = {
                                     recursoFerro : updateFerro, 
                                     recursoCristal : updateCristal,
@@ -56,8 +72,9 @@ var adicionarRecurso = cron.schedule('*/10 * * * * *', function()
                                     recursoComida : updateComida,
                                     recursoUranio : updateUranio
                                 }
+
                                 models.Planeta.update(update, {where : {id : planeta.id}});
-                                io.EmitirParaSessao(usuario.id, 'recurso-planeta ' + planeta.id, update);
+                                io.EmitirParaSessao(usuario.id, 'recurso-planeta' + planeta.id, update);
                             });
                         })  
                     }) 

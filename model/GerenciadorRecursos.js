@@ -1,5 +1,4 @@
-
-/**
+﻿/**
  * @typedef {Object} Producao
  * @property {number} ferro
  * @property {number} cristal
@@ -38,7 +37,7 @@ const baseEnergia = 100;
 
 const baseProtecaoArmazem = 350;
 const baseTotalArmazem = 2500;
-const minimoArmazenamento = 10000;
+const minimoArmazenamento = 7500;
 
 const construcoes = ['minaFerro', 'minaCristal', 'fabricaEletronica', 'minaUranio', 'sintetizadorCombustivel', 'fazenda', 'plantaSolar', 'reatorFusao', 'armazem'];
 

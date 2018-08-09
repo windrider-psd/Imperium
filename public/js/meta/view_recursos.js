@@ -51,7 +51,7 @@ function GetRecursos(nivelArmazem)
     }
 }
 
-socket.on('recurso-planeta ' + planeta.id, function(update)
+socket.on('recurso-planeta' + planeta.id, function(update)
 {
     $("#recurso-ferro .recurso-atual").text(update.recursoFerro);
     $("#recurso-cristal .recurso-atual").text(update.recursoCristal);
