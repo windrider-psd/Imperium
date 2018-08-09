@@ -89,6 +89,7 @@ router.post('/melhorar', function(req, res)
                                         planeta.save().then(function()
                                         {
                                             res.status(200).json(construcao)
+                                            io.EmitirParaSessao(req.session.usuario.id, 'edificio-melhorando', construcao)
                                         });
                                     }  
                                 });
@@ -134,9 +135,22 @@ router.post('/cancelar-melhoria', function(req, res)
                     res.status(400).end('Planeta não encontrado');
                 else
                 {   
-                    croner.RemoverConstrucao(params.planeta, params.edificio);
-                    io.EmitirParaSessao(req.session.usuario.id, 'cancelar-melhoria', {edificio : params.edificio});
-                    res.status(200).end("Construção cancelada com sucesso");
+                    
+                   
+                    models.Construcao.findOne({where : {planetaID: planeta[0].id, edificioID : params.edificio}}).then((construcao) =>
+                    {
+                        if(!construcao)
+                            res.status(400).end("Edificio não está sendo melhorado")
+                        else
+                        {
+                            io.EmitirParaSessao(req.session.usuario.id, 'cancelar-melhoria', construcao.dataValues);
+                            croner.RemoverConstrucao(params.planeta, params.edificio);
+                            res.status(200).end("Construção cancelada com sucesso");
+                        }
+                        
+                    });
+                    
+                    
                 }
                    
             });

@@ -1,5 +1,7 @@
-function GetRecursos()
+function GetRecursos(nivelArmazem)
 {
+    let totalArmazenamento = GetTotalArmazenamentoRecursos(nivelArmazem);
+    $(".total-armazenavel").text(totalArmazenamento);
     let producao = GerenciadorRecursos.GetProducaoTotal({
         fabricaEletronica : planeta.fabricaEletronica,
         fazenda : planeta.fazenda,
@@ -58,3 +60,9 @@ socket.on('recurso-planeta ' + planeta.id, function(update)
     $("#recurso-combustivel .recurso-atual").text(update.recursoCombustivel);
     $("#recurso-comida .recurso-atual").text(update.recursoComida);
 })
+
+if(planeta)
+{
+    $("title").text(planeta.nome + " - Imperium");
+    GetRecursos(planeta.armazem);
+}

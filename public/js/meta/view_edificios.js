@@ -22,7 +22,7 @@ function GetEdificios()
     $("#edificio-planta-solar .edificio-nivel").text(planeta.plantaSolar);
     $("#edificio-planta-solar .custo-ferro span").text(custo.ferro);
     $("#edificio-planta-solar .custo-cristal span").text(custo.cristal);
-    $("#edificio-planta-solar .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoEnergiaPlantaSolar(planeta.plantaSolar + 1, intensidadeSolar) - GerenciadorRecursos.GetProducaoEnergiaPlantaSolar(planeta.plantaSolar, intensidadeSolar)) * 6)+ " total");
+    $("#edificio-planta-solar .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoEnergiaPlantaSolar(planeta.plantaSolar + 1, intensidadeSolar) - GerenciadorRecursos.GetProducaoEnergiaPlantaSolar(planeta.plantaSolar, intensidadeSolar)) * 6) + " total");
     $("#edificio-planta-solar .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
 
     custo = GerenciadorRecursos.GetCustoUpgradeReatorFusao(planeta.reatorFusao + 1);
@@ -58,6 +58,15 @@ function GetEdificios()
     $("#edificio-sintetizador-combustivel .custo-uranio span").text(custo.uranio);
     $("#edificio-sintetizador-combustivel .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoCombustivel(planeta.sintetizadorCombustivel + 1) - GerenciadorRecursos.GetProducaoCombustivel(planeta.sintetizadorCombustivel)) * 6) + "/minuto");
     $("#edificio-sintetizador-combustivel .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
+    
+    custo = GerenciadorRecursos.GeCustoUpgradeArmazem(planeta.fabricaEletronica + 1);
+    tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.uranio);
+    $("#edificio-armazem .edificio-nivel").text(planeta.armazem);
+    $("#edificio-armazem .custo-ferro span").text(custo.ferro);
+    $("#edificio-armazem .custo-cristal span").text(custo.cristal);
+    $("#edificio-armazem .custo-uranio span").text(custo.uranio);
+    $("#edificio-armazem .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetArmazenamentoArmazem(planeta.armazem + 1) - GerenciadorRecursos.GetArmazenamentoArmazem(planeta.armazem))) + " total de armazemento de recursos");
+    $("#edificio-armazem .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
 
     custo = GerenciadorRecursos.GetCustoUpgradeFazenda(planeta.fazenda + 1);
     tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.uranio);
@@ -195,10 +204,27 @@ $(".btn-ugrade-edificio").on('click', function()
         
 socket.on('cancelar-melhoria', function(data)
 {
-    let stringEdificio = GerenciadorRecursos.EdificioIDParaString(data.edificio);
-    let JEdificio = $(".edificio[data-edificio='"+stringEdificio+"']");
+    if(data.planetaID == planeta.id)
+    {
+        let stringEdificio = GerenciadorRecursos.EdificioIDParaString(data.edificioID);
+        let JEdificio = $(".edificio[data-edificio='"+stringEdificio+"']");
+        UndoMelhoria(JEdificio);
+    } 
+    
 
-    UndoMelhoria(JEdificio);
+    
+});
+
+socket.on('edificio-melhorando', function(construcao){
+
+    if(construcao.planetaID == planeta.id)
+    {
+        let stringEdificio = GerenciadorRecursos.EdificioIDParaString(construcao.edificioID);
+        let JEdificio = $(".edificio[data-edificio='"+stringEdificio+"']");
+
+        setEdificioMelhoria(JEdificio, construcao.duracao, construcao.edificioID);
+    }
+    
 });
 
 setInterval(function(){

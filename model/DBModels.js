@@ -272,6 +272,12 @@ const Planeta = con.define('Planeta',
         type : sequalize.INTEGER,
         allowNull : false,
         defaultValue : 0
+    },
+    armazem : 
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0
     }
     
 }, {timestamps : false})

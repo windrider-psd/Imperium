@@ -120,8 +120,40 @@ function getSetoresInfo(setores)
 
 }
 
+/**
+ * 
+ * @param {Object} planeta O objeto sequalize do planeta
+ * @description Encontra o usuário do planeta;
+ * @returns {BlueBird}
+ */
+function GetUsuarioPlaneta(planeta)
+{
+    return new BlueBird((resolve, reject) =>
+    { 
+        models.Setor.findOne({where : {id : planeta.planetaID}}).then((setor) =>
+        {
+            if(!setor)
+                reject("Setor do planeta não encontrado")
+            else
+            {
+                models.Usuario.findOne({where : {id : setor.id}}).then((usuario) =>
+                { 
+                    if(!usuario)
+                        reject("Usuário não encontrado")
+                    else
+                        resolve(usuario);
+                })
+                }
+            
+        });
+    })
+    
+}
+
+
 module.exports = 
 {
     GetConstrucoesPlaneta : GetConstrucoesPlaneta,
-    getSetoresInfo : getSetoresInfo
+    getSetoresInfo : getSetoresInfo,
+    GetUsuarioPlaneta : GetUsuarioPlaneta
 }

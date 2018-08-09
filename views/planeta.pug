@@ -199,6 +199,33 @@ block content
                 span(style = "display: block").edificio-tempo-melhoria-depois.hidden Tempo de melhoria:
                     span
                 button.btn-calcelar-melhoria.btn.btn-warning.btn-sm.hidden Calcelar Melhoria
+        .row
+            hr
+            #edificio-armazem.col-md-3.edificio(data-edificio = 'armazem')
+                h4 Armazem
+                span nivel: 
+                    span.edificio-nivel
+                br
+                span Custo de melhoria
+                ul
+                    li.custo-ferro Ferro: 
+                        span
+                    li.custo-cristal Cristal: 
+                        span
+                    li.custo-uranio Uranio: 
+                        span
+                br
+                span.edificio-tempo-melhoria-antes Tempo de melhoria:
+                    span
+                br
+                span Diferença em produção com melhoria: 
+                    b
+                        span.edificio-melhoria-producao.text-success
+                br
+                button.btn-ugrade-edificio.btn.btn-success.btn-sm Melhorar
+                span(style = "display: block").edificio-tempo-melhoria-depois.hidden Tempo de melhoria:
+                    span
+                button.btn-calcelar-melhoria.btn.btn-warning.btn-sm.hidden Calcelar Melhoria
 
 block posscripts
     script(src="js/meta/view_planeta_parser.js")
@@ -209,7 +236,6 @@ block posscripts
         {
             $("#nome-planeta").text(planeta.nome);
             $("title").text(planeta.nome + " - Imperium");
-            GetRecursos();
             GetEdificios();
             GetConstrucoes();
         }

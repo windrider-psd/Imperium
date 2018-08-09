@@ -36,7 +36,59 @@ const baseFazenda = 48 / 6
 
 const baseEnergia = 100;
 
-const construcoes = ['minaFerro', 'minaCristal', 'fabricaEletronica', 'minaUranio', 'sintetizadorCombustivel', 'fazenda', 'plantaSolar', 'reatorFusao'];
+const baseProtecaoArmazem = 350;
+const baseTotalArmazem = 2500;
+const minimoArmazenamento = 10000;
+
+const construcoes = ['minaFerro', 'minaCristal', 'fabricaEletronica', 'minaUranio', 'sintetizadorCombustivel', 'fazenda', 'plantaSolar', 'reatorFusao', 'armazem'];
+
+/**
+ *
+ * @param {number} nivelArmazem
+ * @description Calcula o total de recursos de cada tipo que podem ser armazenados no planeta
+ * @returns {number}
+ */
+function GetTotalArmazenamentoRecursos(nivelArmazem)
+{
+    return GetArmazenamentoArmazem(nivelArmazem) + minimoArmazenamento
+}
+
+/**
+ * 
+ * @param {number} nivelArmazem 
+ * @description Calcula o total de recursos de cada tipo que serão protegidos pelo armazem
+ * @returns {number}
+ */
+function GetProtecaoArmazem(nivelArmazem)
+{
+    return nivelArmazem * Math.pow(baseProtecaoArmazem, 1.01)
+}
+
+/**
+ * 
+ * @param {number} nivelArmazem 
+ * @description Calcula o total de recursos que podem ser armazenados no armazem
+ * @returns {number}
+ */
+function GetArmazenamentoArmazem(nivelArmazem)
+{
+    return Math.ceil(nivelArmazem * (Math.pow(baseTotalArmazem, 1.03)))
+}
+
+
+/**
+ * 
+ * @param {number} nivelArmazem 
+ * @description Calcula o custo de melhoria do armazem
+ * @returns {CustoEdificio}
+ */
+function GeCustoUpgradeArmazem(nivelArmazem)
+{
+    let custo = Math.ceil((95 * Math.pow(1.9, (nivelArmazem - 1))));
+    return {ferro : custo, cristal : custo, uranio : custo};
+}
+
+
 
 /**
  * @param {string} construcao 
@@ -108,6 +160,8 @@ function GetCustoEdificioPorId(id, nivel)
                 return GetCustoUpgradePlantaSolar (nivel)
             case 'reatorFusao':
                 return GetCustoUpgradeReatorFusao (nivel)
+            case 'armazem':
+                return GeCustoUpgradeArmazem(nivel)
             default:
                 return false
         }
@@ -566,6 +620,12 @@ function GetConsumoFazenda (nivelFazenda)
     exports.GetEdificioID = GetEdificioID,
     exports.EdificioIDParaString  = EdificioIDParaString,
     exports.GetCustoEdificioPorId = GetCustoEdificioPorId,
-    exports.VerificarIDEdificio = VerificarIDEdificio
+    exports.VerificarIDEdificio = VerificarIDEdificio,
+
+    exports.GetTotalArmazenamentoRecursos = GetTotalArmazenamentoRecursos,
+    exports.GetProtecaoArmazem = GetProtecaoArmazem,
+    exports.GetArmazenamentoArmazem = GetArmazenamentoArmazem,
+    exports.GeCustoUpgradeArmazem = GeCustoUpgradeArmazem
+
 
 }(typeof exports === 'undefined' ? this.GerenciadorRecursos = {} : exports));

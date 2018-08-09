@@ -2,6 +2,7 @@ var models = require('./DBModels');
 var cron = require('node-cron');
 var GR = require('./GerenciadorRecursos');
 var io = require('./io');
+var MUtils = require('./DBModelsUtils')
 /**
  * @type {Array.<{planetaID : number, edificioID : number, timeout : NodeJS.Timer}>}
  * @description Array que armazena as construções para serem executadas (timeout)
@@ -81,6 +82,11 @@ function CriarConstrucaoTimer(edificioID, planetaID, duracao)
             let edificio = GR.EdificioIDParaString(edificioID); 
             planeta[edificio] = planeta[edificio] + 1;
             planeta.save();
+            MUtils.GetUsuarioPlaneta(planetaID).then((usuario) =>
+            {
+                io.EmitirParaSessao(usuario.id, 'edificio-melhoria-completa', {planetaID : planetaID, edificioID : edificioID});
+            });
+            
         });
         RemoverConstrucao(planetaID, edificioID);
     }, duracao * 1000);
