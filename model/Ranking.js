@@ -1,5 +1,5 @@
 var models = require('./DBModels')
-
+var Bluebird = require('bluebird');
 /**
  * @typedef TRecursos
  * @property {number} [ferro]
@@ -74,7 +74,45 @@ function AdicionarPontos(user, recursos, tipo)
     }
 }
 
+/**
+ * 
+ * @param {number} idusuario O id usuario
+ * @description Descobre Qual é o ranking do jogador
+ * @returns {Bluebird<any>} O ranking do jogador
+ */
+function GetRankingUsuario(idusuario)
+{
+    return new Bluebird((resolve, reject) =>{
+        if(typeof(idusuario) !== 'number')
+        {
+            reject("O idusuario precisa ser um número");
+        }
+        models.Con.query("SELECT id FROM `usuarios` ORDER BY(usuarios.pontosPesquisa + usuarios.pontosEconomia + usuarios.pontosMilitar) DESC").spread((usuarios) => {
+            if(usuarios.length == 0)
+                reject("Nenhum usuário cadastrado");
+            else
+            {
+                let esta = false;
+                for(let i = 0; i < usuarios.length; i++)
+                {
+                    if(usuarios[i].id == idusuario)
+                    {
+                        resolve(i + 1);
+                        esta = true;
+                        break;
+                    }
+                }
+                if(!esta)
+                    reject("Usuário não encontrado");
+            }
+            
+        }).catch((err) => {reject(err)});
+    });
+    
+}
+
 module.exports = {
     TipoPontos : TipoPontos,
-    AdicionarPontos : AdicionarPontos
+    AdicionarPontos : AdicionarPontos,
+    GetRankingUsuario : GetRankingUsuario
 }

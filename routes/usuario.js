@@ -154,14 +154,9 @@ router.post('/cadastrar', function(req, res) {
 
 router.post('/login', function(req, res)
 {
-
-  if(!(req.body.usuario && req.body.senha))
-    res.status(400).end("Parâmetros inválidos")
-  else if(req.session.usuario)
-    res.status(400).end("Usuário já logado")
-  else
+  let tratarLogin = () =>
   {
-    var params = req.body
+    let params = req.body
     params.nick = sanitizer.escape(params.nick);
     params.email = sanitizer.escape(params.email);
     Usuario.findOne({where : 
@@ -172,7 +167,7 @@ router.post('/login', function(req, res)
           {nick : params.usuario}
         ]
       }})
-     .then(function(resultado)
+    .then(function(resultado)
     {
       if(resultado)
       {
@@ -196,8 +191,15 @@ router.post('/login', function(req, res)
         res.status(400).end("Usuario ou senha incorretos");
       
     });
-   
   }
+  if(!(req.body.usuario && req.body.senha))
+    res.status(400).end("Parâmetros inválidos")
+  else if(req.session.usuario)
+  {
+    delete req.session.usuario
+  }
+  tratarLogin();
+    
 });
 router.post('/logout', function(req, res)
 {

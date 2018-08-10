@@ -2,15 +2,32 @@ var express = require('express');
 var router = express.Router();
 const models = require('./../model/DBModels')
 const MUtils = require('./../model/DBModelsUtils')
+const ranking = require('./../model/Ranking');
+var Bluebird = require("bluebird");
 
 /**
- * @param {Object} req O objeto de requisição do express
+ * @param {Request} req O objeto de requisição do express
  * @description Retorna um objeto que será usado no front-end
- * @returns {{session : Object, sessionID : number, setores : Object}
+ * @returns {Bluebird.<{session : Object, sessionID : number, setores : Object}>}
  */
 function getUserData(req)
 {
-  return {session : req.session.usuario, sessionID: req.sessionID, setores : req.userdata.setores};
+  return new Bluebird((resolve, reject) =>
+  {
+    if(req.session.usuario)
+    {
+      ranking.GetRankingUsuario(req.session.usuario.id).then((rankusuario) => {
+        resolve({session : req.session.usuario, rank : rankusuario, sessionID: req.sessionID, setores : req.userdata.setores});
+      }).catch((err) =>{
+        reject(err);
+      });
+    }
+    else
+    {
+      reject("Requisição não possui sessão de usuário");
+    }
+    
+  })
 }
 
 router.all('*', function(req, res, next)
@@ -41,21 +58,40 @@ router.all('*', function(req, res, next)
 });
 router.get('/', function(req, res) {
   if(req.session.usuario)
-    res.render('inicial', {userdata : getUserData(req)});
+  {
+    getUserData(req).then((userdata) => {
+      res.render('inicial', {userdata : userdata});
+    }).catch(() => {
+      res.render('login');
+    });
+  }
+    
   else
     res.render('login');
 });
 router.get('/opcoes', function(req, res)
 {
   if(req.session.usuario)
-    res.render('opcoes', {userdata : getUserData(req)});
+  {
+    getUserData(req).then((userdata) => {
+      res.render('opcoes', {userdata : userdata});
+    }).catch(() => {
+      res.status(403).render('login');
+    });
+  }
   else
     res.status(403).render('login');
 });
 
 router.get('/login', function(req, res) {
   if(req.session.usuario)
-    res.render('inicial', {userdata : getUserData(req)});
+  {
+    getUserData(req).then((userdata) => {
+      res.render('inicial', {userdata : userdata});
+    }).catch(() => {
+      res.render('login');
+    });
+  }
   else
     res.render('login');
 });
@@ -65,15 +101,24 @@ router.get('/cadastrar', function(req, res) {
 router.get('/inicial', function(req, res) {
   if(req.session.usuario)
   {
-    res.render('inicial', {userdata : getUserData(req)});
+    getUserData(req).then((userdata) => {
+      res.render('inicial', {userdata : userdata});
+    }).catch((err) => {
+      console.log(err);
+      res.status(403).render('login');
+    });
   }
   else 
-    res.render('login');
+    res.status(403).render('login');
 });
 router.get('/planeta', function(req, res) {
   if(req.session.usuario)
   {
-    res.render('planeta', {userdata : getUserData(req)});
+    getUserData(req).then((userdata) => {
+      res.render('planeta', {userdata : userdata});
+    }).catch(() => {
+      res.status(403).render('login');
+    });
   }
   else 
     res.render('login');

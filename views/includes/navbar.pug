@@ -15,11 +15,15 @@ nav(style="background-color:#00299e").navbar.navbar-default.navbar-fixed-top
                 li
                     a(href ="/inicial") Inicial
                 li
+                    a(href ="/ranking")#link-ranking Ranking 
+                        span
+                li
                     a(href ="/opcoes") Opcoes
                 li
                     a(href="#")#logout-link Logout  
 script.
     $("#nav-nick").html(userdata.session.nick)
+    $("#link-ranking span").text("(" + userdata.rank + ")")
     $("#logout-link").on('click', function()
     {
         $.ajax({
