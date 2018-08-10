@@ -83,7 +83,7 @@ function GetArmazenamentoArmazem(nivelArmazem)
  */
 function GeCustoUpgradeArmazem(nivelArmazem)
 {
-    let custo = Math.ceil((95 * Math.pow(1.9, (nivelArmazem - 1))));
+    let custo = Math.ceil((250 * Math.pow(1.9, (nivelArmazem - 1))));
     return {ferro : custo, cristal : custo, uranio : custo};
 }
 
@@ -139,32 +139,38 @@ function GetCustoEdificioPorId(id, nivel)
         if(id === false)
             return false
     }
-    else
+    else if(typeof(id) === 'string')
     {
-        switch(id)
-        {
-            case 'minaFerro':
-                return GetCustoUpgradeMinaFerro(nivel);
-            case 'minaCristal':
-                return GetCustoUpgradeMinaCristal(nivel);
-            case 'fabricaEletronica':
-                return GetCustoUpgradeFabricaEletronica(nivel);
-            case 'minaUranio':
-                return GetCustoUpgradeMinaUranio(nivel)
-            case 'sintetizadorCombustivel':
-                return GetCustoUpgradeSintetizadorCombustivel (nivel)
-            case 'fazenda': 
-                return GetCustoUpgradeFazenda (nivel)
-            case 'plantaSolar':
-                return GetCustoUpgradePlantaSolar (nivel)
-            case 'reatorFusao':
-                return GetCustoUpgradeReatorFusao (nivel)
-            case 'armazem':
-                return GeCustoUpgradeArmazem(nivel)
-            default:
-                return false
-        }
-    } 
+        if(!isNaN(id))
+            id = EdificioIDParaString(id)
+    }
+    else
+        return false
+
+    switch(id)
+    {
+        case 'minaFerro':
+            return GetCustoUpgradeMinaFerro(nivel);
+        case 'minaCristal':
+            return GetCustoUpgradeMinaCristal(nivel);
+        case 'fabricaEletronica':
+            return GetCustoUpgradeFabricaEletronica(nivel);
+        case 'minaUranio':
+            return GetCustoUpgradeMinaUranio(nivel)
+        case 'sintetizadorCombustivel':
+            return GetCustoUpgradeSintetizadorCombustivel (nivel)
+        case 'fazenda': 
+            return GetCustoUpgradeFazenda (nivel)
+        case 'plantaSolar':
+            return GetCustoUpgradePlantaSolar (nivel)
+        case 'reatorFusao':
+            return GetCustoUpgradeReatorFusao (nivel)
+        case 'armazem':
+            return GeCustoUpgradeArmazem(nivel)
+        default:
+            return false
+    }
+
     
 }
 /**

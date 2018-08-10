@@ -122,7 +122,7 @@ function getSetoresInfo(setores)
 
 /**
  * 
- * @param {Object} planeta O objeto sequalize do planeta
+ * @param {Object} planeta O planeta do tipo sequelize model
  * @description Encontra o usuário do planeta;
  * @returns {BlueBird}
  */
@@ -130,13 +130,14 @@ function GetUsuarioPlaneta(planeta)
 {
     return new BlueBird((resolve, reject) =>
     { 
-        models.Setor.findOne({where : {id : planeta.planetaID}}).then((setor) =>
+        models.Setor.findOne({where : {id : planeta.setorID}}).then((setor) =>
         {
             if(!setor)
                 reject("Setor do planeta não encontrado")
             else
             {
-                models.Usuario.findOne({where : {id : setor.id}}).then((usuario) =>
+                console.log(setor);
+                models.Usuario.findOne({where : {id : setor.usuarioID}}).then((usuario) =>
                 { 
                     if(!usuario)
                         reject("Usuário não encontrado")

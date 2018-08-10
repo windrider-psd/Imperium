@@ -114,7 +114,6 @@ router.post('/cancelar-melhoria', function(req, res)
          * @type {{planeta : number,  edificio: number|string}}
          */
         let params = req.body
-        console.log(params);
         if(!params.planeta || !params.edificio)
             res.status(400).end("Parâmetros inválidos")
         else if(!GR.VerificarIDEdificio(params.edificio))

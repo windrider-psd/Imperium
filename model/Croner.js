@@ -99,10 +99,13 @@ function CriarConstrucaoTimer(edificioID, planetaID, duracao)
             let edificio = GR.EdificioIDParaString(edificioID); 
             planeta[edificio] = planeta[edificio] + 1;
             planeta.save();
-            MUtils.GetUsuarioPlaneta(planetaID).then((usuario) =>
-            {
-                io.EmitirParaSessao(usuario.id, 'edificio-melhoria-completa', {planetaID : planetaID, edificioID : edificioID});
+            models.Planeta.findOne({where : {id : planetaID}}).then((planeta) => {
+                MUtils.GetUsuarioPlaneta(planeta).then((usuario) =>
+                {
+                    io.EmitirParaSessao(usuario.id, 'edificio-melhoria-completa', {planetaID : planetaID, edificioID : edificioID});
+                });
             });
+            
             
         });
         RemoverConstrucao(planetaID, edificioID);

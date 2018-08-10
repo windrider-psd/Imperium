@@ -59,7 +59,7 @@ function GetEdificios()
     $("#edificio-sintetizador-combustivel .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoCombustivel(planeta.sintetizadorCombustivel + 1) - GerenciadorRecursos.GetProducaoCombustivel(planeta.sintetizadorCombustivel)) * 6) + "/minuto");
     $("#edificio-sintetizador-combustivel .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
     
-    custo = GerenciadorRecursos.GeCustoUpgradeArmazem(planeta.fabricaEletronica + 1);
+    custo = GerenciadorRecursos.GeCustoUpgradeArmazem(planeta.armazem + 1);
     tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.uranio);
     $("#edificio-armazem .edificio-nivel").text(planeta.armazem);
     $("#edificio-armazem .custo-ferro span").text(custo.ferro);
@@ -202,16 +202,35 @@ $(".btn-ugrade-edificio").on('click', function()
 
 
         
+
+socket.on('edificio-melhoria-completa', function(data)
+{
+    let stringEdificio = GerenciadorRecursos.EdificioIDParaString(data.edificioID);
+    let JEdificio = $(".edificio[data-edificio='"+stringEdificio+"']");
+    UndoMelhoria(JEdificio);
+    planeta[stringEdificio] = planeta[stringEdificio] + 1;
+    JEdificio.find(".edificio-nivel").text(planeta[stringEdificio]);
+    let custo = GerenciadorRecursos.GetCustoEdificioPorId(data.edificioID,  planeta[stringEdificio] + 1);
+    let tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.uranio);
+
+    JEdificio.find(".custo-ferro span").text(custo.ferro);
+    JEdificio.find(".custo-cristal span").text(custo.cristal);
+    JEdificio.find(".custo-uranio span").text(custo.uranio);
+
+    JEdificio.find(".edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoFerro(planeta[stringEdificio] + 1) - GerenciadorRecursos.GetProducaoFerro(planeta[stringEdificio])) * 6)+ "/minuto");
+    JEdificio.find(".edificio-tempo-melhoria-antes span").text(tempoMelhoria);
+})
+
 socket.on('cancelar-melhoria', function(data)
 {
     if(data.planetaID == planeta.id)
     {
         let stringEdificio = GerenciadorRecursos.EdificioIDParaString(data.edificioID);
         let JEdificio = $(".edificio[data-edificio='"+stringEdificio+"']");
+        let custo = GerenciadorRecursos.GetCustoEdificioPorId(data.edificioID);
+
         UndoMelhoria(JEdificio);
     } 
-    
-
     
 });
 
