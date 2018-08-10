@@ -47,6 +47,7 @@ function GetEdificios()
     $("#edificio-fabrica-eletronica .edificio-nivel").text(planeta.fabricaEletronica);
     $("#edificio-fabrica-eletronica .custo-ferro span").text(custo.ferro);
     $("#edificio-fabrica-eletronica .custo-cristal span").text(custo.cristal);
+    $("#edificio-fabrica-eletronica .custo-uranio span").text(custo.uranio);
     $("#edificio-fabrica-eletronica .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoEletronica(planeta.fabricaEletronica + 1) - GerenciadorRecursos.GetProducaoEletronica(planeta.fabricaEletronica)) * 6) + "/minuto");
     $("#edificio-fabrica-eletronica .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
 

@@ -21,6 +21,11 @@ var sessaomiddleware = session({
   saveUninitialized : false, 
   secret : 'uijn4unip32nur324p23u'});
 
+if(yargs.clearsessions)
+{
+  console.log("Eliminando todas as sessões");
+  redis.flushdb();
+}
 var app = require('../app')(sessaomiddleware);
 io.CriarSocket(app, portaServidoIO, sessaomiddleware, armazenadorSessao);
 app.locals.ioPort = portaServidoIO;

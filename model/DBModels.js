@@ -110,6 +110,24 @@ const Usuario = con.define('Usuario', {
     {
         type: sequalize.STRING,
         allowNull : false,
+    },
+    pontosPesquisa :
+    {
+        type: sequalize.DOUBLE,
+        allowNull : false,
+        defaultValue : 0
+    },
+    pontosEconomia :
+    {
+        type: sequalize.DOUBLE,
+        allowNull : false,
+        defaultValue : 0
+    },
+    pontosMilitar :
+    {
+        type: sequalize.DOUBLE,
+        allowNull : false,
+        defaultValue : 0
     }
 });
 

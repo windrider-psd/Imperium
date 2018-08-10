@@ -16,9 +16,7 @@ class DBBuilder {
         let habitavel = (valorHabitavel <= Number(process.env.UNIVERSE_SYSTEM_HABITABLE_PLANET_RATIO));
         models.Planeta.create({ habitavel: habitavel, posX: posX, posY: posY, tamanho: tamanho, setorID: setor.id }).catch((err) => {
             if (err.name == "TimeoutError") {
-                setTimeout(() => {
                     this.CriarPlaneta(setor, posX, posY);
-                }, 100);
             }
             else {
                 console.log('\x1b[31m%s\x1b[0m', err);
@@ -33,9 +31,7 @@ class DBBuilder {
     static CriarAsteroide(setor, posX, posY) {
         models.Asteroide.create({ posX: posX, posY: posY, setorID: setor.id }).catch((err) => {
             if (err.name == "TimeoutError") {
-                setTimeout(() => {
-                    this.CriarAsteroide(setor, posX, posY);
-                }, 100);
+                this.CriarAsteroide(setor, posX, posY);
             }
             else {
                 console.log('\x1b[31m%s\x1b[0m', err);
@@ -62,9 +58,7 @@ class DBBuilder {
             solPosY: (planetario) ? Math.ceil(tamanho / 2) : null
         }).catch((err) => {
             if (err.name == "TimeoutError") {
-                setTimeout(() => {
-                    this.CriarSetor(posX, posY);
-                }, 100);
+                this.CriarSetor(posX, posY);
             }
             else {
                 console.log('\x1b[31m%s\x1b[0m', err);

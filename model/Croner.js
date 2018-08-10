@@ -3,6 +3,7 @@ var cron = require('node-cron');
 var GR = require('./GerenciadorRecursos');
 var io = require('./io');
 var MUtils = require('./DBModelsUtils')
+const ranking = require('./Ranking')
 /**
  * @type {Array.<{planetaID : number, edificioID : number, timeout : NodeJS.Timer}>}
  * @description Array que armazena as construções para serem executadas (timeout)
@@ -98,13 +99,17 @@ function CriarConstrucaoTimer(edificioID, planetaID, duracao)
 
             let edificio = GR.EdificioIDParaString(edificioID); 
             planeta[edificio] = planeta[edificio] + 1;
-            planeta.save();
-            models.Planeta.findOne({where : {id : planetaID}}).then((planeta) => {
-                MUtils.GetUsuarioPlaneta(planeta).then((usuario) =>
-                {
-                    io.EmitirParaSessao(usuario.id, 'edificio-melhoria-completa', {planetaID : planetaID, edificioID : edificioID});
+            planeta.save().then(() => {
+                models.Planeta.findOne({where : {id : planetaID}}).then((planeta) => {
+                    MUtils.GetUsuarioPlaneta(planeta).then((usuario) =>
+                    {
+                        let custo = GR.GetCustoEdificioPorId(edificioID, planeta[edificio]);
+                        ranking.AdicionarPontos(usuario, custo, ranking.TipoPontos.pontosEconomia);
+                        io.EmitirParaSessao(usuario.id, 'edificio-melhoria-completa', {planetaID : planetaID, edificioID : edificioID});
+                    });
                 });
             });
+            
             
             
         });

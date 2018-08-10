@@ -212,7 +212,7 @@ function VerificarIDEdificio(id)
  */
 function GetTempoConstrucao(totalFerro, totalCristal, totalUranio)
 {
-    return Math.ceil(((totalFerro + totalCristal + totalUranio * 2) / 5000 ) * 3600)
+    return Math.ceil(((totalFerro + totalCristal + totalUranio * 2) / 50000 ) * 3600)
 }
 
 /**

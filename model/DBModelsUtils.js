@@ -136,7 +136,6 @@ function GetUsuarioPlaneta(planeta)
                 reject("Setor do planeta não encontrado")
             else
             {
-                console.log(setor);
                 models.Usuario.findOne({where : {id : setor.usuarioID}}).then((usuario) =>
                 { 
                     if(!usuario)
