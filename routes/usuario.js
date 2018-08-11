@@ -10,6 +10,7 @@ const Usuario = database.Usuario;
 const Esqueci = database.EsqeciSenha;
 const Setor = database.Setor;
 const Planeta = database.Planeta;
+const ranking = require('./../model/Ranking')
 
 
 function getMensagemEsqueci(req, u, chave)
@@ -571,5 +572,33 @@ router.post('/enviar-ativacao', function(req, res)
   }
 });
 
+router.get('/getRankings', (req, res) => {
+  if(!req.session.usuario)
+    res.status(403).end("Operação inválida");
+  else if(!req.query.tipo)
+    res.status(400).end("É necessário informar uma página e tipo de pontos válidos");
+  else
+  {
+    if(req.query.pagina)
+    {
+      ranking.GetRankings((req.query.pagina - 1)  * 30, 30, req.query.tipo).then((rankUsuarios) =>
+      {
+        res.status(200).json(rankUsuarios);
+      });
+    }
+    else
+    {
+      ranking.GetRankingUsuario(req.session.usuario.id).then((rank) =>
+      {
+        ranking.GetRankings(((Math.ceil(rank / 30)) - 1)  * 30, 30, req.query.tipo).then((rankUsuarios) =>
+        {
+          res.status(200).json(rankUsuarios);
+        });
+      });
+    }
+    
+  }
+
+});
 
 module.exports = router;

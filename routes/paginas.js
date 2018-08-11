@@ -124,6 +124,19 @@ router.get('/planeta', function(req, res) {
     res.render('login');
 });
 
+router.get('/ranking', function(req, res) {
+  if(req.session.usuario)
+  {
+    getUserData(req).then((userdata) => {
+      res.render('ranking', {userdata : userdata});
+    }).catch(() => {
+      res.status(403).render('login');
+    });
+  }
+  else 
+    res.render('login');
+});
+
 router.get('/recuperar-senha', function(req, res){
   var uid = req.query.u;
   var chave = req.query.chave;
