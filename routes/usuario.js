@@ -11,7 +11,8 @@ const Esqueci = database.EsqeciSenha;
 const Setor = database.Setor;
 const Planeta = database.Planeta;
 const ranking = require('./../model/Ranking')
-
+require('dotenv/config')
+const rankingResultadosPorPagina = Number(process.env.RANKING_MAX_RESULTADOS);
 
 function getMensagemEsqueci(req, u, chave)
 {
@@ -573,26 +574,61 @@ router.post('/enviar-ativacao', function(req, res)
 });
 
 router.get('/getRankings', (req, res) => {
+
+/**
+ * @type {{tipo : string, pagina? : number, usuarioAtual? : boolean}}
+ */
+  let params = req.query;  
   if(!req.session.usuario)
     res.status(403).end("Operação inválida");
-  else if(!req.query.tipo)
+  else if(!params.tipo)
     res.status(400).end("É necessário informar uma página e tipo de pontos válidos");
   else
   {
-    if(req.query.pagina)
+    if(params.pagina)
     {
-      ranking.GetRankings((req.query.pagina - 1)  * 30, 30, req.query.tipo).then((rankUsuarios) =>
+      ranking.GetRankings((params.pagina - 1)  * rankingResultadosPorPagina, rankingResultadosPorPagina, params.tipo).then((rankUsuarios) =>
       {
-        res.status(200).json(rankUsuarios);
+        Usuario.count({}).then((contagem) => {
+          let retorno = {usuarios: rankUsuarios, total: contagem};
+          for(let i = 0; i < rankUsuarios.length; i++)
+          {
+            if(rankUsuarios[i].id == req.session.usuario.id)
+            {
+              retorno.rankAtual = i + 1;
+              break;
+            } 
+          }
+          res.status(200).json(retorno);
+        });
+        
       });
     }
     else
     {
       ranking.GetRankingUsuario(req.session.usuario.id).then((rank) =>
       {
-        ranking.GetRankings(((Math.ceil(rank / 30)) - 1)  * 30, 30, req.query.tipo).then((rankUsuarios) =>
+        let pagina = Math.ceil(rank / rankingResultadosPorPagina);
+        ranking.GetRankings((pagina - 1)  * rankingResultadosPorPagina, rankingResultadosPorPagina, params.tipo).then((/***@type {Array.<UsuarioRank>} */rankUsuarios) =>
         {
-          res.status(200).json(rankUsuarios);
+          Usuario.count({}).then((contagem) => {
+            let retorno = {usuarios: rankUsuarios, total: contagem};
+            if(params.usuarioAtual == 'true' || params.usuarioAtual == '1')
+            {
+              for(let i = 0; i < rankUsuarios.length; i++)
+              {
+                if(rankUsuarios[i].id == req.session.usuario.id)
+                {
+                  retorno.rankAtual = i + 1;
+                  break;
+                } 
+              }
+              res.status(200).json(retorno);
+            }
+            else
+              res.status(200).json(retorno);
+            });
+          
         });
       });
     }

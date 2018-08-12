@@ -23,6 +23,9 @@ block content
                   th Ação
                   th Pontos
               tbody#conteudo-ranking
+        .paginacao.pagination
 
 block posscripts
+  script.
+    const resultadosPorPagina = !{resultadosPorPagina}
   script(src="js/meta/view_ranking.js")

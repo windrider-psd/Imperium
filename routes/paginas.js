@@ -4,7 +4,7 @@ const models = require('./../model/DBModels')
 const MUtils = require('./../model/DBModelsUtils')
 const ranking = require('./../model/Ranking');
 var Bluebird = require("bluebird");
-
+require('dotenv/config')
 /**
  * @param {Request} req O objeto de requisição do express
  * @description Retorna um objeto que será usado no front-end
@@ -128,7 +128,7 @@ router.get('/ranking', function(req, res) {
   if(req.session.usuario)
   {
     getUserData(req).then((userdata) => {
-      res.render('ranking', {userdata : userdata});
+      res.render('ranking', {userdata : userdata, resultadosPorPagina : Number(process.env.RANKING_MAX_RESULTADOS)});
     }).catch(() => {
       res.status(403).render('login');
     });

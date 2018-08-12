@@ -6,6 +6,12 @@ main
   margin-top: 60px;
   
 }
+
+.c-pointer:hover
+{
+  cursor:pointer
+}
+
 .send-button{
   background: #54C7C3;
   width:100%;

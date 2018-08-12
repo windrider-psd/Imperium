@@ -143,7 +143,7 @@ function AdicionarPontos(user, recursos, tipo)
  * @param {number} limit O total de usuários que serão rankeados
  * @param {TTipoPontos} tipo O tipo dos pontos que se procura
  * @description Retorna uma array de tipo UsuarioRank dos usuários selecionados de acordo com os parâmetros offset e limit
- * @returns {Bluebird.<UsuarioRank>}
+ * @returns {Bluebird.<Array.<UsuarioRank>>}
  */
 function GetRankings(offset, limit, tipo)
 {
@@ -163,7 +163,7 @@ function GetRankings(offset, limit, tipo)
                     let pontos = 0;
                     for(let j = 0; j < sql.sqlPontos.length; j++)
                         pontos += usuarios[i][sql.sqlPontos[j]];
-                    retorno.push({id : usuarios[i].id, nome: usuarios[i].nick, pontos : pontos, alianca : undefined, desempenho : undefined, rank : i + 1})
+                    retorno.push({id : usuarios[i].id, nome: usuarios[i].nick, pontos : pontos, alianca : undefined, desempenho : undefined, rank : i + 1 + offset})
                 }
                 resolve(retorno);
             }).catch((err) => {reject(err)});
