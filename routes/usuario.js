@@ -574,9 +574,8 @@ router.post('/enviar-ativacao', function(req, res)
 });
 
 router.get('/getRankings', (req, res) => {
-
 /**
- * @type {{tipo : string, pagina? : number, usuarioAtual? : boolean}}
+ * @type {{tipo : string, pagina? : number}}
  */
   let params = req.query;  
   if(!req.session.usuario)
@@ -591,14 +590,6 @@ router.get('/getRankings', (req, res) => {
       {
         Usuario.count({}).then((contagem) => {
           let retorno = {usuarios: rankUsuarios, total: contagem};
-          for(let i = 0; i < rankUsuarios.length; i++)
-          {
-            if(rankUsuarios[i].id == req.session.usuario.id)
-            {
-              retorno.rankAtual = i + 1;
-              break;
-            } 
-          }
           res.status(200).json(retorno);
         });
         
@@ -606,35 +597,19 @@ router.get('/getRankings', (req, res) => {
     }
     else
     {
-      ranking.GetRankingUsuario(req.session.usuario.id).then((rank) =>
+      ranking.GetRankingUsuario(req.session.usuario.id, params.tipo).then((rank) =>
       {
         let pagina = Math.ceil(rank / rankingResultadosPorPagina);
         ranking.GetRankings((pagina - 1)  * rankingResultadosPorPagina, rankingResultadosPorPagina, params.tipo).then((/***@type {Array.<UsuarioRank>} */rankUsuarios) =>
         {
           Usuario.count({}).then((contagem) => {
-            let retorno = {usuarios: rankUsuarios, total: contagem};
-            if(params.usuarioAtual == 'true' || params.usuarioAtual == '1')
-            {
-              for(let i = 0; i < rankUsuarios.length; i++)
-              {
-                if(rankUsuarios[i].id == req.session.usuario.id)
-                {
-                  retorno.rankAtual = i + 1;
-                  break;
-                } 
-              }
-              res.status(200).json(retorno);
-            }
-            else
-              res.status(200).json(retorno);
-            });
-          
+            let retorno = {usuarios: rankUsuarios, total: contagem, pagina : pagina};
+            res.status(200).json(retorno);
+          }); 
         });
       });
-    }
-    
+    }  
   }
-
 });
 
 module.exports = router;
