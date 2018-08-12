@@ -140,6 +140,7 @@ class DBBuilder {
     {
         models.Usuario.sync({force : force}).then(function()
         {
+            models.MensagemPrivada.sync({force : force});
             models.EsqeciSenha.sync({force : force})
             models.Admin.sync({force : force}).then(function()
             {

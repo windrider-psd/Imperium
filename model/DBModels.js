@@ -396,6 +396,68 @@ const Construcao = con.define("Construcao", {
     }
 }, {timestamps : false});
 
+const MensagemPrivada = con.define("Mensagem_Privada",{
+    id:
+    {
+        type: sequalize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    remetente:
+    {
+        type: sequalize.INTEGER,
+        references:
+        {
+            model : Usuario,
+            key: 'id'
+        },
+        allowNull : false,
+        onDelete : 'CASCADE'
+    },
+    destinatario:
+    {
+        type: sequalize.INTEGER,
+        references:
+        {
+            model : Usuario,
+            key : 'id'
+        },
+        allowNull : false,
+        onDelete : 'CASCADE'
+    },
+    assunto : 
+    {
+        type : sequalize.STRING,
+        allowNull : false,
+        defaultValue : "Sem assunto",
+        validate:
+        {
+            max : Number(process.env.MESSAGE_SUBJECT_MAX_LENGTH)
+        }
+    },
+    mensagem :
+    {
+        type: sequalize.TEXT,
+        allowNull : false,
+        validate:
+        {
+            max : Number(process.env.MESSAGE_CONTENT_MAX_LENGTH)
+        }
+    },
+    visualizada:
+    {
+        type: sequalize.BOOLEAN,
+        defaultValue : false,
+        allowNull :false
+    },
+    criacao :
+    {
+        type : sequalize.DATE,
+        defaultValue : sequalize.NOW,
+        allowNull : false
+    } 
+}, {timestamps : false});
+
 
 Usuario.hasOne(EsqueciSenha, {foreignKey : {name : "usuarioID", allowNull : false, primaryKey : true}, onDelete : "CASCADE"})
 EsqueciSenha.removeAttribute('id');
@@ -417,7 +479,7 @@ Usuario.afterDestroy(function(usuario, opcoes)
     });
 });
 
-module.exports = {Con : con, Asteroide : Asteroide, Usuario :  Usuario, Admin : Admin, EsqeciSenha : EsqueciSenha, Setor : Setor, Planeta : Planeta, Construcao : Construcao, isReady : function(){return ready;}};
+module.exports = {Con : con, MensagemPrivada : MensagemPrivada, Asteroide : Asteroide, Usuario :  Usuario, Admin : Admin, EsqeciSenha : EsqueciSenha, Setor : Setor, Planeta : Planeta, Construcao : Construcao, isReady : function(){return ready;}};
 
 con.authenticate().then(function()
 {

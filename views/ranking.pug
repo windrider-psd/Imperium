@@ -2,30 +2,33 @@ extends templates/layout
 block titulo
   | Ranking
 block content     
-    include includes/navbar
-    .container
-      .row
-        button(type="button", data-tipo = "pontosTotal").btn.btn-warning.btn-pontos.active Pontuação total
-        button(type="button", data-tipo = "pontosEconomia").btn.btn-primary.btn-pontos Pontuação Econômica
-        button(type="button", data-tipo = "pontosMilitar").btn.btn-danger.btn-pontos Pontuação Militar
-        button(type="button", data-tipo = "pontosPesquisa").btn.btn-success.btn-pontos Pontuação de pesquisa
-      .row
-        .col-md-12
-          br
-          .table-responsive
-            table.table.table-bordered
-              thead
-                tr
-                  th Rank
-                  th Desempenho
-                  th Nome do Jogador
-                  th Aliança
-                  th Ação
-                  th Pontos
-              tbody#conteudo-ranking
-        .paginacao.pagination
+  include includes/navbar
+  .container
+    .row
+      button(type="button", data-tipo = "pontosTotal").btn.btn-warning.btn-pontos.active Pontuação total
+      button(type="button", data-tipo = "pontosEconomia").btn.btn-primary.btn-pontos Pontuação Econômica
+      button(type="button", data-tipo = "pontosMilitar").btn.btn-danger.btn-pontos Pontuação Militar
+      button(type="button", data-tipo = "pontosPesquisa").btn.btn-success.btn-pontos Pontuação de pesquisa
+    .row
+      .col-md-12
+        br
+        .table-responsive
+          table.table.table-bordered
+            thead
+              tr
+                th Rank
+                th Desempenho
+                th Nome do Jogador
+                th Aliança
+                th Ação
+                th Pontos
+            tbody#conteudo-ranking
+      .paginacao.pagination
+
+  include includes/enviar-mensagem-privada
 
 block posscripts
   script.
     const resultadosPorPagina = !{resultadosPorPagina}
+  script(src="js/meta/mensagens.js")
   script(src="js/meta/view_ranking.js")

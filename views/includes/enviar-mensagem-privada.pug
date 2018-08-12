@@ -1,0 +1,21 @@
+#modal-enviar-mensagem-privada.modal.fade(role='dialog')
+    .modal-dialog
+        .modal-content
+            .modal-header
+                button.close(type='button', data-dismiss='modal') ×
+                h4.modal-title Enviar mensagem para 
+                    span
+            .modal-body
+                .row
+                    .col-md-offset-1.col-md-10.col-sm-12
+                        form#form-enviar-mensagem-privada(onsubmit='return false')
+                            input(type="hidden", name="destinatario")
+                            .form-group
+                                label(for='assunto') Assunto: 
+                                input.form-control(type='text', name='assunto', placeholder='O assunto da mensagem')
+                            .form-group
+                                label(for='mensagem') Mensagem: 
+                                textarea(name='mensagem' rows = '10' style = "resize: vertical").form-control
+                            .row
+                                .col-md-offset-3.col-md-6.text-center
+                                    button.btn.btn-primary.btn-lg.btn-block(type='submit') Enviar Mensagem

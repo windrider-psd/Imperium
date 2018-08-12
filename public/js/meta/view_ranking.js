@@ -58,7 +58,7 @@ function CarregarTipo(pagina, tipo)
                 {
                     htmlString += "<td></td>";
                 }
-                htmlString += "<td><button class = 'btn btn-primary btn-sm btn-enviar-mensagem'><i class = 'fa fa-comment'></i></button></td>"
+                htmlString += "<td><button data-destinatario = '"+usuarios[i].id+"' data-nome = '"+usuarios[i].nome+"' class = 'btn btn-primary btn-sm btn-enviar-mensagem'><i class = 'fa fa-comment'></i></button></td>"
                 htmlString += "<td>"+usuarios[i].pontos.toFixed(2)+"</td></tr>"
             }
             $("#conteudo-ranking").html(htmlString);
@@ -201,4 +201,9 @@ $(".paginacao").on('submit', '#form-paginacao-goto', function()
     let pagina = Number($("#paginacao_goto").val()).toFixed(0);
     CarregarTipo(pagina, tipoAtual);
     GerarHTMLPaginacao(total, pagina - 1);
+});
+
+$("#conteudo-ranking").on('click', ".btn-enviar-mensagem", function() {
+
+    AbrirModalEnviarMensagemPrivada($(this).data('destinatario'), $(this).data('nome'));
 });

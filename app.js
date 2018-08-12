@@ -7,6 +7,7 @@ var logger = require('morgan');
 var paginaRouter = require('./routes/paginas');
 var usuarioRouter = require('./routes/usuario');
 var edificiosRouter = require("./routes/edificio");
+var comunicacaoRouter = require('./routes/comunicacao')
 var browserify = require('browserify-middleware');
 var helmet = require('helmet');
 var DDDoS = require('dddos');
@@ -43,6 +44,7 @@ module.exports = function CriarApp(sessao)
   app.use('/', paginaRouter);
   app.use('/usuario', usuarioRouter);
   app.use('/edificio', edificiosRouter);
+  app.use('/comunicacao', comunicacaoRouter)
   
   // catch 404 and forward to error handler
   app.use(function(req, res, next) {

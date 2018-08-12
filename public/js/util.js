@@ -55,6 +55,10 @@ function FormToAssocArray(JForm)
             retorno[$(this).attr('name')] = $(this).val();
         }
     });
+    $("textarea", JForm).each(function()
+    {
+        retorno[$(this).attr('name')] = $(this).val();
+    });
 
     $("select", JForm).each(function()
     {
