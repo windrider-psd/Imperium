@@ -150,10 +150,18 @@ function GetUsuarioPlaneta(planeta)
     
 }
 
+function GetCountCaixaDeEntrada(usuarioid)
+{
+    return new BlueBird((resolve, reject) => {
+        models.MensagemPrivada.count({where : {destinatario : usuarioid, visualizada : false}}).then(contagem => resolve(contagem))
+    })
+   
+}
 
 module.exports = 
 {
     GetConstrucoesPlaneta : GetConstrucoesPlaneta,
     getSetoresInfo : getSetoresInfo,
-    GetUsuarioPlaneta : GetUsuarioPlaneta
+    GetUsuarioPlaneta : GetUsuarioPlaneta,
+    GetCountCaixaDeEntrada : GetCountCaixaDeEntrada
 }
