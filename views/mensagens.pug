@@ -3,8 +3,19 @@ block titulo
   | Mensagens
 block content     
     include includes/navbar
-    h1 Mensagens
-
-
+    h1 Mensagens privadas
+    .container-fluid
+        .row
+            .col-md-12
+                .tabbable-panel
+                    .tabbable-line
+                        ul.nav.nav-tabs
+                          li.tab-btn#tab-btn-in
+                            a(href ="#") Mensagens Recebidas
+                          li.tab-btn#tab-btn-out
+                            a(href = "#") Mensagens Enviadas
+                        .tab-content
 block posscripts
+  script.
+    const resultadosPorPagina = !{resultadosPorPagina}
   script(src="js/meta/view_mensagens.js")

@@ -51,9 +51,13 @@ router.get('/getInbox', (req, res) => {
     res.status(403).end("Operação inválida")
   else if(!params.pagina)
     res.status(400).end("Parâmetros inválidos")
+  else if(isNaN(params.pagina))
+    res.status(400).end("Parâmetros inválidos")
   else
   {
-    models.MensagemPrivada.findAll({where : {destinatario : req.session.usuario.id}, offset : (Number(params.pagina) - 1), limit : Number(process.env.MESSAGE_PAGE_COUNT)}).then(mensagens =>{
+    models.MensagemPrivada.findAndCountAll({where : {destinatario : req.session.usuario.id}, offset : (Number(params.pagina) - 1) * Number(process.env.MESSAGE_PAGE_COUNT), limit : Number(process.env.MESSAGE_PAGE_COUNT)}).then(resultado =>{
+        let mensagens = resultado.rows
+        let total = resultado.count
         /**
          * @type {Array.<number>}
          * @description Array de ids de usuários. Serve para economizar o número de queries.
@@ -94,7 +98,7 @@ router.get('/getInbox', (req, res) => {
               }
             }
           }
-          res.status(200).json(mensagens)
+          res.status(200).json({mensagens : mensagens, total : total})
         })
     })
   }
@@ -109,9 +113,13 @@ router.get('/getOutbox', (req, res) => {
     res.status(403).end("Operação inválida")
   else if(!params.pagina)
     res.status(400).end("Parâmetros inválidos")
+  else if(isNaN(params.pagina))
+    res.status(400).end("Parâmetros inválidos")
   else
   {
-    models.MensagemPrivada.findAll({where : {remetente : req.session.usuario.id}, offset : (Number(params.pagina) - 1), limit : Number(process.env.MESSAGE_PAGE_COUNT)}).then(mensagens =>{
+    models.MensagemPrivada.findAndCountAll({where : {remetente : req.session.usuario.id}, offset : (Number(params.pagina) - 1) * Number(process.env.MESSAGE_PAGE_COUNT), limit : Number(process.env.MESSAGE_PAGE_COUNT)}).then(resultado =>{
+        let mensagens = resultado.rows
+        let total = resultado.count
         /**
          * @type {Array.<number>}
          * @description Array de ids de usuários. Serve para economizar o número de queries.
@@ -153,7 +161,7 @@ router.get('/getOutbox', (req, res) => {
               }
             }
           }
-          res.status(200).json(mensagens)
+          res.status(200).json({mensagens : mensagens, total : total})
         })
     })
   }

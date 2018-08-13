@@ -96,7 +96,7 @@ router.get('/ranking', (req, res) => {
 
 router.get('/mensagens', (req, res) => {
   if(req.session.usuario)
-    getUserData(req).then(userdata => res.render('mensagens', {userdata : userdata})).catch(() => res.status(403).render('login'));
+    getUserData(req).then(userdata => res.render('mensagens', {userdata : userdata, resultadosPorPagina : Number(process.env.MESSAGE_PAGE_COUNT)})).catch(() => res.status(403).render('login'));
   else 
     res.status(403).render('login');
 });
