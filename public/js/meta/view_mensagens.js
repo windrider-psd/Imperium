@@ -7,11 +7,16 @@
  * @property {string} nick O nick do remetente se inbox. O nick do destinatario se outbox
  * @property {string} mensagem
  * @property {boolean} [visualizada] Se a mensagem foi visualizada. Undefined se outbox
+ * @property {number} id
  */
 
 const periodoPaginas = 10;
 var inboxbool;
 var total;
+/**
+ * @type {Array.<MensagemObject>}
+ */
+var boxAux;
 
 getInbox(1, function(inbox){
     setInboxContent(inbox.mensagens, inbox.total)
@@ -47,6 +52,7 @@ function getInbox(pagina, callback)
         {
             total = inbox.total
             inboxbool = true;
+            boxAux = inbox.mensagens
             if(typeof(callback) === 'function')
                 callback(inbox)
         },
@@ -68,6 +74,7 @@ function getOutbox(pagina, callback)
             console.log(outbox);
             total = outbox.total
             inboxbool = false;
+            boxAux = outbox.mensagens
             if(typeof(callback) === 'function')
                 callback(outbox)
         },
@@ -339,5 +346,47 @@ $(".tab-content").on('click', '.mensagem-link', function()
             $(this).data('visualizada', '1')
         }
     }
-        
+
+    var JModal = $("#modal-visualizar-mensagem-privada");
+    var mensagem;
+    for(var i = 0; i < boxAux.length; i++)
+    {
+        if(boxAux[i].id == Number($(this).data('id')))
+        {
+            mensagem = boxAux[i];
+            break
+        }
+    }
+    JModal.find(".modal-title").text(mensagem.assunto);
+    JModal.find(".nome").text(mensagem.nick);
+    JModal.find(".conteudo").html(mensagem.mensagem.replace(/(?:\r\n|\r|\n)/g, '<br />'));
+    JModal.find(".destinatario").val((inboxbool) ? mensagem.remetente : mensagem.destinatario);
+    JModal.find(".assunto").val(mensagem.assunto);
+    JModal.modal("show");
+})
+
+$("#modal-visualizar-mensagem-privada form").on("submit", function(){
+    var params = FormToAssocArray($(this));
+    var btn = $(this).find("button");
+    $.ajax({
+        url : 'comunicacao/enviar-mensagem-privada',
+        method : 'POST',
+        data : params,
+        beforeSend : function()
+        {
+            btn.text("Respondendo...")
+        },
+        success : function()
+        {
+            GerarNotificacao("Resposta enviada com sucesso", 'success')
+        },
+        error : function(err)
+        {
+            GerarNotificacao(err.responseText, 'danger')
+        },
+        complete : function()
+        {
+            btn.text("Responder Mensagem")
+        }
+    })
 })

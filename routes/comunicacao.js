@@ -20,9 +20,9 @@ router.post('/enviar-mensagem-privada', (req, res) =>
     res.status(400).end("Parâmetros inválidos")
   else if(params.destinatario == req.session.usuario.id || params.mensagem == '')
     res.status(400).end("Parâmetros inválidos")
-  else if(params.mensagem.length > Number(process.env.MESSAGE_SUBJECT_MAX_LENGTH))
+  else if(params.mensagem.length > Number(process.env.MESSAGE_CONTENT_MAX_LENGTH))
     res.status(400).end("Mensagem muito longa")
-  else if(params.assunto.length > Number(process.env.MESSAGE_CONTENT_MAX_LENGTH))
+  else if(params.assunto.length > Number(process.env.MESSAGE_SUBJECT_MAX_LENGTH))
     res.status(400).end("Assunto da mensagem muito longo")
   else
   {
@@ -55,7 +55,7 @@ router.get('/getInbox', (req, res) => {
     res.status(400).end("Parâmetros inválidos")
   else
   {
-    models.MensagemPrivada.findAndCountAll({where : {destinatario : req.session.usuario.id}, offset : (Number(params.pagina) - 1) * Number(process.env.MESSAGE_PAGE_COUNT), limit : Number(process.env.MESSAGE_PAGE_COUNT)}).then(resultado =>{
+    models.MensagemPrivada.findAndCountAll({where : {destinatario : req.session.usuario.id}, offset : (Number(params.pagina) - 1) * Number(process.env.MESSAGE_PAGE_COUNT), limit : Number(process.env.MESSAGE_PAGE_COUNT), order : [['id', 'DESC']]}).then(resultado =>{
         let mensagens = resultado.rows
         let total = resultado.count
         /**
@@ -117,7 +117,7 @@ router.get('/getOutbox', (req, res) => {
     res.status(400).end("Parâmetros inválidos")
   else
   {
-    models.MensagemPrivada.findAndCountAll({where : {remetente : req.session.usuario.id}, offset : (Number(params.pagina) - 1) * Number(process.env.MESSAGE_PAGE_COUNT), limit : Number(process.env.MESSAGE_PAGE_COUNT)}).then(resultado =>{
+    models.MensagemPrivada.findAndCountAll({where : {remetente : req.session.usuario.id}, offset : (Number(params.pagina) - 1) * Number(process.env.MESSAGE_PAGE_COUNT), limit : Number(process.env.MESSAGE_PAGE_COUNT), order : [['id', 'DESC']]}).then(resultado =>{
         let mensagens = resultado.rows
         let total = resultado.count
         /**
