@@ -167,4 +167,19 @@ router.get('/getOutbox', (req, res) => {
   }
 })
 
+router.post('/setInboxVisualizada', (req, res) =>{
+  /**
+   * @type {{id : number}}
+   */
+  let params = req.body;
+  if(!req.session.usuario)
+    res.status(403).end("Operação inválida")
+  else if(!params.id)
+    res.status(400).end("Parâmetros inválidos")
+  else if(isNaN(params.id))
+    res.status(400).end("Parâmetros inválidos")
+  else
+    models.MensagemPrivada.update({visualizada : true}, {where : {destinatario: req.session.usuario.id, id : Number(params.id)}}).then(() => res.status(200).end("")).catch((err) => res.status(500).end(err))
+})
+
 module.exports = router;

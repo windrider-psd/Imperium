@@ -91,9 +91,9 @@ function getConteudoTabela(inbox)
     {
         htmlString += "<tr>";
         if(inbox[i].visualizada === false)
-            htmlString += "<td><a href = '#' class = 'link' data-id = '"+inbox[i].remetente+"' data-nome = '"+inbox[i].nick+"' ><b>"+inbox[i].assunto+"</b></a></td>"
+            htmlString += "<td><a class = 'link c-pointer mensagem-link' data-id = '"+inbox[i].id+"' data-userid = '"+inbox[i].remetente+"' data-nome = '"+inbox[i].nick+"' data-visualizada = '0'><b>"+inbox[i].assunto+"</b></a></td>"
         else
-            htmlString += "<td><a href = '#' class = 'link' data-id = '"+inbox[i].remetente+"' data-nome = '"+inbox[i].nick+"' >"+inbox[i].assunto+"</a></td>"
+            htmlString += "<td><a class = 'link c-pointer mensagem-link' data-id = '"+inbox[i].id+"' data-userid = '"+inbox[i].remetente+"' data-nome = '"+inbox[i].nick+"' data-visualizada = '1'>"+inbox[i].assunto+"</a></td>"
         
         htmlString += '<td>'+inbox[i].nick+'</td><td>'+FormatarDate(new Date(inbox[i].criacao), '/')+'</td></tr>'
     }
@@ -310,6 +310,34 @@ $(".tab-content").on('submit', '#form-goto', function()
             AvancarPagina(pagina - paginaAtual - 1)
         });
     }
-       
-
 });
+
+
+/**
+ * @param {number} idmensagem O id da mensagem
+ * @description Coloca uma mensagem como estado visualizada
+ */
+function setMensagemVisualizada(idmensagem)
+{
+    $.ajax({
+        url : 'comunicacao/setInboxVisualizada',
+        method : 'POST',
+        data : {id : idmensagem}
+    })
+}
+
+$(".tab-content").on('click', '.mensagem-link', function()
+{
+    if(inboxbool == true)
+    {
+        if($(this).data('visualizada') == '0')
+        {
+            setMensagemVisualizada($(this).data('id'))
+            var texto = $(this).text()
+            $(this).find("b").remove()
+            $(this).text(texto)
+            $(this).data('visualizada', '1')
+        }
+    }
+        
+})
