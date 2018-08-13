@@ -3,7 +3,8 @@ block titulo
   | Mensagens
 block content     
     include includes/navbar
-    h1 Olá !{userdata.session.nick}
+    h1 Mensagens
 
 
 block posscripts
+  script(src="js/meta/view_mensagens.js")

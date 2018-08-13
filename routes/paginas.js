@@ -84,123 +84,21 @@ router.get('/planeta', (req, res) => {
   if(req.session.usuario)
     getUserData(req).then(userdata => res.render('planeta', {userdata : userdata})).catch(() => res.status(403).render('login'));
   else 
-    res.render('login');
+    res.status(403).render('login');
 });
 
 router.get('/ranking', (req, res) => {
   if(req.session.usuario)
     getUserData(req).then(userdata => res.render('ranking', {userdata : userdata, resultadosPorPagina : Number(process.env.RANKING_MAX_RESULTADOS)})).catch(() =>res.status(403).render('login'));
   else 
-    res.render('login');
+    res.status(403).render('login');
 });
 
 router.get('/mensagens', (req, res) => {
   if(req.session.usuario)
-  {
-    getUserData(req).then(userdata => {
-      models.MensagemPrivada.findAll({
-        where :
-        {
-          $or:
-          {
-            destinatario : req.session.usuario.id,
-            remetente : req.session.usuario.id
-          }
-        }
-      }).then(mensagens => {
-        let mensagensRetorno = {recebidas : new Array(), enviadas : new Array()}
-        let promessasAll = new Array();
-        /**
-         * @type {Array.<number>}
-         */
-        let usuariosEncontrados = new Array();
-
-        for(let i = 0; i < mensagens.length; i++)
-        {
-            let esta = false;
-            for(let j = 0; j < usuariosEncontrados.length; j++)
-            {
-              if(mensagens[i].remetente == usuariosEncontrados[j])
-              {
-                esta = true;
-                break;
-              }
-            }
-            if(!esta)
-            {
-              usuariosEncontrados.push(mensagens[i].remetente)
-              promessasAll.push(new Bluebird(resolve => 
-              {
-                  models.Usuario.findOne({where : {id : mensagens[i].remetente}, attributes : ['id', 'nick']}).then(usuario => resolve({id : usuario.id, nome : usuario.nick}))
-              }))
-            }
-        }
-
-        for(let i = 0; i < mensagens.length; i++)
-        {
-            let esta = false;
-            for(let j = 0; j < usuariosEncontrados.length; j++)
-            {
-              if(mensagens[i].destinatario == usuariosEncontrados[j])
-              {
-                esta = true;
-                break;
-              }
-            }
-            if(!esta)
-            {
-              usuariosEncontrados.push(mensagens[i].destinatario)
-              promessasAll.push(new Bluebird(resolve => 
-              {
-                  models.Usuario.findOne({where : {id : mensagens[i].destinatario}, attributes : ['id', 'nick']}).then(usuario => resolve({id : usuario.id, nome : usuario.nick}))
-              }))
-            }
-        }
-
-        Bluebird.all(promessasAll).then(usuarios =>
-        {
-          for(let i = 0; i < mensagens.length; i++)
-          {
-            for(let j = 0; j < usuarios.length; j++)
-            {
-              if(mensagens[i].destinatario == req.session.usuario.id)
-              {
-                for(let k = 0; k < usuarios.length; k++)
-                {
-                  if(usuarios[k].id != req.session.usuario.id && usuarios[k].id == mensagens[i].remetente)
-                  {
-                    mensagensRetorno.recebidas.push({mensagem : mensagens[i], nome : usuarios[k].nome})
-                    break;
-                  }
-                }
-                break;
-              }
-              else
-              {
-                for(let k = 0; k < usuarios.length; k++)
-                {
-                  if(usuarios[k].id != req.session.usuario.id && usuarios[k].id == mensagens[i].destinatario)
-                  {
-                    delete mensagens[i].visualizada;
-                    mensagensRetorno.enviadas.push({mensagem : mensagens[i], nome : usuarios[k].nome})
-                    break;
-                  }
-                }
-                break;
-              }
-            }
-          }
-          userdata['mensagensPrivadas'] = mensagensRetorno;
-          res.render('mensagens', {userdata : userdata})
-        });
-        
-      });
-    })
-    .catch(() => res.status(403).render('login'));
-  }
-    
+    getUserData(req).then(userdata => res.render('mensagens', {userdata : userdata})).catch(() => res.status(403).render('login'));
   else 
-    res.render('login');
+    res.status(403).render('login');
 });
 
 router.get('/recuperar-senha', (req, res) =>{

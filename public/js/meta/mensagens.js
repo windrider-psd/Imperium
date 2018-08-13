@@ -22,15 +22,19 @@ $("#form-enviar-mensagem-privada").on('submit', function()
         data : params,
         beforeSend : function()
         {
-            btn.text("Enviando...");
+            btn.text("Enviando...")
         },
         success : function()
         {
-            GerarNotificacao("Mensagem enviada com sucesso", 'success');
+            GerarNotificacao("Mensagem enviada com sucesso", 'success')
         },
         error : function(err)
         {
-            GerarNotificacao(err.responseText, 'danger');
+            GerarNotificacao(err.responseText, 'danger')
+        },
+        complete : function()
+        {
+            btn.text("Enviar Mensagem")
         }
     })
 });
