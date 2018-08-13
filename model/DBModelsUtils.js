@@ -143,19 +143,25 @@ function GetUsuarioPlaneta(planeta)
                     else
                         resolve(usuario);
                 })
-                }
-            
+            }
         });
     })
     
 }
 
+/**
+ * @param {number} usuarioid 
+ * @description Retorna a quantidade de mensagens privadas não lidas de um usuário
+ * @returns {BlueBird.<number>} 
+ */
 function GetCountCaixaDeEntrada(usuarioid)
 {
     return new BlueBird((resolve, reject) => {
-        models.MensagemPrivada.count({where : {destinatario : usuarioid, visualizada : false}}).then(contagem => resolve(contagem))
+        if(typeof(usuarioid) !== 'number')
+            reject("usuarioid precisa ser um numero")
+        else
+            models.MensagemPrivada.count({where : {destinatario : usuarioid, visualizada : false}}).then(contagem => resolve(contagem))
     })
-   
 }
 
 module.exports = 

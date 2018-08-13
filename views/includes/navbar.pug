@@ -9,11 +9,13 @@ nav(style="background-color:#00299e").navbar.navbar-default.navbar-fixed-top
             a(href="/").navbar-brand
                 img(alt="UFSM", src="/images/logo_pre.png" width="20px")
             a.navbar-brand(href='/opcoes')#nav-nick
-
         .collapse.navbar-collapse#bs-example-navbar-collapse-1
             ul.nav.navbar-nav
                 li
                     a(href ="/inicial") Inicial
+                li 
+                    a(href ="/mensagens")#link-mensagens Mensagens 
+                        span
                 li
                     a(href ="/ranking")#link-ranking Ranking 
                         span
@@ -24,6 +26,7 @@ nav(style="background-color:#00299e").navbar.navbar-default.navbar-fixed-top
 script.
     $("#nav-nick").html(userdata.session.nick)
     $("#link-ranking span").text("(" + userdata.rank + ")")
+    $("#link-mensagens span").text("(" + userdata.caixaEntrada + ")")
     $("#logout-link").on('click', function()
     {
         $.ajax({

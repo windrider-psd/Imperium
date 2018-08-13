@@ -25,19 +25,13 @@ router.post('/melhorar', function(req, res)
             if(GR.VerificarIDEdificio(params.edificio))
             {
                 if(typeof(params.edificio) === 'number')
-                {
                     coluna = GR.EdificioIDParaString(params.edificio)
-                }
                 else
                 {
                     if(isNaN(params.edificio))
-                    {
                         coluna = params.edificio;
-                    }
                     else
-                    {
                         coluna = GR.EdificioIDParaString(Number(params.edificio));
-                    }
                 }
             }
             else
@@ -76,11 +70,8 @@ router.post('/melhorar', function(req, res)
                                                 res.status(500).end("Erro interno")
                                         }
                                         else
-                                        {
-                                            res.status(400).end(err);
-                                        }   
+                                            res.status(400).end(err)
                                     }
-                                       
                                     else
                                     {
                                         planeta.recursoFerro = planeta.recursoFerro - custo.ferro;
@@ -92,13 +83,11 @@ router.post('/melhorar', function(req, res)
                                             io.EmitirParaSessao(req.session.usuario.id, 'edificio-melhorando', construcao)
                                         });
                                     }  
-                                });
-                                
+                                });    
                             }
                         }
                     });
                 }
-                
             });
         }
     }
@@ -134,8 +123,6 @@ router.post('/cancelar-melhoria', function(req, res)
                     res.status(400).end('Planeta não encontrado');
                 else
                 {   
-                    
-                   
                     models.Construcao.findOne({where : {planetaID: planeta[0].id, edificioID : params.edificio}}).then((construcao) =>
                     {
                         if(!construcao)
@@ -146,17 +133,11 @@ router.post('/cancelar-melhoria', function(req, res)
                             croner.RemoverConstrucao(params.planeta, params.edificio);
                             res.status(200).end("Construção cancelada com sucesso");
                         }
-                        
                     });
-                    
-                    
                 }
-                   
             });
         }
-        
     }
-        
 })
 
 module.exports = router;

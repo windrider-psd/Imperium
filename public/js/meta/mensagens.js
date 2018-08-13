@@ -16,7 +16,6 @@ $("#form-enviar-mensagem-privada").on('submit', function()
 {
     var params = FormToAssocArray($(this));
     var btn = $(this).find("button");
-    console.log(params);
     $.ajax({
         url : 'comunicacao/enviar-mensagem-privada',
         method : 'POST',
