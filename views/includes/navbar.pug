@@ -27,7 +27,7 @@ script.
     $("#nav-nick").html(userdata.session.nick)
     $("#link-ranking span").text("(" + userdata.rank + ")")
     $("#link-mensagens span").text("(" + userdata.caixaEntrada + ")")
-    $("#logout-link").on('click', function()
+    $("nav").on('click', "#logout-link", function()
     {
         $.ajax({
             url : "usuario/logout",
