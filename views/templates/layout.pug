@@ -32,21 +32,21 @@ html
     - if(typeof(userdata) !== 'undefined'){
         include ./../includes/navbar
         include ./../includes/aside-navbar
-        main
-          -if(userdata)
-            each setor in userdata.setores
+    -}
+    main
+      -if(userdata)
+        each setor in userdata.setores
+          ul
+            li
+              a(href="/setor?id=" + setor.setor.id).link-planeta= setor.setor.nome
+                |  [!{setor.setor.posX}, !{setor.setor.posY}]
               ul
-                li
-                  a(href="/setor?id=" + setor.setor.id).link-planeta= setor.setor.nome
-                    |  [!{setor.setor.posX}, !{setor.setor.posY}]
-                  ul
-                    each planeta in setor.planetas
-                      if(planeta.colonizado)
-                        li 
-                          a(href = "/recursos").link-planeta= planeta.nome
-                            |  [!{planeta.posX}, !{planeta.posY}]
-        -}
-    block content
+                each planeta in setor.planetas
+                  if(planeta.colonizado)
+                    li 
+                      a(href = "/recursos").link-planeta= planeta.nome
+                        |  [!{planeta.posX}, !{planeta.posY}]
+      block content
       
       
        
