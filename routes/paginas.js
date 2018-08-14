@@ -52,7 +52,7 @@ router.all('*', (req, res, next) =>
 });
 router.get('/', (req, res) => {
   if(req.session.usuario)
-    getUserData(req).then(userdata => res.render('inicial', {userdata : userdata})).catch(() => res.render('login'));
+    getUserData(req).then(userdata => res.render('recursos', {userdata : userdata})).catch(() => res.render('login'));
   else
     res.render('login');
 });
@@ -80,9 +80,9 @@ router.get('/inicial', (req, res) => {
     res.status(403).render('login');
 });
 
-router.get('/planeta', (req, res) => {
+router.get('/recursos', (req, res) => {
   if(req.session.usuario)
-    getUserData(req).then(userdata => res.render('planeta', {userdata : userdata})).catch(() => res.status(403).render('login'));
+    getUserData(req).then(userdata => res.render('recursos', {userdata : userdata})).catch(() => res.status(403).render('login'));
   else 
     res.status(403).render('login');
 });

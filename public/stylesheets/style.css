@@ -4,7 +4,7 @@ a {
 main
 {
   margin-top: 60px;
-  
+  z-index: 19;
 }
 
 .c-pointer:hover
@@ -164,3 +164,124 @@ main
   font-size: 20px;
   }
   }
+
+
+main
+{
+	margin-left: auto;
+    width: calc(100% - 250px);
+}
+
+aside
+{
+	position: fixed;
+    width: 250px;
+    height: 100%;
+    background-color: #262626;
+    color: white;
+    padding: 69px 0px;
+    transition: all .5s;
+    overflow: hidden;
+    z-index: 20;
+}
+
+.ativo
+{
+	background-color:#080808;
+}
+aside img
+{
+    width: 35px;
+}
+
+aside ul
+{
+    list-style: none;
+    padding-left:0px;
+}
+
+aside li 
+{
+    padding: 12px 0px;
+    padding-left: 15px;
+    cursor: pointer;
+    transition: background-color .15s;
+}
+
+aside li:hover:not(.ativo)
+{
+	background-color:#1f1f1f;
+}
+#abrir_menu_div
+{
+	display: none;
+	cursor:pointer;
+}
+
+#abrir_menu_div img
+{
+	width: 20px;
+	margin: auto;
+	display: block;
+}
+
+aside span
+{
+	position: relative;
+    top:5px;
+    font-size: 22px;
+    left: 15px;
+    color: white !important;
+}
+@media screen and (max-width:892px)
+{
+	aside li
+	{
+		display:flow-root;
+		border-color:transparent;
+		    padding-left: 7px;
+			padding-bottom: 18px;
+	}
+	aside li:hover:not(.ativo)
+	{
+		background-color:#bd4148;
+		border-color:transparent;
+	}
+	aside ul img 
+	{
+		width: 20px;
+    position: relative;
+    top: 6px;
+	}
+	aside
+	{
+		width:35px;
+		padding-top: 30px;
+	}
+	aside ul
+	{
+		    margin-top: 30px;
+	}
+	aside ul span
+	{
+            position: absolute;
+	    top: unset;
+	    left: 40px;
+	}
+	main
+	{
+		width:calc(100% - 35px);
+		left:35px;
+	}
+
+  
+	#abrir_menu_div
+	{
+		display:block;
+  }
+  .ativo
+	{
+		background-color:#b93232;
+	}
+	
+}

@@ -2,10 +2,8 @@ extends templates/layout
 block titulo
   | Planeta
 block content     
-    include includes/navbar
     h1#nome-planeta
     include ./includes/recursos
-
     .container
         .row
             h2 Edificios
@@ -230,7 +228,6 @@ block content
                 button.btn-calcelar-melhoria.btn.btn-warning.btn-sm.hidden Calcelar Melhoria
 
 block posscripts
-    script(src="js/meta/view_planeta_parser.js")
     script(src="js/meta/view_edificios.js")
     script(src="js/meta/view_recursos.js")
     script.

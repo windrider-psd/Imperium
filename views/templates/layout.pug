@@ -29,24 +29,39 @@ html
         });
     -}
   body
+  
+    include ./../includes/navbar
+    include ./../includes/aside-navbar
     main
       -if(userdata)
         each setor in userdata.setores
           ul
             li
-              a(href="/setor?id=" + setor.setor.id)= setor.setor.nome
+              a(href="/setor?id=" + setor.setor.id).link-planeta= setor.setor.nome
                 |  [!{setor.setor.posX}, !{setor.setor.posY}]
               ul
                 each planeta in setor.planetas
                   if(planeta.colonizado)
                     li 
-                      a(href = "/planeta?id=" + planeta.id)= planeta.nome
+                      a(href = "/recursos").link-planeta= planeta.nome
                         |  [!{planeta.posX}, !{planeta.posY}]
       block content
+      
       
        
     script(src="js/bootstrap.min.js")
     script(src="js/bootbox.min.js")
     script(src="js/bootstrap-notify.min.js")
+    script(src="js/meta/view_planeta_parser.js")
     script(src="js/recursos.js")
     block posscripts
+    script.
+      $(document).ready(function()
+      {
+        $(".link-planeta").each(function()
+        {
+           _url = $(this).attr('href');
+           _url += (_url.split('?')[1] ? '&':'?') + 'planetaid=' + planeta.id;
+          $(this).attr('href', _url)
+        })
+      });
