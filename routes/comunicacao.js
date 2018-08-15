@@ -38,9 +38,41 @@ router.post('/enviar-mensagem-privada', (req, res) =>
     }).then(mensagem => {
       io.EmitirParaSessao(params.destinatario, 'mensagem-privada', mensagem)
       res.status(200).end("Mensagem enviada com sucesso")
-    }).catch(err => res.status(500).end(err));
+    }).catch(err => res.status(500).end(err.toString()));
   }
 });
+
+
+router.post('/apagar-mensagem-privada', (req, res) =>
+{
+  /**
+   * @type {{idmensagem : number}}
+   */
+  let params = req.body;
+  if(!req.session.usuario)
+    res.status(403).end("Operação inválida")
+  else if(!params.idmensagem)
+    res.status(400).end("Parâmetros inválidos")
+  else if(isNaN(params.idmensagem))
+    res.status(400).end("Parâmetros inválidos")
+  else
+  {
+    models.MensagemPrivada.findOne({where : {id : params.idmensagem}}).then(mensagem => {
+      if(mensagem.remetente == req.session.usuario.id)
+      {
+        mensagem.excluidoRemetente = true
+        mensagem.save().then(() => res.status(200).end("Mensagem apagada com successo"))
+      }
+      else if(mensagem.destinatario == req.session.usuario.id)
+      {
+        mensagem.excluidoDestinatario = true
+        mensagem.save().then(() => res.status(200).end("Mensagem apagada com successo"))
+      }
+      else
+        res.status(403).end("Parâmetros inválidos")
+    }).catch(err => res.status(500).end(err));
+  }
+})
 
 router.get('/getInbox', (req, res) => {
   /**

@@ -44,7 +44,7 @@ html
                 each planeta in setor.planetas
                   if(planeta.colonizado)
                     li 
-                      a(href = "/recursos").link-planeta= planeta.nome
+                      a(href = "/recursos?planetaid="+planeta.id)= planeta.nome
                         |  [!{planeta.posX}, !{planeta.posY}]
       block content
       

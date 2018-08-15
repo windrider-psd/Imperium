@@ -71,7 +71,6 @@ function getOutbox(pagina, callback)
         data : {pagina : pagina},
         success : function(/** @type {{mensagens : Array.<MensagemObject>, total : number}} */ outbox)
         {
-            console.log(outbox);
             total = outbox.total
             inboxbool = false;
             boxAux = outbox.mensagens
@@ -102,7 +101,7 @@ function getConteudoTabela(inbox)
         else
             htmlString += "<td><a class = 'link c-pointer mensagem-link' data-id = '"+inbox[i].id+"' data-userid = '"+inbox[i].remetente+"' data-nome = '"+inbox[i].nick+"' data-visualizada = '1'>"+inbox[i].assunto+"</a></td>"
         
-        htmlString += '<td>'+inbox[i].nick+'</td><td>'+FormatarDate(new Date(inbox[i].criacao), '/')+'</td></tr>'
+        htmlString += '<td>'+inbox[i].nick+'</td><td><button type = "button" data-id = "'+inbox[i].id+'" class = "btn btn-danger btn-sm btn-apagar-mensagem"><i class = "fa fa-times"></i></button></td><td>'+FormatarDate(new Date(inbox[i].criacao), '/')+'</td></tr>'
     }
     htmlString += "</tbody></table>"
     return htmlString
@@ -116,7 +115,7 @@ function getConteudoTabela(inbox)
  */
 function setInboxContent(inbox, totalMensagens)
 {
-    var contentString = '<div class="table-responsive"> <table class="table table-striped table-bordered"> <thead> <tr> <th>Assunto</th> <th>De</th><th>Data</th></tr></thead> <tbody id="box-tbody">' 
+    var contentString = '<div class="table-responsive"> <table class="table table-striped table-bordered"> <thead> <tr> <th>Assunto</th> <th>De</th><th>Ações</th><th>Data</th></tr></thead> <tbody id="box-tbody">' 
     contentString += getConteudoTabela(inbox);
     var paginacaoString = "";
 
@@ -154,7 +153,7 @@ function setInboxContent(inbox, totalMensagens)
  */
 function setOutboxContent(outbox, totalMensagens)
 {
-    var contentString = '<div class="table-responsive"> <table class="table table-striped table-bordered"> <thead> <tr> <th>Assunto</th> <th>Para</th><th>Data</th></tr></thead> <tbody id="box-tbody">' 
+    var contentString = '<div class="table-responsive"> <table class="table table-striped table-bordered"> <thead> <tr> <th>Assunto</th> <th>Para</th><th>Ações</th><th>Data</th></tr></thead><tbody id="box-tbody">' 
     contentString += getConteudoTabela(outbox);
     var paginacaoString = "";
 
@@ -264,9 +263,7 @@ $(".tab-content").on('click', ".paginacao_pagina", function()
             $("#box-tbody").html(getConteudoTabela(outbox.mensagens))
         });
     }
-        
-
-
+    
     VerificarProximo(proximaPagina + 1, Math.ceil(total / resultadosPorPagina))
 });
 
@@ -389,4 +386,27 @@ $("#modal-visualizar-mensagem-privada form").on("submit", function(){
             btn.text("Responder Mensagem")
         }
     })
+})
+
+$(".tab-content").on('click', '.btn-apagar-mensagem', function()
+{
+    var id = $(this).data('id');
+    var linha = $(this).parent().parent();
+    console.log(id);
+    var excluir = function () {$.ajax({
+        url : 'comunicacao/apagar-mensagem-privada',
+        method : 'POST',
+        data : {idmensagem : id},
+        success : function()
+        {
+            GerarNotificacao("Mensagem excluida com sucesso", 'success')
+            linha.remove();
+        },
+        error : function(err)
+        {
+            GerarNotificacao(err.responseText, 'danger')
+        }
+    })}
+
+    GerarConfirmacao("Tens certeza que desejas excluir esta mensagem?", excluir);
 })

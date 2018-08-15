@@ -412,7 +412,13 @@ const MensagemPrivada = con.define("Mensagem_Privada",{
             key: 'id'
         },
         allowNull : false,
-        onDelete : 'CASCADE'
+        onDelete : 'CASCADE',
+    },
+    excluidoRemetente:
+    {
+        type: sequalize.BOOLEAN,
+        allowNull : false,
+        defaultValue : false
     },
     destinatario:
     {
@@ -424,6 +430,12 @@ const MensagemPrivada = con.define("Mensagem_Privada",{
         },
         allowNull : false,
         onDelete : 'CASCADE'
+    },
+    excluidoDestinatario:
+    {
+        type: sequalize.BOOLEAN,
+        allowNull : false,
+        defaultValue : false
     },
     assunto : 
     {
@@ -470,7 +482,7 @@ Planeta.hasMany(Construcao,  {foreignKey : {name : "planetaID", allowNull : fals
 //Reseta os attributos dos planetas e asteroides do usuario após o usuário ser apagado da base de dados
 Usuario.afterDestroy(function(usuario, opcoes)
 {
-    con.query("update planeta set colonizado = 0, minaCristal = 0, fabricaEletronica = 0, minaUranio = 0, sintetizadorCombustivel = 0, fazenda = 0 ,recursoFerro = 0, minaFerro = 0, recursoCristal = 0, recursoEletronica = 0, recursoUranio = 0, recursoCombustivel = 0, recursoComida = 0 plantaSolar = 0, reatorFusao = 0  where exists(select * from setors where setors.usuarioID = "+usuario.id+")").spread(function()
+    con.query("update planeta set colonizado = 0, minaCristal = 0, fabricaEletronica = 0, minaUranio = 0, sintetizadorCombustivel = 0, fazenda = 0 ,recursoFerro = 0, minaFerro = 0, recursoCristal = 0, recursoEletronica = 0, recursoUranio = 0, recursoCombustivel = 0, recursoComida = 0 plantaSolar = 0, reatorFusao = 0, armazem = 0  where exists(select * from setors where setors.usuarioID = "+usuario.id+")").spread(function()
     {
         con.query("update asteroides set extracao = 0 where exists(select * from setors where setors.usuarioID = "+usuario.id+")").spread(function()
         {
@@ -478,6 +490,12 @@ Usuario.afterDestroy(function(usuario, opcoes)
         })
     });
 });
+
+
+MensagemPrivada.afterUpdate((instancia) => {
+    if(instancia.excluidoDestinatario == true && instancia.excluidoRemetente)
+        instancia.destroy();
+})
 
 module.exports = {Con : con, MensagemPrivada : MensagemPrivada, Asteroide : Asteroide, Usuario :  Usuario, Admin : Admin, EsqeciSenha : EsqueciSenha, Setor : Setor, Planeta : Planeta, Construcao : Construcao, isReady : function(){return ready;}};
 
