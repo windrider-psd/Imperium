@@ -128,7 +128,7 @@ const Usuario = con.define('Usuario', {
         type: sequalize.DOUBLE,
         allowNull : false,
         defaultValue : 0
-    }
+    } 
 });
 
 const Admin = con.define("admin", {
@@ -471,6 +471,186 @@ const MensagemPrivada = con.define("Mensagem_Privada",{
 }, {timestamps : false});
 
 
+const Alianca = con.define('alianca', {
+    id:
+    {
+        type: sequalize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    nome:
+    {
+        type: sequalize.STRING,
+        allowNull : false
+    },
+    logo : 
+    {
+        type : sequalize.STRING,
+        allowNull : true,
+    },
+    paginaInterna :
+    {
+        type: sequalize.TEXT,
+        allowNull : true,
+    },
+    paginaExterna :
+    {
+        type: sequalize.TEXT,
+        allowNull : true
+    }
+}, {timestamps : false});
+
+const Alianca_Rank = con.define('alianca_ranks', {
+    id:
+    {
+        type: sequalize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    nome:
+    {
+        type: sequalize.STRING,
+        allowNull : false,
+    },
+    aceitar:
+    {
+        type: sequalize.BOOLEAN,
+        allowNull : false,
+        defaultValue : false
+    },
+    expulsar:
+    {
+        type: sequalize.BOOLEAN,
+        allowNull : false,
+        defaultValue : false
+    },
+    mensagens:
+    {
+        type: sequalize.BOOLEAN,
+        allowNull : false,
+        defaultValue : false
+    },
+    online:
+    {
+        type: sequalize.BOOLEAN,
+        allowNull : false,
+        defaultValue : false
+    },
+    tratados:
+    {
+        type: sequalize.BOOLEAN,
+        allowNull : false,
+        defaultValue : false
+    },
+    frota:
+    {
+        type: sequalize.BOOLEAN,
+        allowNull : false,
+        defaultValue : false,
+    },
+    exercito:
+    {
+        type: sequalize.BOOLEAN,
+        allowNull : false,
+        defaultValue : false
+    },
+    movimento:
+    {
+        type: sequalize.BOOLEAN,
+        allowNull : false,
+        defaultValue : false
+    },
+    ranks_criar:
+    {
+        type: sequalize.BOOLEAN,
+        allowNull : false,
+        defaultValue : false
+    },
+    ranks_atribuir:
+    {
+        type: sequalize.BOOLEAN,
+        allowNull : false,
+        defaultValue : false
+    },
+    forum_tabs:
+    {
+        type: sequalize.BOOLEAN,
+        allowNull : false,
+        defaultValue : false
+    },
+    forum_topicos:
+    {
+        type: sequalize.BOOLEAN,
+        allowNull : false,
+        defaultValue : false
+    }
+
+}, {timestamps : false});
+
+const Usuario_Participa_Alianca = con.define('usuario_participa_alianca', {
+    usuarioID:
+    {
+        type: sequalize.INTEGER,
+        allowNull : false,
+        references :
+        {
+            model : Usuario,
+            key : 'id',
+        },
+        onDelete : "CASCADE",
+        unique : true,
+        primaryKey : true,
+    },
+    aliancaID:
+    {
+        type: sequalize.INTEGER,
+        allowNull : false,
+        references :
+        {
+            model : Alianca,
+            key : 'id',
+        },
+        primaryKey : true,
+        onDelete : "CASCADE",
+    },
+    lider:
+    {
+        type: sequalize.INTEGER,
+        allowNull : true,
+        references :
+        {
+            model : Usuario,
+            key : 'id',
+        },
+        onDelete : "SET NULL",
+    },
+    sucessor : 
+    {
+        type: sequalize.INTEGER,
+        allowNull : true,
+        references :
+        {
+            model : Usuario,
+            key : 'id',
+        },
+        onDelete : "SET NULL",
+    },
+    rank:
+    {
+        type: sequalize.INTEGER,
+        allowNull : true,
+        references :
+        {
+            model : Alianca_Rank,
+            key : 'id',
+        },
+        onDelete : "SET NULL",
+    }
+
+}, {timestamps : false});
+
+
+
 Usuario.hasOne(EsqueciSenha, {foreignKey : {name : "usuarioID", allowNull : false, primaryKey : true}, onDelete : "CASCADE"})
 EsqueciSenha.removeAttribute('id');
 Setor.hasMany(Planeta, {foreignKey : {name : "setorID", allowNull : false}, onDelete : "CASCADE"})
@@ -478,9 +658,8 @@ Setor.hasMany(Asteroide, {foreignKey : {name : "setorID", allowNull : false}, on
 Usuario.hasMany(Setor, {foreignKey : {name : "usuarioID", allowNull : true}, onDelete: "SET NULL"})
 Planeta.hasMany(Construcao,  {foreignKey : {name : "planetaID", allowNull : false, primaryKey : true}, onDelete: "CASCADE"})
 
-
 //Reseta os attributos dos planetas e asteroides do usuario após o usuário ser apagado da base de dados
-Usuario.afterDestroy(function(usuario, opcoes)
+Usuario.afterDestroy(function(usuario)
 {
     con.query("update planeta set colonizado = 0, minaCristal = 0, fabricaEletronica = 0, minaUranio = 0, sintetizadorCombustivel = 0, fazenda = 0 ,recursoFerro = 0, minaFerro = 0, recursoCristal = 0, recursoEletronica = 0, recursoUranio = 0, recursoCombustivel = 0, recursoComida = 0 plantaSolar = 0, reatorFusao = 0, armazem = 0  where exists(select * from setors where setors.usuarioID = "+usuario.id+")").spread(function()
     {
@@ -497,7 +676,20 @@ MensagemPrivada.afterUpdate((instancia) => {
         instancia.destroy();
 })
 
-module.exports = {Con : con, MensagemPrivada : MensagemPrivada, Asteroide : Asteroide, Usuario :  Usuario, Admin : Admin, EsqeciSenha : EsqueciSenha, Setor : Setor, Planeta : Planeta, Construcao : Construcao, isReady : function(){return ready;}};
+module.exports = {
+    Con : con, 
+    MensagemPrivada : MensagemPrivada, 
+    Alianca: Alianca,  
+    Usuario_Participa_Alianca : Usuario_Participa_Alianca,
+    Alianca_Rank: Alianca_Rank,
+    Asteroide : Asteroide, 
+    Usuario :  Usuario,
+    Admin : Admin, 
+    EsqeciSenha : EsqueciSenha,
+    Setor : Setor, 
+    Planeta : Planeta,
+    Construcao : Construcao, 
+    isReady : function(){return ready;}};
 
 con.authenticate().then(function()
 {

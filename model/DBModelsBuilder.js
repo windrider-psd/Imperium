@@ -138,47 +138,53 @@ class DBBuilder {
      */
     static SyncDatabase(force, callback)
     {
-        models.Usuario.sync({force : force}).then(function()
+        models.Alianca.sync({force: force}).then(() =>
         {
-            models.MensagemPrivada.sync({force : force});
-            models.EsqeciSenha.sync({force : force})
-            models.Admin.sync({force : force}).then(function()
+            models.Usuario.sync({force : force}).then(() =>
             {
-                bcrypt.hash(process.env.GAME_DEFAULT_ADMIN_PASSWORD, 10, function(err, hash)
+                models.Alianca_Rank.sync({force : force}).then(() =>
                 {
-                    if(err) throw err
-                    models.Admin.count({}).then(function(contagem)
+                    models.Usuario_Participa_Alianca.sync({force : force});        
+                })
+                models.MensagemPrivada.sync({force : force})
+                models.EsqeciSenha.sync({force : force})
+                
+                models.Admin.sync({force : force}).then(() =>
+                {
+                    bcrypt.hash(process.env.GAME_DEFAULT_ADMIN_PASSWORD, 10, (err, hash) =>
                     {
-                        if(contagem == 0)
+                        if(err) throw err
+                        models.Admin.count({}).then((contagem) =>
                         {
-                            models.Admin.create({usuario : process.env.GAME_DEFAULT_ADMIN_USERNAME, senha : hash});
-                        }
-                        models.Setor.sync({force: force}).then(function()
-                        {
-                            models.Planeta.sync({force : force}).then(function()
+                            if(contagem == 0)
                             {
-                                models.Asteroide.sync({force : force}).then(function()
+                                models.Admin.create({usuario : process.env.GAME_DEFAULT_ADMIN_USERNAME, senha : hash});
+                            }
+                            models.Setor.sync({force: force}).then(() =>
+                            {
+                                models.Planeta.sync({force : force}).then(() =>
                                 {
-
-                                    models.Construcao.sync({force : force}).then(() =>
+                                    models.Asteroide.sync({force : force}).then(() =>
                                     {
-                                        if(callback)
-                                            callback()
-                                    });
-                                    
+
+                                        models.Construcao.sync({force : force}).then(() =>
+                                        {
+                                            if(callback)
+                                                callback()
+                                        });
+                                    });    
                                 });
-                                
-                                
                             });
-                        });
-                    }); 
-                });    
-            });
+                        }); 
+                    });    
+                });
+            })
         }).catch(function(err)
         {
             console.log(err);
-            setTimeout(DBBuilder.prototype.SyncDatabase, 3000);
+            setTimeout(DBBuilder.SyncDatabase, 3000);
         });
+        
     }
 
     /**
