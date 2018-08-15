@@ -8,7 +8,7 @@ require('dotenv/config')
 /**
  * @param {Request} req O objeto de requisição do express
  * @description Retorna um objeto que será usado no front-end
- * @returns {Bluebird.<{session : Object, sessionID : number, setores : Object, caixaEntrada : number}>}
+ * @returns {Bluebird.<{session : Object, sessionID : number, setores : Object, alianca : null|Object, caixaEntrada : number}>}
  */
 function getUserData(req)
 {
@@ -18,7 +18,30 @@ function getUserData(req)
     {
       ranking.GetRankingUsuario(req.session.usuario.id).then(rankusuario => {
         MUtils.GetCountCaixaDeEntrada(req.session.usuario.id).then(contagemEntrada => 
-          resolve({session : req.session.usuario, rank : rankusuario, sessionID: req.sessionID, setores : req.userdata.setores, caixaEntrada : contagemEntrada})
+          
+          models.Usuario_Participa_Alianca.findOne({where:{usuarioID: req.session.usuario.id}}).then(participa => {
+            if(participa){
+              models.Alianca.findOne({where: {id : participa.aliancaID}}).then(alianca =>{
+                alianca.lider = participa.lider == req.session.usuario.id;
+                if(participa.rank !== null)
+                {
+                  models.Alianca_Rank.findOne({where : {id : participa.rank}}).then(rank =>
+                  {
+                    aliank.rank = rank;
+                    resolve({session : req.session.usuario, rank : rankusuario, sessionID: req.sessionID, alianca : alianca, setores : req.userdata.setores, caixaEntrada : contagemEntrada})
+                  })
+                }
+                else
+                {
+                  resolve({session : req.session.usuario, rank : rankusuario, sessionID: req.sessionID, alianca : alianca, setores : req.userdata.setores, caixaEntrada : contagemEntrada})
+                }
+              })
+            }
+
+            else
+              resolve({session : req.session.usuario, rank : rankusuario, sessionID: req.sessionID, alianca : null, setores : req.userdata.setores, caixaEntrada : contagemEntrada})
+          })
+          
         )
       }).catch(err => reject(err));
     }
@@ -83,6 +106,12 @@ router.get('/inicial', (req, res) => {
 router.get('/recursos', (req, res) => {
   if(req.session.usuario)
     getUserData(req).then(userdata => res.render('recursos', {userdata : userdata})).catch(() => res.status(403).render('login'));
+  else 
+    res.status(403).render('login');
+});
+router.get('/alianca', (req, res) => {
+  if(req.session.usuario)
+    getUserData(req).then(userdata => res.render('alianca', {userdata : userdata})).catch(() => res.status(403).render('login'));
   else 
     res.status(403).render('login');
 });

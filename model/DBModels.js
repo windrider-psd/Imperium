@@ -497,7 +497,31 @@ const Alianca = con.define('alianca', {
     {
         type: sequalize.TEXT,
         allowNull : true
-    }
+    },
+    lider:
+    {
+        type: sequalize.INTEGER,
+        allowNull : true,
+        references :
+        {
+            model : Usuario,
+            key : 'id',
+        },
+        onDelete : "SET NULL",
+        defaultValue : null
+    },
+    sucessor : 
+    {
+        type: sequalize.INTEGER,
+        allowNull : true,
+        references :
+        {
+            model : Usuario,
+            key : 'id',
+        },
+        onDelete : "SET NULL",
+        defaultValue : null
+    },
 }, {timestamps : false});
 
 const Alianca_Rank = con.define('alianca_ranks', {
@@ -506,6 +530,17 @@ const Alianca_Rank = con.define('alianca_ranks', {
         type: sequalize.INTEGER,
         primaryKey: true,
         autoIncrement: true
+    },
+    aliancaID : 
+    {
+        type: sequalize.INTEGER,
+        allowNull : true,
+        references :
+        {
+            model : Alianca,
+            key : 'id',
+        },
+        onDelete : "CASCADE"
     },
     nome:
     {
@@ -612,28 +647,6 @@ const Usuario_Participa_Alianca = con.define('usuario_participa_alianca', {
         },
         primaryKey : true,
         onDelete : "CASCADE",
-    },
-    lider:
-    {
-        type: sequalize.INTEGER,
-        allowNull : true,
-        references :
-        {
-            model : Usuario,
-            key : 'id',
-        },
-        onDelete : "SET NULL",
-    },
-    sucessor : 
-    {
-        type: sequalize.INTEGER,
-        allowNull : true,
-        references :
-        {
-            model : Usuario,
-            key : 'id',
-        },
-        onDelete : "SET NULL",
     },
     rank:
     {

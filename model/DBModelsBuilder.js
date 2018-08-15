@@ -138,13 +138,15 @@ class DBBuilder {
      */
     static SyncDatabase(force, callback)
     {
-        models.Alianca.sync({force: force}).then(() =>
-        {
+
             models.Usuario.sync({force : force}).then(() =>
             {
-                models.Alianca_Rank.sync({force : force}).then(() =>
+                models.Alianca.sync({force: force}).then(() =>
                 {
-                    models.Usuario_Participa_Alianca.sync({force : force});        
+                    models.Alianca_Rank.sync({force : force}).then(() =>
+                    {
+                        models.Usuario_Participa_Alianca.sync({force : force});        
+                    })
                 })
                 models.MensagemPrivada.sync({force : force})
                 models.EsqeciSenha.sync({force : force})
@@ -178,8 +180,7 @@ class DBBuilder {
                         }); 
                     });    
                 });
-            })
-        }).catch(function(err)
+            }).catch(function(err)
         {
             console.log(err);
             setTimeout(DBBuilder.SyncDatabase, 3000);
