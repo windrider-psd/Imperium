@@ -5,9 +5,10 @@
  * @property {number} desempenho Ainda não está implementado
  * @property {string} nome
  * @property {number} pontos
- * @property {Object} alianca
+ * @property {Object} [alianca]
  * @property {number} alianca.id
  * @property {string} alianca.nome
+ * @property {string} alianca.tag
 */
 
 /**
@@ -52,13 +53,21 @@ function CarregarTipo(pagina, tipo)
                 htmlString += "><td>"+usuarios[i].rank+"</td><td>"+usuarios[i].desempenho+"</td><td>"+usuarios[i].nome+"</td>"
                 if(typeof(usuarios[i].alianca) !== 'undefined')
                 {
-                    htmlString += "<td><a href = 'alianca?id="+usuarios[i].alianca.id+"'>"+usuarios[i].alianca.nome+"</a></td>"
+                    var link;
+                    if(userdata.alianca != null && userdata.alianca.id == usuarios[i].alianca.id)
+                        link = "alianca"
+                    else
+                        link = "paginaExterna?id="+usuarios[i].alianca.id
+                    htmlString += "<td><a href = '"+link+"' title = '"+usuarios[i].alianca.nome+"'>"+usuarios[i].alianca.tag+"</a></td>"
                 }
                 else
-                {
                     htmlString += "<td></td>";
-                }
-                htmlString += "<td><button data-destinatario = '"+usuarios[i].id+"' data-nome = '"+usuarios[i].nome+"' class = 'btn btn-primary btn-sm btn-enviar-mensagem'><i class = 'fa fa-comment'></i></button></td>"
+
+                if(usuarios[i].id != userdata.session.id)
+                    htmlString += "<td><button data-destinatario = '"+usuarios[i].id+"' data-nome = '"+usuarios[i].nome+"' class = 'btn btn-primary btn-sm btn-enviar-mensagem'><i class = 'fa fa-comment'></i></button></td>"
+                else
+                    htmlString += "<td></td>"
+                
                 htmlString += "<td>"+usuarios[i].pontos.toFixed(2)+"</td></tr>"
             }
             $("#conteudo-ranking").html(htmlString);

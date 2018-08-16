@@ -15,6 +15,9 @@ block content
             .form-group
               label(for="nome") Nome da aliança:
               input(type="text", name="nome", placeholder = "Digite o nome da aliança que será criada", required).form-control
+            .form-group
+              label(for="tag") Tag da aliança:
+              input(type="text", name="tag", placeholder = "Digite o tag da aliança que será criada", required).form-control
             .row
               .col-md-offset-3.col-md-6.text-center
                   button.btn.btn-primary.btn-lg.btn-block(type='submit') Criar
@@ -33,6 +36,23 @@ block content
                   li.tab-btn
                     a(href = "#") Aplicações
                 .tab-content
+                  .table-responsive
+                    table.table.table-striped#tabela-geral-alianca
+                      tbody 
+                        tr
+                          td Nome:
+                          td.nome
+                        tr
+                          td TAG:
+                          td.tag
+                        tr
+                          td Membros:
+                          td.membros-contagem
+                        tr
+                          td O seu cargo:
+                          td.cargo
+                        
+
           .row
               .col-md-offset-4.col-md-4.text-center
                   button.btn.btn-warning.btn-lg.btn-block#btn-sair-alianca Sair da Aliança

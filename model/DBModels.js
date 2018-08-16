@@ -483,6 +483,11 @@ const Alianca = con.define('alianca', {
         type: sequalize.STRING,
         allowNull : false
     },
+    tag:
+    {
+        type:sequalize.STRING,
+        allowNull : false
+    },
     logo : 
     {
         type : sequalize.STRING,
@@ -522,7 +527,48 @@ const Alianca = con.define('alianca', {
         onDelete : "SET NULL",
         defaultValue : null
     },
+    aplicacao_template :
+    {
+        type: sequalize.TEXT,
+        allowNull : true,
+        defaultValue : null
+    }
 }, {timestamps : false});
+
+
+const Alianca_Aplicacao = con.define('alianca_aplicacao', {
+    usuarioID :
+    {
+        type: sequalize.INTEGER,
+        allowNull : false,
+        references :
+        {
+            model : Usuario,
+            key : 'id',
+        },
+        primaryKey : true,
+        onDelete : "CASCADE"
+    },
+    aliancaID :
+    {
+        type: sequalize.INTEGER,
+        allowNull : false,
+        references :
+        {
+            model : Alianca,
+            key : 'id',
+        },
+        primaryKey : true,
+        onDelete : "CASCADE"
+    },
+    texto :
+    {
+        type: sequalize.TEXT,
+        allowNull : false,
+        defaultValue : ""
+    },
+
+}, {timestamps : false})
 
 const Alianca_Rank = con.define('alianca_ranks', {
     id:
@@ -658,6 +704,12 @@ const Usuario_Participa_Alianca = con.define('usuario_participa_alianca', {
             key : 'id',
         },
         onDelete : "SET NULL",
+    },
+    entrada :
+    {
+        type : sequalize.DATE,
+        allowNull : false,
+        defaultValue : sequalize.NOW
     }
 
 }, {timestamps : false});
@@ -702,6 +754,7 @@ module.exports = {
     Setor : Setor, 
     Planeta : Planeta,
     Construcao : Construcao, 
+    Alianca_Aplicacao : Alianca_Aplicacao,
     isReady : function(){return ready;}};
 
 con.authenticate().then(function()

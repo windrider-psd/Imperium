@@ -47,3 +47,29 @@ $("#btn-sair-alianca").on('click', function(){
         }
     })
 });
+
+
+$(document).ready(function() {
+    if(userdata.alianca != null)
+    {
+        $("#tabela-geral-alianca .nome").text(userdata.alianca.nome)
+        $("#tabela-geral-alianca .tag").text(userdata.alianca.tag)
+        $("#tabela-geral-alianca .membros-contagem").text(userdata.alianca.totalMembros)
+        
+        if(userdata.alianca.rank == null)
+        {
+            if(userdata.alianca.lider == userdata.session.id)
+            {
+                $("#tabela-geral-alianca .cargo").text("Líder")
+            }
+            else
+            {
+                $("#tabela-geral-alianca .cargo").text("Sem cargo")
+            }
+        }
+        else
+        {
+            $("#tabela-geral-alianca .cargo").text(userdata.alianca.rank.nome)
+        }
+    }
+})

@@ -4,21 +4,22 @@ const models = require('./../model/DBModels')
 const sanitizer = require("sanitizer")
 const io = require('./../model/io')
 var Bluebird = require('bluebird');
-const formatoSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
+const formatoSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/ //Sem espaço
+const formatoSpecial2 = /[ !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/ //Com espaço
 
 require('dotenv/config')
 
 router.post('/criar-alianca', (req, res) =>
 {
     /**
-     * @type {{nome : string}}
+     * @type {{nome : string, tag : string}}
      */
     let params = req.body;
     if(!req.session.usuario)
         res.status(403).end("Operação inválida")
-    else if(!params.nome)
+    else if(!params.nome || !params.tag)
         res.status(400).end("Parâmetros inválidos")
-    else if(formatoSpecial.test(params.nome))
+    else if(formatoSpecial.test(params.nome) || formatoSpecial2.test(params.tag))
         res.status(400).end("O nome da aliança não pode conter caractéres especiais")
     else
     {
@@ -28,16 +29,15 @@ router.post('/criar-alianca', (req, res) =>
             else
             {
                 let nome = sanitizer.escape(params.nome)
-               
-                models.Alianca.count({where : {nome : nome}}).then(contagem =>
+                models.Alianca.count({where : {nome : nome, tag : params.tag}}).then(contagem =>
                 {
                     if(contagem != 0)
-                        res.status(400).end("Já existe outra aliança com este nome")
+                        res.status(400).end("Já existe outra aliança com este nome ou tag")
                     else
                     {
                         models.Con.transaction().then(transacao => {
-                            models.Alianca.create({nome : nome, lider : req.session.usuario.id}, {transaction : transacao}).then((alianca) => {
-                                models.Usuario_Participa_Alianca.create({usuarioID : req.session.usuario.id, aliancaID : alianca.id, lider : req.session.usuario.id, sucessor : null, rank : null}, {transaction : transacao}).then(() =>
+                            models.Alianca.create({nome : nome, lider : req.session.usuario.id, tag : params.tag}, {transaction : transacao}).then((alianca) => {
+                                models.Usuario_Participa_Alianca.create({usuarioID : req.session.usuario.id, aliancaID : alianca.id, rank : null}, {transaction : transacao}).then(() =>
                                     transacao.commit().then(() => res.status(200).end("Aliança criada"))
                                 );
                             }).catch(() =>
@@ -75,36 +75,17 @@ router.post('/sair-alianca', (req, res) => {
                                     usuarioID : {$not : req.session.usuario.id}}, limit : 1, transaction : transacao})
                                     .then(participantes => {
                                         if(participantes.length == 0)
-                                        {
-                                            models.Alianca.destroy({where : {id : alianca.id}, transaction : transacao}).then(() => {
-                                                transacao.commit().then(() =>{
-                                                    res.status(200).end("Saída realizada com sucesso");
-                                                });
-                                            })
-                                        }
+                                            models.Alianca.destroy({where : {id : alianca.id}, transaction : transacao}).then(() => transacao.commit().then(() =>res.status(200).end("Saída realizada com sucesso")))
                                     })
                                 }
                                 else
-                                {
-                                    models.Alianca.update({lider : alianca.sucessor, sucessor : null}, {transaction : transacao}).then(() =>{
-                                        transacao.commit().then(() =>{
-                                            res.status(200).end("Saída realizada com sucesso");
-                                        });
-                                    })
-                                }
+                                    models.Alianca.update({lider : alianca.sucessor, sucessor : null}, {transaction : transacao}).then(() => transacao.commit().then(() => res.status(200).end("Saída realizada com sucesso")))
                             }
                             else
-                            {
-                                transacao.commit().then(() =>{
-                                    res.status(200).end("Saída realizada com sucesso");
-                                });
-                            }
-                            
-                            
+                                transacao.commit().then(() =>res.status(200).end("Saída realizada com sucesso"))
                         })
-                    }).catch(err => res.status(500).end("Houve um erro ao sair da aliança"))
-                });
-                
+                    }).catch(() => res.status(500).end("Houve um erro ao sair da aliança"))
+                })
             }
         })
     }

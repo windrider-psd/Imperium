@@ -138,7 +138,6 @@ class DBBuilder {
      */
     static SyncDatabase(force, callback)
     {
-
             models.Usuario.sync({force : force}).then(() =>
             {
                 models.Alianca.sync({force: force}).then(() =>
@@ -147,6 +146,7 @@ class DBBuilder {
                     {
                         models.Usuario_Participa_Alianca.sync({force : force});        
                     })
+                    models.Alianca_Aplicacao.sync({force: force});
                 })
                 models.MensagemPrivada.sync({force : force})
                 models.EsqeciSenha.sync({force : force})

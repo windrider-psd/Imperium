@@ -29,6 +29,7 @@ var Bluebird = require('bluebird');
  * @property {Object} alianca
  * @property {number} alianca.id
  * @property {string} alianca.nome
+ * @property {string} alianca.tag
 */
 
 /**
@@ -156,16 +157,30 @@ function GetRankings(offset, limit, tipo)
         {
            let sql = MontarSQLSelectPontosUsuario(tipo, offset, limit);
             models.Con.query(sql.sql).spread((usuarios) => {
-                /** @type {Array.<UsuarioRank>} */
-                let retorno = new Array();
+
+                let promessasAll = new Array();
                 for(let i = 0; i < usuarios.length; i++)
                 {
-                    let pontos = 0;
-                    for(let j = 0; j < sql.sqlPontos.length; j++)
-                        pontos += usuarios[i][sql.sqlPontos[j]];
-                    retorno.push({id : usuarios[i].id, nome: usuarios[i].nick, pontos : pontos, alianca : undefined, desempenho : undefined, rank : i + 1 + offset})
+                    promessasAll.push(new Bluebird(resolve => {
+                        let index = i;
+                        let pontos = 0;
+                        for(let j = 0; j < sql.sqlPontos.length; j++)
+                            pontos += usuarios[index][sql.sqlPontos[j]];
+                        
+                        models.Usuario_Participa_Alianca.findOne({where : {usuarioID : usuarios[index].id}, attributes :['usuarioID', 'aliancaID']}).then(participa => {
+                            if(!participa)
+                                resolve({id : usuarios[index].id, nome: usuarios[index].nick, pontos : pontos, alianca : undefined, desempenho : undefined, rank : index + 1 + offset})
+                            else
+                            {
+                                models.Alianca.findOne({where : {id : participa.aliancaID}, attributes :['id', 'nome', 'tag']}).then(alianca => 
+                                    resolve({id : usuarios[index].id, nome: usuarios[index].nick, pontos : pontos, alianca : {id : alianca.id, nome : alianca.nome, tag : alianca.tag} , desempenho : undefined, rank : index + 1 + offset})
+                                )
+                            }
+                        })
+
+                    }));
                 }
-                resolve(retorno);
+                Bluebird.all(promessasAll).then(resultado => resolve(resultado))
             }).catch((err) => {reject(err)});
         }
     }); 

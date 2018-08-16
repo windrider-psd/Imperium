@@ -18,26 +18,28 @@ function getUserData(req)
     {
       ranking.GetRankingUsuario(req.session.usuario.id).then(rankusuario => {
         MUtils.GetCountCaixaDeEntrada(req.session.usuario.id).then(contagemEntrada => 
-          
           models.Usuario_Participa_Alianca.findOne({where:{usuarioID: req.session.usuario.id}}).then(participa => {
             if(participa){
               models.Alianca.findOne({where: {id : participa.aliancaID}}).then(alianca =>{
-                alianca.lider = participa.lider == req.session.usuario.id;
-                if(participa.rank !== null)
-                {
-                  models.Alianca_Rank.findOne({where : {id : participa.rank}}).then(rank =>
+                models.Usuario_Participa_Alianca.count({where : {aliancaID : alianca.id}}).then(contagem => {
+                  alianca.dataValues.totalMembros = contagem;
+                  if(participa.rank !== null)
                   {
-                    aliank.rank = rank;
+                    models.Alianca_Rank.findOne({where : {id : participa.rank}}).then(rank =>
+                    {
+                      alianca.dataValues.rank = rank;
+                      resolve({session : req.session.usuario, rank : rankusuario, sessionID: req.sessionID, alianca : alianca, setores : req.userdata.setores, caixaEntrada : contagemEntrada})
+                    })
+                  }
+                  else
+                  {
+                    alianca.dataValues.rank = null
                     resolve({session : req.session.usuario, rank : rankusuario, sessionID: req.sessionID, alianca : alianca, setores : req.userdata.setores, caixaEntrada : contagemEntrada})
-                  })
-                }
-                else
-                {
-                  resolve({session : req.session.usuario, rank : rankusuario, sessionID: req.sessionID, alianca : alianca, setores : req.userdata.setores, caixaEntrada : contagemEntrada})
-                }
+                  }
+                })
+                
               })
             }
-
             else
               resolve({session : req.session.usuario, rank : rankusuario, sessionID: req.sessionID, alianca : null, setores : req.userdata.setores, caixaEntrada : contagemEntrada})
           })
