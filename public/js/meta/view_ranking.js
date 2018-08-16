@@ -61,7 +61,7 @@ function CarregarTipo(pagina, tipo)
                     htmlString += "<td><a href = '"+link+"' title = '"+usuarios[i].alianca.nome+"'>"+usuarios[i].alianca.tag+"</a></td>"
                 }
                 else
-                    htmlString += "<td></td>";
+                    htmlString += "<td></td>"
 
                 if(usuarios[i].id != userdata.session.id)
                     htmlString += "<td><button data-destinatario = '"+usuarios[i].id+"' data-nome = '"+usuarios[i].nome+"' class = 'btn btn-primary btn-sm btn-enviar-mensagem'><i class = 'fa fa-comment'></i></button></td>"

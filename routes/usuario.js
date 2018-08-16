@@ -372,7 +372,7 @@ router.post('/alterar-email', function(req, res)
       req.session.usuario.email == params.email
     }).catch(conexao.ValidationError, (err) =>
     {
-      let path = err.errors[0].pat
+      let path = err.errors[0].path
       if(err.errors[0].type == "unique violation")
       {
         switch(path)

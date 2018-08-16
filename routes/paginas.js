@@ -113,7 +113,21 @@ router.get('/recursos', (req, res) => {
 });
 router.get('/alianca', (req, res) => {
   if(req.session.usuario)
-    getUserData(req).then(userdata => res.render('alianca', {userdata : userdata})).catch(() => res.status(403).render('login'));
+  {
+    models.Alianca_Aplicacao.findOne({where : {usuarioID : req.session.usuario.id}}).then(aplicacao => {
+      if(!aplicacao)
+        getUserData(req).then(userdata => res.render('alianca', {userdata : userdata, aplicacao : false})).catch(() => res.status(403).render('login'));
+      else
+      {
+        models.Alianca.findOne({where : {id: aplicacao.aliancaID}, attributes :['id', 'nome', 'tag']}).then(alianca => {
+          aplicacao.dataValues.alianca = alianca;
+          getUserData(req).then(userdata => res.render('alianca', {userdata : userdata, aplicacao : aplicacao.dataValues})).catch(() => res.status(403).render('login'));
+        })
+      }
+    })
+    
+  }
+    
   else 
     res.status(403).render('login');
 });
@@ -188,5 +202,29 @@ router.get("/ativar", (req, res) =>
     });
   }
 });
+
+
+router.get('/paginaExterna', (req, res) => {
+  if(req.session.usuario)
+  {
+    if(!req.query.id)
+      res.redirect(400, '/alianca');
+    else
+    {
+      models.Alianca.findOne({where : {id:req.query.id}}).then(alianca => {
+        if(!alianca)
+          res.redirect(400, '/alianca');
+        else
+        {
+          models.Alianca_Aplicacao.findOne({where : {usuarioID : req.session.usuario.id}}).then(aplicacao => {
+            models.Usuario_Participa_Alianca.count({where : {aliancaID : alianca.id}}).then(contagem => getUserData(req).then(userdata => res.render('paginaExterna', {userdata : userdata, alianca : alianca.dataValues, totalMembros : contagem, aplicacao : Boolean(aplicacao)})).catch(() => res.render('login')))
+          })
+        }
+      })
+    }
+  }
+  else
+    res.render('login');
+})
 
 module.exports = router;

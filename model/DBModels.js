@@ -558,7 +558,6 @@ const Alianca_Aplicacao = con.define('alianca_aplicacao', {
             model : Alianca,
             key : 'id',
         },
-        primaryKey : true,
         onDelete : "CASCADE"
     },
     texto :

@@ -73,3 +73,26 @@ $(document).ready(function() {
         }
     }
 })
+$("#btn-cancelar-aplicacao").on('click', function(){
+    btn = $(this);
+    $.ajax({
+        url : 'alianca/cancelar-aplicacao',
+        method : 'POST',
+        beforeSend : function()
+        {
+            btn.text("Cancelando...")
+        },
+        success : function()
+        {
+            GerarNotificacao("Aplicação removida com sucesso", 'success')
+        },
+        error : function(err)
+        {
+            GerarNotificacao(err.responseText, 'danger')
+        },
+        complete : function()
+        {
+            btn.text("Cancelar Aplicação")
+        }
+    })
+})

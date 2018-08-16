@@ -21,6 +21,14 @@ block content
             .row
               .col-md-offset-3.col-md-6.text-center
                   button.btn.btn-primary.btn-lg.btn-block(type='submit') Criar
+      -if(aplicacao != false){
+      .row
+        .col-sm-12.col-md-offset-3.col-md-6#sem-alianca
+          h3.text-center Aplicação enviada para 
+            =aplicacao.alianca.nome
+          .col-md-offset-3.col-md-6.text-center
+              button.btn.btn-danger.btn-lg.btn-block(type='button')#btn-cancelar-aplicacao Cancelar Aplicação
+      -}
       -}else{
       .row
         .col-md-12#com-alianca
@@ -30,9 +38,9 @@ block content
                   li.tab-btn
                     a(href ="#") Visão Geral
                   li.tab-btn
-                    a(href = "#") Membros
-                  li.tab-btn
                     a(href = "#") Administração
+                  li.tab-btn
+                    a(href = "#") Mensagem Circular
                   li.tab-btn
                     a(href = "#") Aplicações
                 .tab-content
@@ -51,12 +59,9 @@ block content
                         tr
                           td O seu cargo:
                           td.cargo
-                        
-
           .row
               .col-md-offset-4.col-md-4.text-center
                   button.btn.btn-warning.btn-lg.btn-block#btn-sair-alianca Sair da Aliança
-      
       -}
     
   include includes/enviar-mensagem-privada

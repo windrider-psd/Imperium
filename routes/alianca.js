@@ -29,7 +29,7 @@ router.post('/criar-alianca', (req, res) =>
             else
             {
                 let nome = sanitizer.escape(params.nome)
-                models.Alianca.count({where : {nome : nome, tag : params.tag}}).then(contagem =>
+                models.Alianca.count({where : {$or : {nome : nome, tag : params.tag}}}).then(contagem =>
                 {
                     if(contagem != 0)
                         res.status(400).end("Já existe outra aliança com este nome ou tag")
@@ -89,6 +89,29 @@ router.post('/sair-alianca', (req, res) => {
             }
         })
     }
+})
+
+
+router.post('/aplicar-alianca', (req, res) => {
+    /**
+     * @type {{alianca : number, aplicacao : string}}
+     */    
+    let params = req.body
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else if(!params.alianca || !params.aplicacao)
+        res.status(400).end("Parâmetros inválidos")
+    else if(isNaN(params.alianca))
+        res.status(400).end("Parâmetros inválidos")
+    else
+       models.Alianca_Aplicacao.create({usuarioID : req.session.usuario.id, aliancaID: params.alianca, texto : params.aplicacao}).then(() => res.status(200).end("Aplicação enviada com sucesso")).catch(() => res.status(500).end("Houve um erro interno"))
+})
+
+router.post('/cancelar-aplicacao', (req, res) => {
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else
+        models.Alianca_Aplicacao.destroy({where : {usuarioID : req.session.usuario.id}}).then(() => res.status(200).end("Aplicação cancelada com sucesso")).catch(() => res.status(500).end("Houve um erro am remover a aplicação"))
 })
 
 module.exports = router;
