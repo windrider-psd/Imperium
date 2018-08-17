@@ -9,6 +9,96 @@ const formatoSpecial2 = /[ !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/ //Com espaço
 
 require('dotenv/config')
 
+/**
+ * 
+ * @param {number} aliancaID O id da aliança
+ * @description Retorna todas as aplicações de uma aliança com o nome dos usuários aplicados
+ * @returns {Bluebird.<Object>}
+ */
+function getAplicacoes(aliancaID)
+{
+    return new Bluebird(resolve => {
+        models.Alianca_Aplicacao.findAll({where : {aliancaID : aliancaID}}).then(aplicacoes => {
+            let promessasAll = new Array();
+            let usuariosids = new Array();
+            for(let i = 0; i < aplicacoes.length; i++)
+            {
+                let esta = false;
+                for(let j = 0; j < usuariosids.length; j++)
+                {
+                    if(aplicacoes[i].usuarioID == usuariosids[j])
+                    {
+                        esta = true;
+                        break;
+                    }
+                }
+                if(!esta)
+                {
+                    usuariosids.push(aplicacoes[i].usuarioID);
+                    promessasAll.push(new Bluebird(resolve => {
+                        let appalvo = aplicacoes[i];
+                        models.Usuario.findOne({where : {id :  appalvo.usuarioID}, attributes : ['id', 'nick']}).then(usuario => resolve(usuario))
+                    }))
+                }
+            }
+
+            Bluebird.all(promessasAll).then(usuarios => {
+                for(let i = 0; i < aplicacoes.length; i++)
+                {
+                    for(let j = 0; j < usuarios.length; j++)
+                    {
+                        if(aplicacoes[i].usuarioID == usuarios[j].id)
+                        {
+                            aplicacoes[i].dataValues.usuario = usuarios[j]
+                            break;
+                        }
+                    }
+                }
+                resolve(aplicacoes)
+            })
+            
+        })
+    })
+}
+
+
+/**
+ * 
+ * @param {number} usuario O id do usuário
+ * @param {number} alianca O id da aliança
+ * @param {boolean} aceito Verdadeiro se ele for aceito, senão, falso
+ * @description Aceita ou rejeita um usuário a uma aliança
+ * @returns {Bluebird<void>}
+ */
+function setAceitacaoAplicacao(usuario, alianca, aceito)
+{
+    return new Bluebird((resolve, reject) => {
+
+        models.Con.transaction().then(transacao => {
+            if(aceito)
+            {
+                models.Usuario_Participa_Alianca.create({usuarioID : usuario, aliancaID : alianca}, {transaction : transacao}).then(() => {
+                    models.Alianca_Aplicacao.destroy({where : {usuarioID : usuario}, transaction : transacao}).then(() => {
+                        transacao.commit().then(() => resolve(true));
+                    })
+                }).catch(err => {
+                    transacao.rollback()
+                    reject(err)
+                })
+            }
+            else
+            {
+                models.Alianca_Aplicacao.destroy({where : {usuarioID : usuario}, transaction : transacao}).then(() => {
+                    transacao.commit().then(() => resolve(true));
+                }).catch(err => {
+                    transacao.rollback()
+                    reject(err)
+                })
+            }
+        }).catch(err => reject(err))
+    })
+}
+
 router.post('/criar-alianca', (req, res) =>
 {
     /**
@@ -38,7 +128,7 @@ router.post('/criar-alianca', (req, res) =>
                         models.Con.transaction().then(transacao => {
                             models.Alianca.create({nome : nome, lider : req.session.usuario.id, tag : params.tag}, {transaction : transacao}).then((alianca) => {
                                 models.Usuario_Participa_Alianca.create({usuarioID : req.session.usuario.id, aliancaID : alianca.id, rank : null}, {transaction : transacao}).then(() =>
-                                    transacao.commit().then(() => res.status(200).end("Aliança criada"))
+                                    models.Alianca_Aplicacao.destroy({where : {usuarioID : req.session.usuario.id}, transaction : transacao}).then(() => transacao.commit().then(() => res.status(200).end("Aliança criada")))
                                 );
                             }).catch(() =>
                             {
@@ -76,14 +166,27 @@ router.post('/sair-alianca', (req, res) => {
                                     .then(participantes => {
                                         if(participantes.length == 0)
                                             models.Alianca.destroy({where : {id : alianca.id}, transaction : transacao}).then(() => transacao.commit().then(() =>res.status(200).end("Saída realizada com sucesso")))
+                                        else
+                                        {
+                                            models.Alianca.update({lider : participantes[0].usuarioID, sucessor : null}, {where : {id : alianca.id}, transaction : transacao}).then(() => {
+                                                models.Usuario_Participa_Alianca.destroy({where : {usuarioID: req.session.usuario.id}, transaction : transacao}).then(() => transacao.commit().then(() => res.status(200).end("Saída realizada com sucesso")))
+                                            }) 
+                                        }
+                                            
                                     })
                                 }
                                 else
-                                    models.Alianca.update({lider : alianca.sucessor, sucessor : null}, {transaction : transacao}).then(() => transacao.commit().then(() => res.status(200).end("Saída realizada com sucesso")))
+                                {
+                                    models.Alianca.update({lider : alianca.sucessor, sucessor : null}, {where : {id: alianca.id}, transaction : transacao}).then(() => {
+                                        models.Usuario_Participa_Alianca.destroy({where : {usuarioID: req.session.usuario.id}, transaction : transacao}).then(() => transacao.commit().then(() => res.status(200).end("Saída realizada com sucesso")))
+                                    });   
+                                }
+                                    
+                                        
                             }
                             else
                                 transacao.commit().then(() =>res.status(200).end("Saída realizada com sucesso"))
-                        })
+                        }).catch(() => {res.status(500).end("Houve um erro ao sair da aliança"); transacao.rollback() })
                     }).catch(() => res.status(500).end("Houve um erro ao sair da aliança"))
                 })
             }
@@ -104,7 +207,7 @@ router.post('/aplicar-alianca', (req, res) => {
     else if(isNaN(params.alianca))
         res.status(400).end("Parâmetros inválidos")
     else
-       models.Alianca_Aplicacao.create({usuarioID : req.session.usuario.id, aliancaID: params.alianca, texto : params.aplicacao}).then(() => res.status(200).end("Aplicação enviada com sucesso")).catch(() => res.status(500).end("Houve um erro interno"))
+       models.Alianca_Aplicacao.create({usuarioID : req.session.usuario.id, aliancaID: params.alianca, texto : sanitizer.escape(params.aplicacao)}).then(() => res.status(200).end("Aplicação enviada com sucesso")).catch(() => res.status(500).end("Houve um erro interno"))
 })
 
 router.post('/cancelar-aplicacao', (req, res) => {
@@ -112,6 +215,96 @@ router.post('/cancelar-aplicacao', (req, res) => {
         res.status(403).end("Operação inválida")
     else
         models.Alianca_Aplicacao.destroy({where : {usuarioID : req.session.usuario.id}}).then(() => res.status(200).end("Aplicação cancelada com sucesso")).catch(() => res.status(500).end("Houve um erro am remover a aplicação"))
+})
+
+
+
+
+router.get('/getAplicacoes', (req, res) => {
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else
+    {
+        models.Usuario_Participa_Alianca.findOne({where : {usuarioID : req.session.usuario.id}}).then(participa => {
+            if(!participa)
+                res.status(400).end("É necessário participar de uma aliança")
+            else
+            {
+                if(participa.rank == null)
+                {
+                    models.Alianca.findOne({where : {id : participa.aliancaID}, attributes : ['id', 'lider']}).then(alianca => {
+                        if(alianca.lider != req.session.usuario.id)
+                            res.status(403).end("Operação inválida")
+                        else
+                            getAplicacoes(participa.aliancaID).then(aplicacoes => res.status(200).json(aplicacoes)).catch(() => res.status(500).end("Houve um erro no servidor"))
+                    })
+                }
+                else
+                {
+                    models.Alianca_Rank.findOne({where : {id : participa.rank}, attributes : ['id', 'ver_aplicacoes']}).then(rank => {
+                        if(rank.ver_aplicacoes === true)
+                            getAplicacoes(participa.aliancaID).then(aplicacoes => res.status(200).json(aplicacoes)).catch(() => res.status(500).end("Houve um erro no servidor"))
+                        else
+                            res.status(403).end("Operação inválida")
+                    })
+                }
+                    
+            }
+        })
+    }
+})
+
+router.post('/aceitar-aplicacao', (req, res) => {
+    /**
+     * @type {{usuario : number, valor : string}}
+     */    
+    let params = req.body
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else if(!params.usuario || !params.valor)
+        res.status(400).end("Parâmetros inválidos")
+    else if(isNaN(params.usuario))
+        res.status(400).end("Parâmetros inválidos")
+    else
+    {
+        params.valor = params.valor == "1" || params.valor == "true"
+
+        models.Alianca_Aplicacao.findOne({where : {usuarioID : params.usuario}}).then(aplicacao => {
+            if(!aplicacao)
+                res.status(400).end("Aplicação não encontrada")
+            else
+            {
+                models.Usuario_Participa_Alianca.findOne({where : {usuarioID : req.session.usuario.id}}).then(participa => {
+                    if(!participa)
+                        res.status(403).end("Operação inválida")
+                    else if(participa.aliancaID != aplicacao.aliancaID)
+                        res.status(403).end("Operação inválida")
+                    else
+                    {
+                        if(participa.rank == null)
+                        {
+                            models.Alianca.findOne({where : {id : participa.aliancaID}, attributes : ['id', 'lider']}).then(alianca => {
+                                if(alianca.lider != req.session.usuario.id)
+                                    res.status(403).end("Operação inválida")
+                                else
+                                    setAceitacaoAplicacao(aplicacao.usuarioID, aplicacao.aliancaID, params.valor).then(() => res.status(200).end("Aplicação tratada com sucesso")).catch(() => res.status(500).end("Houve um erro no servidor"))
+                            })
+                        }
+                        else
+                        {
+                            models.Alianca_Rank.findOne({where : {id : participa.rank}, attributes : ['id', 'aceitar_aplicacoes']}).then(rank => {
+                                if(rank.aceitar_aplicacoes === true)
+                                    setAceitacaoAplicacao(aplicacao.usuarioID, aplicacao.aliancaID, params.valor).then(() => res.status(200).end("Aplicação tratada com sucesso")).catch(() => res.status(500).end("Houve um erro no servidor"))
+                                else
+                                    res.status(403).end("Operação inválida")
+                            })
+                        }
+                            
+                    }
+                })
+            }
+        })
+    }
 })
 
 module.exports = router;

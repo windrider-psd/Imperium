@@ -592,7 +592,13 @@ const Alianca_Rank = con.define('alianca_ranks', {
         type: sequalize.STRING,
         allowNull : false,
     },
-    aceitar:
+    ver_aplicacoes:
+    {
+        type: sequalize.BOOLEAN,
+        allowNull : false,
+        defaultValue : false
+    },
+    aceitar_aplicacoes:
     {
         type: sequalize.BOOLEAN,
         allowNull : false,

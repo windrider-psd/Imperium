@@ -27,16 +27,16 @@ block content
                         button.close(type='button', data-dismiss='modal') ×
                         h4.modal-title Enviar aplicação
                     .modal-body
-                    .row
-                        #conteudo-enviar-esqueci.col-md-offset-1.col-md-10.col-sm-12
-                            form(onsubmit='return false')
-                                .form-group
+                        .row
+                            #conteudo-enviar-esqueci.col-md-offset-1.col-md-10.col-sm-12
+                                form(onsubmit='return false')
                                     .form-group
-                                        label(for='aplicacao') Texto da aplicação: 
-                                        textarea(name='aplicacao', rows = '10', style = "resize: vertical; width:100%", value = "")#aplicacao-text.form-control
-                                .row
-                                    .col-md-12.text-center
-                                        button.btn.btn-primary.btn-lg.btn-block(type='submit') Enviar
+                                        .form-group
+                                            label(for='aplicacao') Texto da aplicação: 
+                                            textarea(name='aplicacao', rows = '10', style = "resize: vertical; width:100%", value = "")#aplicacao-text.form-control
+                                    .row
+                                        .col-md-12.text-center
+                                            button.btn.btn-primary.btn-lg.btn-block(type='submit') Enviar
     
     
 block posscripts
