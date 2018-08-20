@@ -166,3 +166,18 @@ $(".tab-content").on('click','.aceitar-btn', function()
         },
     })
 })
+
+$.ajax({
+    url : 'alianca/getMembros',
+    method : 'GET',
+    dataType : 'JSON',
+    success : function(resultado)
+    {
+        console.log(resultado)
+    },
+    error : function(err)
+    {
+        console.log(err);
+        GerarNotificacao(err.responseText, 'danger')
+    },
+})

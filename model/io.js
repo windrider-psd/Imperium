@@ -1,6 +1,7 @@
 const ip = require('ip')
 const socketio = require('socket.io')
 var sessaosocket = require('express-socket.io-session')
+var Bluebird = require('bluebird')
 
 /**
  * @type {Array.<Array.<SocketIO.Socket>>}
@@ -122,7 +123,19 @@ function EmitirParaSessao(idcliente, evento, mensagem)
     }
 }
 
+/**
+ * @param {number} idcliente O id (banco de dados) do usuário
+ * @description Verifica se um usuário está online]
+ * @returns {boolean} Verdadeiro se online. Falso se offline
+ */
+function isOnline(idusuario)
+{
+    let cliente = clientes[idusuario];
+    return typeof(cliente) !== 'undefined'
+}
+
 module.exports = {
     CriarSocket : CriarSocket,
-    EmitirParaSessao : EmitirParaSessao
+    EmitirParaSessao : EmitirParaSessao,
+    isOnline : isOnline
 }

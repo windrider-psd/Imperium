@@ -592,79 +592,79 @@ const Alianca_Rank = con.define('alianca_ranks', {
         type: sequalize.STRING,
         allowNull : false,
     },
-    ver_aplicacoes:
+    ver_aplicacoes: //Poder ver aplicação da aliança
     {
         type: sequalize.BOOLEAN,
         allowNull : false,
         defaultValue : false
     },
-    aceitar_aplicacoes:
+    aceitar_aplicacoes: //Poder aceitar e recusar aplicações da aliança
     {
         type: sequalize.BOOLEAN,
         allowNull : false,
         defaultValue : false
     },
-    expulsar:
+    expulsar: //Poder expulsar jogadoers
     {
         type: sequalize.BOOLEAN,
         allowNull : false,
         defaultValue : false
     },
-    mensagens:
+    mensagens: //Poder enviar mensagens circulares
     {
         type: sequalize.BOOLEAN,
         allowNull : false,
         defaultValue : false
     },
-    online:
+    online: //Poder ver quem está online
     {
         type: sequalize.BOOLEAN,
         allowNull : false,
         defaultValue : false
     },
-    tratados:
+    tratados: //Poder gerenciar tratados
     {
         type: sequalize.BOOLEAN,
         allowNull : false,
         defaultValue : false
     },
-    frota:
+    frota: //Visualizar frotas da aliança
     {
         type: sequalize.BOOLEAN,
         allowNull : false,
         defaultValue : false,
     },
-    exercito:
+    exercito: //Visualizar exércitos da aliança
     {
         type: sequalize.BOOLEAN,
         allowNull : false,
         defaultValue : false
     },
-    movimento:
+    movimento: //Visualizar movimento e localização de frotas e exércitos
     {
         type: sequalize.BOOLEAN,
         allowNull : false,
         defaultValue : false
     },
-    ranks_criar:
+    ranks_criar: //Criar ranks para a aliança
     {
         type: sequalize.BOOLEAN,
         allowNull : false,
         defaultValue : false
     },
-    ranks_atribuir:
+    ranks_atribuir: //Atribuir ranks para a aliança
     {
         type: sequalize.BOOLEAN,
         allowNull : false,
         defaultValue : false
     },
-    forum_tabs:
+    forum_tabs: //Poder criar tabs no fórum da aliança
     {
         type: sequalize.BOOLEAN,
         allowNull : false,
         defaultValue : false
     },
-    forum_topicos:
+    forum_topicos: //Poder criar tópicos no fórum da aliança
     {
         type: sequalize.BOOLEAN,
         allowNull : false,

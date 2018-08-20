@@ -307,4 +307,70 @@ router.post('/aceitar-aplicacao', (req, res) => {
     }
 })
 
+router.get('/getMembros', (req, res) => {
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else
+    {
+        let permicoes = new Bluebird((resolve, reject) => {
+            models.Usuario_Participa_Alianca.findOne({where : {usuarioID : req.session.usuario.id}}).then(participa => {
+                if(!participa)
+                    reject("É necessário participar de uma aliança")
+                else
+                {
+                    if(participa.rank == null)
+                    {
+                        models.Alianca.findOne({where : {id : participa.aliancaID}, attributes : ['id', 'lider']}).then(alianca => {
+                            resolve({participa : participa, online : alianca.lider != req.session.usuario.id})
+                        })
+                    }
+                    else
+                        models.Alianca_Rank.findOne({where : {id : participa.rank}, attributes : ['id', 'ver_aplicacoes']}).then(rank => resolve({participa : participa, online: rank.online}))
+                }
+            })
+        })
+
+        permicoes.then(permicao => {
+            let participa = permicao.participa
+            models.Usuario_Participa_Alianca.findAll({where : {aliancaID : participa.aliancaID}, attributes: ['usuarioID', 'rank']}).then(participacoes => {
+                let promessasAll = new Array();
+                for(let i = 0; i < participacoes.length; i++)
+                {
+                    promessasAll.push(new Bluebird(resolve => {
+                        let participap = participacoes[i];
+                        let promossasParticipa = new Array();
+                        
+                        promossasParticipa.push(new Bluebird(resolvep => {
+                            models.Usuario.findOne({where : {id : participap.usuarioID}, attributes : ['id', 'nick', 'ferias', 'banido', 'pontosPesquisa', 'pontosMilitar', 'pontosEconomia']}).then(usuario => resolvep(usuario.dataValues))
+                        }))
+                        promossasParticipa.push(new Bluebird(resolvep => {
+                            if(participap.rank == null)
+                                resolvep(null)
+                            else
+                                models.Alianca_Rank.findOne({where : {id : participap.rank}, attributes : ['id', 'nome']}).then(rank => resolvep(rank))
+                        }))
+                        Bluebird.all(promossasParticipa).then(resultado => {
+                            resolve(resultado);
+                        })
+                    }))
+                }
+
+                Bluebird.all(promessasAll).then(resultado => { //Array de [usuario, rank]
+                    let retorno = new Array();
+                    for(let i = 0; i < resultado.length; i++)
+                    {
+                        let respush = {usuario : resultado[i][0], rank : resultado[i][1]};
+                        if(permicao.online)
+                            respush.online = io.isOnline(resultado[i][0].id)
+                        retorno.push(respush)
+                    }
+                        
+                    
+                    res.status(200).json(retorno)
+                })
+            })
+        }).catch(err => res.status(403).end(err.toString()))
+    }
+})
+
 module.exports = router;
