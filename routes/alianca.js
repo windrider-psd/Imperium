@@ -3,6 +3,7 @@ var router = express.Router();
 const models = require('./../model/DBModels')
 const sanitizer = require("sanitizer")
 const io = require('./../model/io')
+const ranking = require('./../model/Ranking')
 var Bluebird = require('bluebird');
 const formatoSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/ //Sem espaço
 const formatoSpecial2 = /[ !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/ //Com espaço
@@ -181,7 +182,6 @@ router.post('/sair-alianca', (req, res) => {
                                         models.Usuario_Participa_Alianca.destroy({where : {usuarioID: req.session.usuario.id}, transaction : transacao}).then(() => transacao.commit().then(() => res.status(200).end("Saída realizada com sucesso")))
                                     });   
                                 }
-                                    
                                         
                             }
                             else
@@ -321,7 +321,7 @@ router.get('/getMembros', (req, res) => {
                     if(participa.rank == null)
                     {
                         models.Alianca.findOne({where : {id : participa.aliancaID}, attributes : ['id', 'lider']}).then(alianca => {
-                            resolve({participa : participa, online : alianca.lider != req.session.usuario.id})
+                            resolve({participa : participa, online : alianca.lider == req.session.usuario.id})
                         })
                     }
                     else
@@ -339,9 +339,13 @@ router.get('/getMembros', (req, res) => {
                     promessasAll.push(new Bluebird(resolve => {
                         let participap = participacoes[i];
                         let promossasParticipa = new Array();
-                        
                         promossasParticipa.push(new Bluebird(resolvep => {
-                            models.Usuario.findOne({where : {id : participap.usuarioID}, attributes : ['id', 'nick', 'ferias', 'banido', 'pontosPesquisa', 'pontosMilitar', 'pontosEconomia']}).then(usuario => resolvep(usuario.dataValues))
+                            models.Usuario.findOne({where : {id : participap.usuarioID}, attributes : ['id', 'nick', 'ferias', 'banido']}).then(usuario => {
+                                ranking.GetRankingUsuario(usuario.id).then(rankusuario => {
+                                    usuario.dataValues.rank = rankusuario
+                                    resolvep(usuario.dataValues)
+                                })
+                            })
                         }))
                         promossasParticipa.push(new Bluebird(resolvep => {
                             if(participap.rank == null)
@@ -354,7 +358,6 @@ router.get('/getMembros', (req, res) => {
                         })
                     }))
                 }
-
                 Bluebird.all(promessasAll).then(resultado => { //Array de [usuario, rank]
                     let retorno = new Array();
                     for(let i = 0; i < resultado.length; i++)
@@ -364,8 +367,6 @@ router.get('/getMembros', (req, res) => {
                             respush.online = io.isOnline(resultado[i][0].id)
                         retorno.push(respush)
                     }
-                        
-                    
                     res.status(200).json(retorno)
                 })
             })
