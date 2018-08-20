@@ -194,7 +194,10 @@ $("#tab-aplicacoes").on('click', function()
         },
     })
 })
-
+$("#tab-geral").on('click', function()
+{
+    setViewGeral()
+})
 
 $(".tab-content").on('click','.aceitar-btn', function()
 {
