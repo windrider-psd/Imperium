@@ -213,6 +213,5 @@ $(".paginacao").on('submit', '#form-paginacao-goto', function()
 });
 
 $("#conteudo-ranking").on('click', ".btn-enviar-mensagem", function() {
-
     AbrirModalEnviarMensagemPrivada($(this).data('destinatario'), $(this).data('nome'));
 });

@@ -54,7 +54,7 @@ const con = new sequalize(process.env.DB_NAME, process.env.DB_USER, process.env.
         collate : 'utf8_general_ci',
         charset : 'utf8'
     }
-    });
+});
 
 const Usuario = con.define('Usuario', {
     id : {
@@ -665,6 +665,18 @@ const Alianca_Rank = con.define('alianca_ranks', {
         defaultValue : false
     },
     forum_topicos: //Poder criar tópicos no fórum da aliança
+    {
+        type: sequalize.BOOLEAN,
+        allowNull : false,
+        defaultValue : false
+    },
+    paginaInterna : //Pode editar a pagina interna
+    {
+        type: sequalize.BOOLEAN,
+        allowNull : false,
+        defaultValue : false
+    },
+    paginaExterna : //Pode editar a pagina externa
     {
         type: sequalize.BOOLEAN,
         allowNull : false,

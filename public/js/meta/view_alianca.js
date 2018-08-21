@@ -21,6 +21,9 @@
  * @property {boolean} usuario.ferias
  */
 
+
+var isLider;
+
 $("#form-criar-alianca").on('submit', function(){
     var params = FormToAssocArray($(this));
     var btn = $(this).find("button");
@@ -71,18 +74,54 @@ $("#btn-sair-alianca").on('click', function(){
     })
 });
 
+function setViewAdministracao()
+{
+    $.ajax({
+        url : 'alianca/getAdministracao',
+        method : 'GET',
+        dataType : 'JSON',
+        success : function(resposta)
+        {
+            var ranks = resposta[0]
+            ranksString = '<div class="table-responsive"><table class="table table-striped"><thead><tr><th>nome</th><th>Ver Aplicações</th><th>Aceitar Aplicações</th><th>Expulsar</th><th>enviar mensagens circulares</th><th>ver online</th><th>tratados</th><th>Ver frota</th><th>Ver exército</th><th>ver movimento</th><th>Criar cargos</th><th>Atribuir cargos</th><th>Gerenciar Tabs (Fórum)</th><th>Gerenciar Topicos (fórum)</th><th>Editar Página Interna</th><th>Editar Página Interna</th></tr></thead><tbody>'
+            for(var i = 0; i < ranks.length; i++)
+            {
+                ranksString += '<tr data-id = "'+ranks[i].id+'"><td>'+ranks[i].nome+'</td>'
+                delete ranks[i].id;
+                delete ranks[i].aliancaID;
+                delete ranks[i].nome
+                for(var chave in ranks[i])
+                {
+                    ranksString += "<td><input name = '"+chave+"' type = 'checkbox'"
+                    if(ranks[i][chave] == true)
+                        ranksString += "checked"
+                    ranksString += "></td>"
+                }
+                ranksString +="</tr>"
+            }
+            ranksString += "</tbody></table><button type = 'button' class = 'btn btn-primary'>Salvar</button></div>"
+            $(".tab-content").html(ranksString)
+
+        },
+        error : function(err)
+        {
+            GerarNotificacao(err.responseText, 'danger')
+        },
+    })
+}
+
 function setViewGeral()
 {
     $.ajax({
         url : 'alianca/getMembros',
         method : 'GET',
         dataType : 'JSON',
-        success : function(resultado)
+        success : function(resposta)
         {
             /**
              * @type {Array.<GetMembrosResposta>}
              */
-            resultado;
+            var resultado = resposta.resultado;
             var htmlString = ''
             var textoCargo
 
@@ -104,7 +143,7 @@ function setViewGeral()
             {
                 var stringCargo
                 var onlineString
-               
+                var acoesString
                 var feriasString = resultado[i].usuario.ferias === false ? "<span>Não</span>" : "<span class = 'text-danger'>Sim</span>"
                 var banidoString = resultado[i].usuario.banido === false ? "<span>Não</span>" : "<span class = 'text-danger'>Sim</span>"
 
@@ -120,9 +159,14 @@ function setViewGeral()
                 else
                     stringCargo = (resultado[i].rank == null) ? "Sem Cargo" : resultado[i].rank.nome
                 
-                htmlString += '<tr><td>'+resultado[i].usuario.nick+'</td><td>'+stringCargo+'</td><td>'+resultado[i].usuario.rank+'</td><td>'+banidoString+'</td><td>'+feriasString+'</td><td>'+onlineString+'</td><td></td></tr>'
+                acoesString = "<button data-destinatario = '"+resultado[i].usuario.id+"' data-nome = '"+resultado[i].usuario.nome+"' class = 'btn btn-primary btn-sm btn-enviar-mensagem'><i class = 'fa fa-comment'></i></button>"
+
+                if(isLider || userdata.alianca.rank.expulsar)
+                    acoesString += '<button type = "button" data-id = "'+resultado[i].usuario.id+'" data-nome = "'+resultado[i].usuario.nome+'" class = "btn btn-danger btn-sm btn-expulsar-membro"><i class = "fa fa-times"></i></button>'
+                
+                htmlString += '<tr><td>'+resultado[i].usuario.nick+'</td><td>'+stringCargo+'</td><td>'+resultado[i].usuario.rank+'</td><td>'+banidoString+'</td><td>'+feriasString+'</td><td>'+onlineString+'</td><td>'+acoesString+'</td></tr>'
             }
-            htmlString +="</table></div>"
+            htmlString +="</tbody></table></div>"
             $(".tab-content").html(htmlString);
 
 
@@ -134,10 +178,17 @@ function setViewGeral()
     })
 }
 
+
+$(".tab-content").on('click', ".btn-enviar-mensagem", function() {
+    AbrirModalEnviarMensagemPrivada($(this).data('destinatario'), $(this).data('nome'));
+});
+
 $(document).ready(function() {
     if(userdata.alianca != null)
+    {
+        isLider = userdata.session.id == userdata.alianca.lider
         setViewGeral()
-    
+    }
 })
 $("#btn-cancelar-aplicacao").on('click', function(){
     btn = $(this);
@@ -198,6 +249,11 @@ $("#tab-geral").on('click', function()
 {
     setViewGeral()
 })
+$("#tab-administracao").on('click', function()
+{
+    setViewAdministracao()
+})
+
 
 $(".tab-content").on('click','.aceitar-btn', function()
 {

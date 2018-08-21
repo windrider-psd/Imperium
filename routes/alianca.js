@@ -321,11 +321,12 @@ router.get('/getMembros', (req, res) => {
                     if(participa.rank == null)
                     {
                         models.Alianca.findOne({where : {id : participa.aliancaID}, attributes : ['id', 'lider']}).then(alianca => {
-                            resolve({participa : participa, online : alianca.lider == req.session.usuario.id})
+                            let lider = alianca.lider == req.session.usuario.id
+                            resolve({participa : participa, online : lider, ranks_atribuir : lider})
                         })
                     }
                     else
-                        models.Alianca_Rank.findOne({where : {id : participa.rank}, attributes : ['id', 'ver_aplicacoes']}).then(rank => resolve({participa : participa, online: rank.online}))
+                        models.Alianca_Rank.findOne({where : {id : participa.rank}, attributes : ['id', 'ver_aplicacoes', 'ranks_atribuir']}).then(rank => resolve({participa : participa, online: rank.online, ranks_atribuir : rank.ranks_atribuir}))
                 }
             })
         })
@@ -359,19 +360,77 @@ router.get('/getMembros', (req, res) => {
                     }))
                 }
                 Bluebird.all(promessasAll).then(resultado => { //Array de [usuario, rank]
-                    let retorno = new Array();
+                    let retorno = {resultado : new Array()}
+                    //let retorno = new Array();
                     for(let i = 0; i < resultado.length; i++)
                     {
                         let respush = {usuario : resultado[i][0], rank : resultado[i][1]};
                         if(permicao.online)
                             respush.online = io.isOnline(resultado[i][0].id)
-                        retorno.push(respush)
+                        retorno.resultado.push(respush)
                     }
-                    res.status(200).json(retorno)
+                    if(permicao.ranks_atribuir)
+                    {
+                        models.Alianca_Rank.findAll({where : {aliancaID: participa.aliancaID}, attributes : ['id', 'nome']}).then(ranks_alianca => {
+                            retorno.ranks = ranks_alianca
+                            res.status(200).json(retorno)
+                        })
+                    }
+                    else
+                        res.status(200).json(retorno)
                 })
             })
         }).catch(err => res.status(403).end(err.toString()))
     }
 })
+
+router.get('/getAdministracao', (req, res) =>{
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else
+    {
+        var participaglobal
+        let permicoesPromisse = new Bluebird((resolve, reject) => {
+            models.Usuario_Participa_Alianca.findOne({where : {usuarioID : req.session.usuario.id}}).then(participa => {
+                if(!participa)
+                    reject("Operação inválida")
+                else
+                {
+                    participaglobal = participa
+                    models.Alianca.findOne({where : {id : participa.aliancaID}, attributes : ['id', 'lider']}).then(alianca =>
+                    {
+                        if(alianca.lider == req.session.usuario.id)
+                            resolve({lider: true})
+                        else if(participa.rank == null)
+                            reject("Operação inválida")
+                        else
+                        {
+                            models.Alianca_Rank.findOne({where : {id : participa.rank}, attributes : ['tratados', 'frota', 'exercito', 'movimento', 'ranks-criar', 'paginaInterna', 'paginaExterna']}).then(rank => {
+                                rank.dataValues.lider = false;
+                                resolve(rank.dataValues)
+                            })
+                        }
+                    })
+                }
+            })
+        })
+
+        permicoesPromisse.then(permicoes => {
+            
+            let adminPromessas = new Array(); //[rank]
+            adminPromessas.push(new Bluebird(resolve => {
+                if(permicoes.lider === true || permicoes.rank === true)
+                    models.Alianca_Rank.findAll({where : {aliancaID : participaglobal.aliancaID}}).then(ranks => resolve(ranks))
+                else
+                    resolve(null)
+            }))
+
+            Bluebird.all(adminPromessas).then(resultado => res.status(200).json(resultado))
+            
+        }).catch(err => res.status(403).end(err.toString()))
+        
+    }
+})
+
 
 module.exports = router;
