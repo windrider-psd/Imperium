@@ -432,5 +432,46 @@ router.get('/getAdministracao', (req, res) =>{
     }
 })
 
+router.post("/salvar-cargos", (req, res) => {
+    let params = req.body
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else if(!params.dados)
+        res.status(400).end("Parâmetros inválidos")
+    else
+    {
+        let permicoesPromisse = new Bluebird((resolve) => {
+            models.Usuario_Participa_Alianca.findOne({where : {usuarioID : req.session.usuario.id}}).then(participa => {
+                if(!participa)
+                    resolve(false)
+                else
+                {
+                    models.Alianca.findOne({where : {id : participa.aliancaID}, attributes : ['id', 'lider']}).then(alianca =>
+                    {
+                        if(alianca.lider == req.session.usuario.id)
+                            resolve(true)
+                        else if(participa.rank == null)
+                            resolve(false)
+                        else
+                            models.Alianca_Rank.findOne({where : {id : participa.rank}, attributes : ['ranks-criar']}).then(rank => resolve(rank.dataValues.ranks-criar))
+                    })
+                }
+            })
+        })
+
+        permicoesPromisse.then(permicao => {
+            if(permicao)
+            {
+                //continuar
+            }
+            else
+                res.status(403).end("Sem permições")
+            
+            
+        }).catch(err => res.status(403).end(err.toString()))
+    }
+
+})
+
 
 module.exports = router;

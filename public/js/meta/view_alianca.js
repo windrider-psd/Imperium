@@ -83,25 +83,27 @@ function setViewAdministracao()
         success : function(resposta)
         {
             var ranks = resposta[0]
-            ranksString = '<div class="table-responsive"><table class="table table-striped"><thead><tr><th>nome</th><th>Ver Aplicações</th><th>Aceitar Aplicações</th><th>Expulsar</th><th>enviar mensagens circulares</th><th>ver online</th><th>tratados</th><th>Ver frota</th><th>Ver exército</th><th>ver movimento</th><th>Criar cargos</th><th>Atribuir cargos</th><th>Gerenciar Tabs (Fórum)</th><th>Gerenciar Topicos (fórum)</th><th>Editar Página Interna</th><th>Editar Página Interna</th></tr></thead><tbody>'
-            for(var i = 0; i < ranks.length; i++)
-            {
-                ranksString += '<tr data-id = "'+ranks[i].id+'"><td>'+ranks[i].nome+'</td>'
-                delete ranks[i].id;
-                delete ranks[i].aliancaID;
-                delete ranks[i].nome
-                for(var chave in ranks[i])
+            if(ranks !== null){
+                ranksString = '<div class="table-responsive"><table class="table table-striped" id = "tabela-cargos"><thead><tr><th>nome</th><th>Ver Aplicações</th><th>Aceitar Aplicações</th><th>Expulsar</th><th>enviar mensagens circulares</th><th>ver online</th><th>tratados</th><th>Ver frota</th><th>Ver exército</th><th>ver movimento</th><th>Criar cargos</th><th>Atribuir cargos</th><th>Gerenciar Tabs (Fórum)</th><th>Gerenciar Topicos (fórum)</th><th>Editar Página Interna</th><th>Editar Página Interna</th><th>Excluir Cargo</th></tr></thead><tbody>'
+                for(var i = 0; i < ranks.length; i++)
                 {
-                    ranksString += "<td><input name = '"+chave+"' type = 'checkbox'"
-                    if(ranks[i][chave] == true)
-                        ranksString += "checked"
-                    ranksString += "></td>"
+                    ranksString += '<tr data-id = "'+ranks[i].id+'"><td><input type "text" value = "'+ranks[i].nome+'" name = "nome"></td>'
+                    delete ranks[i].id;
+                    delete ranks[i].aliancaID;
+                    delete ranks[i].nome
+                    for(var chave in ranks[i])
+                    {
+                        ranksString += "<td><input name = '"+chave+"' type = 'checkbox'"
+                        if(ranks[i][chave] == true)
+                            ranksString += "checked"
+                        ranksString += "></td>"
+                    }
+                    ranksString += "<td><button type = 'button' class = 'btn btn-danger btn-excluir-cargo'><i class = 'fa fa-times'></i></button></td>"
+                    ranksString +="</tr>"
                 }
-                ranksString +="</tr>"
+                ranksString += "</tbody></table><button type = 'button' class = 'btn btn-primary salvar-cargos'>Salvar Alterações</button><button type = 'button' class = 'btn btn-success btn-criar-cargo'>Criar Cargo</button></div>"
+                $(".tab-content").html(ranksString)
             }
-            ranksString += "</tbody></table><button type = 'button' class = 'btn btn-primary'>Salvar</button></div>"
-            $(".tab-content").html(ranksString)
-
         },
         error : function(err)
         {
@@ -109,6 +111,33 @@ function setViewAdministracao()
         },
     })
 }
+
+$(".tab-content").on('click', '.salvar-cargos', function()
+{
+    var div = $(this).parent()
+    var params = new Array();
+    var linhas = div.find("tbody tr");
+    linhas.each(function(){
+        var ppush = FormToAssocArray($(this))
+        ppush.id = $(this).data('id')
+        params.push(ppush);
+    })
+    
+    $.ajax({
+        url : 'alianca/salvar-cargos',
+        method : 'POST',
+        data : {dados : params},
+        success : function()
+        {
+            GerarNotificacao("Cargos salvos com sucesso");
+        },
+        error : function(err)
+        {
+            GerarNotificacao(err.responseText, 'danger')
+        },
+    })
+})
+
 
 function setViewGeral()
 {
