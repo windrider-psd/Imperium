@@ -405,7 +405,7 @@ router.get('/getAdministracao', (req, res) =>{
                             reject("Operação inválida")
                         else
                         {
-                            models.Alianca_Rank.findOne({where : {id : participa.rank}, attributes : ['tratados', 'frota', 'exercito', 'movimento', 'ranks-criar', 'paginaInterna', 'paginaExterna']}).then(rank => {
+                            models.Alianca_Rank.findOne({where : {id : participa.rank}}).then(rank => {
                                 rank.dataValues.lider = false;
                                 resolve(rank.dataValues)
                             })
@@ -419,7 +419,7 @@ router.get('/getAdministracao', (req, res) =>{
             
             let adminPromessas = new Array(); //[rank]
             adminPromessas.push(new Bluebird(resolve => {
-                if(permicoes.lider === true || permicoes.rank === true)
+                if(permicoes.lider == true || permicoes.ranks_criar == true)
                     models.Alianca_Rank.findAll({where : {aliancaID : participaglobal.aliancaID}}).then(ranks => resolve(ranks))
                 else
                     resolve(null)
@@ -454,7 +454,7 @@ router.post("/salvar-cargos", (req, res) => {
                         else if(participa.rank == null)
                             resolve(false)
                         else
-                            models.Alianca_Rank.findOne({where : {id : participa.rank}, attributes : ['ranks-criar']}).then(rank => resolve(rank.dataValues.ranks-criar))
+                            models.Alianca_Rank.findOne({where : {id : participa.rank}, attributes : ['ranks_criar']}).then(rank => resolve(rank.dataValues.ranks_criar))
                     })
                 }
             })
@@ -506,7 +506,7 @@ router.post('/criar-cargo', (req, res) => {
                         else if(participa.rank == null)
                             resolve(false)
                         else
-                            models.Alianca_Rank.findOne({where : {id : participa.rank}, attributes : ['ranks-criar']}).then(rank => resolve(rank.dataValues.ranks-criar))
+                            models.Alianca_Rank.findOne({where : {id : participa.rank}, attributes : ['ranks_criar']}).then(rank => resolve(rank.dataValues.ranks_criar))
                     })
                 }
             })
@@ -550,7 +550,7 @@ router.post('/excluir-cargo', (req, res) => {
                             reject("Operação inválida")
                         else
                         {
-                            models.Alianca_Rank.findOne({where : {id : participa.rank}, attributes : ['tratados', 'frota', 'exercito', 'movimento', 'ranks-criar', 'paginaInterna', 'paginaExterna']}).then(rank => {
+                            models.Alianca_Rank.findOne({where : {id : participa.rank}, attributes : ['tratados', 'frota', 'exercito', 'movimento', 'ranks_criar', 'paginaInterna', 'paginaExterna']}).then(rank => {
                                 rank.dataValues.lider = false;
                                 resolve(rank.dataValues)
                             })
@@ -561,11 +561,74 @@ router.post('/excluir-cargo', (req, res) => {
         })
 
         permicoesPromisse.then(permicoes => {
-            if(permicoes)
+            if(permicoes.lider || permicoes.ranks_criar)
                 models.Alianca_Rank.destroy({where : {id : params.id, aliancaID : participaglobal.aliancaID}}).then(() => res.status(200).end("Cargo excluido com sucesso"))
             else
                 res.status(403).end("Sem permições")
         }).catch(() => res.status(500).end("Houve um erro ao excluir o cargo"))
+    }
+})
+
+router.post('/atribuir-cargo', (req, res) => {
+    let params = req.body
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else if(!params.id)
+        res.status(400).end("Parâmetros inválidos")
+    else if(!params.id == req.session.usuario.id)
+        res.status(400).end("Operaçã inválida")
+    else
+    {
+        var participaglobal
+        let permicoesPromisse = new Bluebird((resolve, reject) => {
+            models.Usuario_Participa_Alianca.findOne({where : {usuarioID : req.session.usuario.id}}).then(participa => {
+                if(!participa)
+                    reject("Operação inválida")
+                else
+                {
+                    participaglobal = participa
+                    models.Alianca.findOne({where : {id : participa.aliancaID}, attributes : ['id', 'lider']}).then(alianca =>
+                    {
+                        if(alianca.lider == req.session.usuario.id)
+                            resolve({lider: true})
+                        else if(participa.rank == null)
+                            reject("Operação inválida")
+                        else
+                        {
+                            models.Alianca_Rank.findOne({where : {id : participa.rank}, attributes : ['tratados', 'frota', 'exercito', 'movimento', 'ranks_criar', 'paginaInterna', 'paginaExterna']}).then(rank => {
+                                rank.dataValues.lider = false;
+                                resolve(rank.dataValues)
+                            })
+                        }
+                    })
+                }
+            })
+        })
+
+        permicoesPromisse.then(permicoes => {
+            if(permicoes.lider || permicoes.ranks-atribuir)
+            {   
+                models.Alianca.findOne({where : {id : participaglobal.aliancaID}}).then(alianca => {
+                    if(alianca.lider == params.id)
+                        res.status(403).end("Operaçã inválida")
+                    else if(params.cargo == 'null')
+                    {
+                        models.Usuario_Participa_Alianca.update({rank : null}, {where : {usuarioID : params.id}}).then(() => res.status(200).end("Cargo atualizado")).catch(() => res.status(500).end("Erro ao atualizar o cargo"))
+                    }
+                    else
+                    {
+                        models.Alianca_Rank.findOne({where : {id : params.cargo, aliancaID: participaglobal.aliancaID}}).then(rank => {
+                            if(!rank)
+                                res.status(400).end("Operação inválida")
+                            else
+                                models.Usuario_Participa_Alianca.update({rank : params.cargo}, {where : {usuarioID : params.id}}).then(() => res.status(200).end("Cargo atualizado")).catch(() => res.status(500).end("Erro ao atualizar o cargo"))
+                        }).catch(err => console.log(err))
+                    }
+                })
+            }
+            else
+                res.status(403).end("Sem permições")
+        })
     }
 })
 

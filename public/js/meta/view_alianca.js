@@ -201,10 +201,12 @@ function setViewGeral()
         dataType : 'JSON',
         success : function(resposta)
         {
+            
             /**
              * @type {Array.<GetMembrosResposta>}
              */
-            var resultado = resposta.resultado;
+            var resultado = resposta.resultado
+            var ranks = resposta.ranks
             var htmlString = ''
             var textoCargo
 
@@ -226,7 +228,7 @@ function setViewGeral()
             {
                 var stringCargo
                 var onlineString
-                var acoesString
+                var acoesString =""
                 var feriasString = resultado[i].usuario.ferias === false ? "<span>Não</span>" : "<span class = 'text-danger'>Sim</span>"
                 var banidoString = resultado[i].usuario.banido === false ? "<span>Não</span>" : "<span class = 'text-danger'>Sim</span>"
 
@@ -236,16 +238,28 @@ function setViewGeral()
                     onlineString = "<span class = 'text-success'><b>Online</b></span>"
                 else
                     onlineString = "<span class = 'text-danger'><b>Offline</b></span>"
-
                 if(userdata.alianca.lider == resultado[i].usuario.id)
                     stringCargo = "Líder"
+                else if(ranks != null && (isLider || userdata.alianca.rank.ranks_atribuir) && userdata.session.id != resultado[i].usuario.id)
+                {
+                    stringCargo = "<select class = 'select-att-cargo' data-membro-id = '"+resultado[i].usuario.id+"'><option value = 'null'>Sem Cargo</option>"
+                    for(var j = 0; j < ranks.length; j++)
+                    {
+                        stringCargo += '<option value = "'+ranks[j].id+'" '
+                        if( resultado[i].rank != null && resultado[i].rank.id == ranks[j].id)
+                            stringCargo += "selected"
+                        stringCargo += ">"+ranks[j].nome+"</option>"
+                    }
+                    stringCargo += "</select>"
+                }
                 else
                     stringCargo = (resultado[i].rank == null) ? "Sem Cargo" : resultado[i].rank.nome
                 
-                acoesString = "<button data-destinatario = '"+resultado[i].usuario.id+"' data-nome = '"+resultado[i].usuario.nome+"' class = 'btn btn-primary btn-sm btn-enviar-mensagem'><i class = 'fa fa-comment'></i></button>"
+                if(resultado[i].usuario.id != userdata.session.id)
+                    acoesString = "<button data-destinatario = '"+resultado[i].usuario.id+"' data-nome = '"+resultado[i].usuario.nome+"' class = 'btn btn-primary btn-sm btn-enviar-mensagem'><i class = 'fa fa-comment'></i></button>"
 
-                if(isLider || userdata.alianca.rank.expulsar)
-                    acoesString += '<button type = "button" data-id = "'+resultado[i].usuario.id+'" data-nome = "'+resultado[i].usuario.nome+'" class = "btn btn-danger btn-sm btn-expulsar-membro"><i class = "fa fa-times"></i></button>'
+                if((isLider || (userdata.alianca.rank != null && userdata.alianca.rank.expulsar)) && resultado[i].usuario.id != userdata.session.id)
+                    acoesString += '<button type = "button" data-id = "'+resultado[i].usuario.id+'" data-nome = "'+resultado[i].usuario.nick+'" class = "btn btn-danger btn-sm btn-expulsar-membro"><i class = "fa fa-times"></i></button>'
                 
                 htmlString += '<tr><td>'+resultado[i].usuario.nick+'</td><td>'+stringCargo+'</td><td>'+resultado[i].usuario.rank+'</td><td>'+banidoString+'</td><td>'+feriasString+'</td><td>'+onlineString+'</td><td>'+acoesString+'</td></tr>'
             }
@@ -260,7 +274,23 @@ function setViewGeral()
         },
     })
 }
-
+$(".tab-content").on('change', '.select-att-cargo', function() {
+    var params = {id : $(this).data('membro-id'), cargo : this.value}
+    console.log(params)
+    $.ajax({
+        url : 'alianca/atribuir-cargo',
+        method : 'POST',
+        data : params,
+        success : function()
+        {
+            GerarNotificacao("Cargo alterado com sucesso", 'success')
+        },
+        error : function(err)
+        {
+            GerarNotificacao(err.responseText, 'danger')
+        }
+    })
+})
 
 $(".tab-content").on('click', ".btn-enviar-mensagem", function() {
     AbrirModalEnviarMensagemPrivada($(this).data('destinatario'), $(this).data('nome'));

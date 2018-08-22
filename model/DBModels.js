@@ -579,7 +579,7 @@ const Alianca_Rank = con.define('alianca_ranks', {
     aliancaID : 
     {
         type: sequalize.INTEGER,
-        allowNull : true,
+        allowNull : false,
         references :
         {
             model : Alianca,
