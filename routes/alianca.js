@@ -440,6 +440,7 @@ router.post("/salvar-cargos", (req, res) => {
         res.status(400).end("Parâmetros inválidos")
     else
     {
+        params.dados = JSON.parse(params.dados)
         let permicoesPromisse = new Bluebird((resolve) => {
             models.Usuario_Participa_Alianca.findOne({where : {usuarioID : req.session.usuario.id}}).then(participa => {
                 if(!participa)
@@ -462,15 +463,110 @@ router.post("/salvar-cargos", (req, res) => {
         permicoesPromisse.then(permicao => {
             if(permicao)
             {
-                //continuar
+                models.Con.transaction().then(transacao => {
+                    let promessas = new Array();
+                    for(let i = 0; i < params.dados.length; i++)
+                    {
+                        promessas.push(new Bluebird((resolve, reject) => {
+                            params.dados[i].nome = sanitizer.escape(params.dados[i].nome)
+                            models.Alianca_Rank.update(params.dados[i], {where : {id : params.dados[i].id}, transaction : transacao}).then(() => resolve()).catch(() => reject())
+                        })) 
+                    }
+                    Bluebird.all(promessas).then(()=> 
+                        transacao.commit().then(() => res.status(200).end("Cargos salvos com sucesso"))
+                    ).catch(()=> {
+                        transacao.rollback()
+                        res.status(500).end("Erro ao salvar os cargos")
+                    })
+                })
             }
             else
                 res.status(403).end("Sem permições")
-            
-            
         }).catch(err => res.status(403).end(err.toString()))
     }
+})
 
+router.post('/criar-cargo', (req, res) => {
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else
+    {
+        var participaglobal;
+        let permicoesPromisse = new Bluebird((resolve) => {
+            models.Usuario_Participa_Alianca.findOne({where : {usuarioID : req.session.usuario.id}}).then(participa => {
+                if(!participa)
+                    resolve(false)
+                else
+                {
+                    participaglobal = participa
+                    models.Alianca.findOne({where : {id : participa.aliancaID}, attributes : ['id', 'lider']}).then(alianca =>
+                    {
+                        if(alianca.lider == req.session.usuario.id)
+                            resolve(true)
+                        else if(participa.rank == null)
+                            resolve(false)
+                        else
+                            models.Alianca_Rank.findOne({where : {id : participa.rank}, attributes : ['ranks-criar']}).then(rank => resolve(rank.dataValues.ranks-criar))
+                    })
+                }
+            })
+        })
+
+        permicoesPromisse.then(permicao => {
+            if(permicao)
+            {
+                models.Alianca_Rank.count({where : {aliancaID : participaglobal.aliancaID}}).then(contagem => {
+                    let nome = "Cargo " + String(contagem + 1)
+                    models.Alianca_Rank.create({aliancaID : participaglobal.aliancaID, nome : nome}).then(criado => res.status(200).json(criado.dataValues))
+                }).catch(() => {res.status(500).end("Erro ao criar cargo")})
+            }
+            else
+                res.status(403).end("Sem permições")    
+        })
+    }
+})
+
+router.post('/excluir-cargo', (req, res) => {
+    let params = req.body
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else if(!params.id)
+        res.status(400).end("Parâmetros inválidos")
+    else
+    {
+        var participaglobal
+        let permicoesPromisse = new Bluebird((resolve, reject) => {
+            models.Usuario_Participa_Alianca.findOne({where : {usuarioID : req.session.usuario.id}}).then(participa => {
+                if(!participa)
+                    reject("Operação inválida")
+                else
+                {
+                    participaglobal = participa
+                    models.Alianca.findOne({where : {id : participa.aliancaID}, attributes : ['id', 'lider']}).then(alianca =>
+                    {
+                        if(alianca.lider == req.session.usuario.id)
+                            resolve({lider: true})
+                        else if(participa.rank == null)
+                            reject("Operação inválida")
+                        else
+                        {
+                            models.Alianca_Rank.findOne({where : {id : participa.rank}, attributes : ['tratados', 'frota', 'exercito', 'movimento', 'ranks-criar', 'paginaInterna', 'paginaExterna']}).then(rank => {
+                                rank.dataValues.lider = false;
+                                resolve(rank.dataValues)
+                            })
+                        }
+                    })
+                }
+            })
+        })
+
+        permicoesPromisse.then(permicoes => {
+            if(permicoes)
+                models.Alianca_Rank.destroy({where : {id : params.id, aliancaID : participaglobal.aliancaID}}).then(() => res.status(200).end("Cargo excluido com sucesso"))
+            else
+                res.status(403).end("Sem permições")
+        }).catch(() => res.status(500).end("Houve um erro ao excluir o cargo"))
+    }
 })
 
 

@@ -112,6 +112,60 @@ function setViewAdministracao()
     })
 }
 
+
+
+$(".tab-content").on('click', '.btn-criar-cargo', function()
+{
+    var div = $(this).parent().find("tbody")
+    
+    $.ajax({
+        url : 'alianca/criar-cargo',
+        method : 'POST',
+        success : function(criado)
+        {
+            var htmlString = '<tr data-id = "'+criado.id+'"><td><input type "text" value = "'+criado.nome+'" name = "nome"></td>'
+            delete criado.id;
+            delete criado.aliancaID;
+            delete criado.nome
+            for(var chave in criado)
+            {
+                htmlString += "<td><input name = '"+chave+"' type = 'checkbox'"
+                if(criado[chave] == true)
+                    htmlString += "checked"
+                htmlString += "></td>"
+            }
+            htmlString += "<td><button type = 'button' class = 'btn btn-danger btn-excluir-cargo'><i class = 'fa fa-times'></i></button></td>"
+            htmlString +="</tr>"
+            div.append(htmlString)
+            GerarNotificacao("Cargo criado", 'success');
+        },
+        error : function(err)
+        {
+            GerarNotificacao(err.responseText, 'danger')
+        },
+    })
+})
+
+$(".tab-content").on('click', '.btn-excluir-cargo', function()
+{
+    var linha = $(this).parent().parent()
+    $.ajax({
+        url : 'alianca/excluir-cargo',
+        method : 'POST',
+        data : {id : linha.data('id')},
+        success : function(criado)
+        {
+            linha.remove()
+            GerarNotificacao("Cargo removido com sucesso", 'success');
+        },
+        error : function(err)
+        {
+            GerarNotificacao(err.responseText, 'danger')
+        },
+    })
+})
+
+
 $(".tab-content").on('click', '.salvar-cargos', function()
 {
     var div = $(this).parent()
@@ -126,10 +180,10 @@ $(".tab-content").on('click', '.salvar-cargos', function()
     $.ajax({
         url : 'alianca/salvar-cargos',
         method : 'POST',
-        data : {dados : params},
+        data : {dados :  JSON.stringify(params)},
         success : function()
         {
-            GerarNotificacao("Cargos salvos com sucesso");
+            GerarNotificacao("Cargos salvos com sucesso", 'success');
         },
         error : function(err)
         {
