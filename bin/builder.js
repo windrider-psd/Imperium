@@ -1,5 +1,5 @@
-var builder = require('./../model/DBModelsBuilder')
-var models = require("./../model/DBModels")
+const builder = require('./../model/DBModelsBuilder')
+const models = require("./../model/DBModels")
 const yargs = require('yargs').argv
 
 var forca = yargs.force ? yargs.force : true

@@ -1,8 +1,6 @@
 const ip = require('ip')
 const socketio = require('socket.io')
-var sessaosocket = require('express-socket.io-session')
-var Bluebird = require('bluebird')
-
+const sessaosocket = require('express-socket.io-session')
 /**
  * @type {Array.<Array.<SocketIO.Socket>>}
  */

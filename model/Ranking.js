@@ -1,5 +1,5 @@
-var models = require('./DBModels')
-var Bluebird = require('bluebird');
+const models = require('./DBModels')
+const Bluebird = require('bluebird');
 /**
  * @typedef TRecursos
  * @property {number} [ferro]
@@ -35,7 +35,7 @@ var Bluebird = require('bluebird');
 /**
  * @type {TTipoPontos}
  */
-var TipoPontos = Object.freeze({"pontosMilitar" : "pontosMilitar", "pontosEconomia" : "pontosEconomia", "pontosPesquisa": "pontosPesquisa"});
+const TipoPontos = Object.freeze({"pontosMilitar" : "pontosMilitar", "pontosEconomia" : "pontosEconomia", "pontosPesquisa": "pontosPesquisa"});
 
 /**
  * @type {number}

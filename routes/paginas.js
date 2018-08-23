@@ -3,7 +3,7 @@ var router = express.Router();
 const models = require('./../model/DBModels')
 const MUtils = require('./../model/DBModelsUtils')
 const ranking = require('./../model/Ranking');
-var Bluebird = require("bluebird");
+const Bluebird = require("bluebird");
 require('dotenv/config')
 /**
  * @param {Request} req O objeto de requisição do express

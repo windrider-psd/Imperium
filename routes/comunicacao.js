@@ -3,7 +3,7 @@ var router = express.Router();
 const models = require('./../model/DBModels')
 const sanitizer = require("sanitizer")
 const io = require('./../model/io')
-var Bluebird = require('bluebird');
+const Bluebird = require('bluebird');
 require('dotenv/config')
 
 router.post('/enviar-mensagem-privada', (req, res) =>

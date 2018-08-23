@@ -4,18 +4,18 @@
  * Module dependencies.
  */
 
-var debug = require('debug')('jogo:server');
-var http = require('http');
+const debug = require('debug')('jogo:server');
+const http = require('http');
 const Croner = require('./../model/Croner');
-var io = require('./../model/io');
+const io = require('./../model/io');
 const yargs = require('yargs').argv
-var session = require('express-session')
-var RedisStore = require('connect-redis')(session);
-var redis = require('redis').createClient({host : 'localhost', port : 6379});
+const session = require('express-session')
+const RedisStore = require('connect-redis')(session);
+const redis = require('redis').createClient({host : 'localhost', port : 6379});
 
 const portaServidoIO = (yargs.ioPort) ? yargs.ioPort : 2000;
-var armazenadorSessao = new RedisStore({host : 'localhost', port : 6379, client : redis})
-var sessaomiddleware = session({
+const armazenadorSessao = new RedisStore({host : 'localhost', port : 6379, client : redis})
+const sessaomiddleware = session({
   store : armazenadorSessao,
   resave: true,
   saveUninitialized : false, 

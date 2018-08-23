@@ -4,14 +4,53 @@ const models = require('./../model/DBModels')
 const sanitizer = require("sanitizer")
 const io = require('./../model/io')
 const ranking = require('./../model/Ranking')
-var Bluebird = require('bluebird');
+const Bluebird = require('bluebird');
 const formatoSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/ //Sem espaço
 const formatoSpecial2 = /[ !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/ //Com espaço
-
 require('dotenv/config')
 
+
 /**
- * 
+ * @param {Express.Request} req Requisição http (http.IncomingMessage)
+ * @returns {Bluebird.<Object>}
+ */
+function getParticipacao(req)
+{
+    return new Bluebird((resolve, reject) => {
+        if(!req.session.usuario)
+            reject("Usuário não encontrado")
+        else
+        {
+            models.Usuario_Participa_Alianca.findOne({where : {usuarioID : req.session.usuario.id}}).then(participa => {
+                if(!participa)
+                    reject("Sem aliança")
+                else
+                {
+                    models.Alianca.findOne({where : {id : participa.aliancaID}, attributes : ['id', 'lider']}).then(alianca =>
+                    {
+                        let retorno = participa.dataValues;
+                        if(participa.rank == null)
+                        {
+                            retorno.rank = {lider : alianca.lider == req.session.usuario.id}
+                            resolve(retorno)
+                        }
+                        else
+                        {
+                            models.Alianca_Rank.findOne({where : {id : participa.rank}}).then(rank => {
+                                rank.dataValues.lider = alianca.lider == req.session.usuario.id
+                                retorno.rank = rank.dataValues
+                                resolve(retorno)
+                            })
+                        }
+                    })
+                }
+            })
+        }
+    })
+}
+
+
+/** 
  * @param {number} aliancaID O id da aliança
  * @description Retorna todas as aplicações de uma aliança com o nome dos usuários aplicados
  * @returns {Bluebird.<Object>}
@@ -225,32 +264,13 @@ router.get('/getAplicacoes', (req, res) => {
         res.status(403).end("Operação inválida")
     else
     {
-        models.Usuario_Participa_Alianca.findOne({where : {usuarioID : req.session.usuario.id}}).then(participa => {
-            if(!participa)
-                res.status(400).end("É necessário participar de uma aliança")
+
+        getParticipacao(req).then(participacao => {
+            if(participacao.rank.lider || participacao.rank.ver_aplicacoes)
+                getAplicacoes(participacao.aliancaID).then(aplicacoes => res.status(200).json(aplicacoes)).catch(() => res.status(500).end("Houve um erro no servidor"))
             else
-            {
-                if(participa.rank == null)
-                {
-                    models.Alianca.findOne({where : {id : participa.aliancaID}, attributes : ['id', 'lider']}).then(alianca => {
-                        if(alianca.lider != req.session.usuario.id)
-                            res.status(403).end("Operação inválida")
-                        else
-                            getAplicacoes(participa.aliancaID).then(aplicacoes => res.status(200).json(aplicacoes)).catch(() => res.status(500).end("Houve um erro no servidor"))
-                    })
-                }
-                else
-                {
-                    models.Alianca_Rank.findOne({where : {id : participa.rank}, attributes : ['id', 'ver_aplicacoes']}).then(rank => {
-                        if(rank.ver_aplicacoes === true)
-                            getAplicacoes(participa.aliancaID).then(aplicacoes => res.status(200).json(aplicacoes)).catch(() => res.status(500).end("Houve um erro no servidor"))
-                        else
-                            res.status(403).end("Operação inválida")
-                    })
-                }
-                    
-            }
-        })
+                res.status(400).end("Operação inválida")
+        }).catch(err => res.status(400).end(err.toString()))
     }
 })
 
@@ -269,41 +289,19 @@ router.post('/aceitar-aplicacao', (req, res) => {
     {
         params.valor = params.valor == "1" || params.valor == "true"
 
-        models.Alianca_Aplicacao.findOne({where : {usuarioID : params.usuario}}).then(aplicacao => {
-            if(!aplicacao)
-                res.status(400).end("Aplicação não encontrada")
-            else
+        getParticipacao(req).then(participacao => {
+            if(participacao.rank.lider || participacao.rank.aceitar_aplicacao)
             {
-                models.Usuario_Participa_Alianca.findOne({where : {usuarioID : req.session.usuario.id}}).then(participa => {
-                    if(!participa)
-                        res.status(403).end("Operação inválida")
-                    else if(participa.aliancaID != aplicacao.aliancaID)
-                        res.status(403).end("Operação inválida")
+                models.Alianca_Aplicacao.findOne({where : {usuarioID : params.usuario, aliancaID : participacao.aliancaID}}).then(aplicacao => {
+                    if(!aplicacao)
+                        res.status(400).end("Aplicação não encontrada")
                     else
-                    {
-                        if(participa.rank == null)
-                        {
-                            models.Alianca.findOne({where : {id : participa.aliancaID}, attributes : ['id', 'lider']}).then(alianca => {
-                                if(alianca.lider != req.session.usuario.id)
-                                    res.status(403).end("Operação inválida")
-                                else
-                                    setAceitacaoAplicacao(aplicacao.usuarioID, aplicacao.aliancaID, params.valor).then(() => res.status(200).end("Aplicação tratada com sucesso")).catch(() => res.status(500).end("Houve um erro no servidor"))
-                            })
-                        }
-                        else
-                        {
-                            models.Alianca_Rank.findOne({where : {id : participa.rank}, attributes : ['id', 'aceitar_aplicacoes']}).then(rank => {
-                                if(rank.aceitar_aplicacoes === true)
-                                    setAceitacaoAplicacao(aplicacao.usuarioID, aplicacao.aliancaID, params.valor).then(() => res.status(200).end("Aplicação tratada com sucesso")).catch(() => res.status(500).end("Houve um erro no servidor"))
-                                else
-                                    res.status(403).end("Operação inválida")
-                            })
-                        }
-                            
-                    }
+                        setAceitacaoAplicacao(aplicacao.usuarioID, aplicacao.aliancaID, params.valor).then(() => res.status(200).end("Aplicação tratada com sucesso")).catch(() => res.status(500).end("Houve um erro no servidor"))
                 })
             }
-        })
+            else
+                res.status(400).end("Operação inválida")
+        }).catch(err => res.status(400).end(err.toString()))
     }
 })
 
@@ -312,28 +310,9 @@ router.get('/getMembros', (req, res) => {
         res.status(403).end("Operação inválida")
     else
     {
-        let permicoes = new Bluebird((resolve, reject) => {
-            models.Usuario_Participa_Alianca.findOne({where : {usuarioID : req.session.usuario.id}}).then(participa => {
-                if(!participa)
-                    reject("É necessário participar de uma aliança")
-                else
-                {
-                    if(participa.rank == null)
-                    {
-                        models.Alianca.findOne({where : {id : participa.aliancaID}, attributes : ['id', 'lider']}).then(alianca => {
-                            let lider = alianca.lider == req.session.usuario.id
-                            resolve({participa : participa, online : lider, ranks_atribuir : lider})
-                        })
-                    }
-                    else
-                        models.Alianca_Rank.findOne({where : {id : participa.rank}, attributes : ['id', 'ver_aplicacoes', 'ranks_atribuir']}).then(rank => resolve({participa : participa, online: rank.online, ranks_atribuir : rank.ranks_atribuir}))
-                }
-            })
-        })
-
-        permicoes.then(permicao => {
-            let participa = permicao.participa
-            models.Usuario_Participa_Alianca.findAll({where : {aliancaID : participa.aliancaID}, attributes: ['usuarioID', 'rank']}).then(participacoes => {
+        getParticipacao(req).then(participacao => {
+            let permicao = participacao.rank
+            models.Usuario_Participa_Alianca.findAll({where : {aliancaID : participacao.aliancaID}, attributes: ['usuarioID', 'rank']}).then(participacoes => {
                 let promessasAll = new Array();
                 for(let i = 0; i < participacoes.length; i++)
                 {
@@ -361,17 +340,16 @@ router.get('/getMembros', (req, res) => {
                 }
                 Bluebird.all(promessasAll).then(resultado => { //Array de [usuario, rank]
                     let retorno = {resultado : new Array()}
-                    //let retorno = new Array();
                     for(let i = 0; i < resultado.length; i++)
                     {
                         let respush = {usuario : resultado[i][0], rank : resultado[i][1]};
-                        if(permicao.online)
+                        if(permicao.lider || permicao.online)
                             respush.online = io.isOnline(resultado[i][0].id)
                         retorno.resultado.push(respush)
                     }
-                    if(permicao.ranks_atribuir)
+                    if(permicao.lider || permicao.ranks_atribuir)
                     {
-                        models.Alianca_Rank.findAll({where : {aliancaID: participa.aliancaID}, attributes : ['id', 'nome']}).then(ranks_alianca => {
+                        models.Alianca_Rank.findAll({where : {aliancaID: participacao.aliancaID}, attributes : ['id', 'nome']}).then(ranks_alianca => {
                             retorno.ranks = ranks_alianca
                             res.status(200).json(retorno)
                         })
@@ -380,7 +358,8 @@ router.get('/getMembros', (req, res) => {
                         res.status(200).json(retorno)
                 })
             })
-        }).catch(err => res.status(403).end(err.toString()))
+
+        }).catch(err => res.status(400).end(err.toString()))
     }
 })
 
@@ -389,45 +368,18 @@ router.get('/getAdministracao', (req, res) =>{
         res.status(403).end("Operação inválida")
     else
     {
-        var participaglobal
-        let permicoesPromisse = new Bluebird((resolve, reject) => {
-            models.Usuario_Participa_Alianca.findOne({where : {usuarioID : req.session.usuario.id}}).then(participa => {
-                if(!participa)
-                    reject("Operação inválida")
-                else
-                {
-                    participaglobal = participa
-                    models.Alianca.findOne({where : {id : participa.aliancaID}, attributes : ['id', 'lider']}).then(alianca =>
-                    {
-                        if(alianca.lider == req.session.usuario.id)
-                            resolve({lider: true})
-                        else if(participa.rank == null)
-                            reject("Operação inválida")
-                        else
-                        {
-                            models.Alianca_Rank.findOne({where : {id : participa.rank}}).then(rank => {
-                                rank.dataValues.lider = false;
-                                resolve(rank.dataValues)
-                            })
-                        }
-                    })
-                }
-            })
-        })
-
-        permicoesPromisse.then(permicoes => {
-            
+        getParticipacao(req).then(participacao => {
             let adminPromessas = new Array(); //[rank]
             adminPromessas.push(new Bluebird(resolve => {
-                if(permicoes.lider == true || permicoes.ranks_criar == true)
-                    models.Alianca_Rank.findAll({where : {aliancaID : participaglobal.aliancaID}}).then(ranks => resolve(ranks))
+                if(participacao.rank.lider == true || participacao.rank.ranks_criar == true)
+                    models.Alianca_Rank.findAll({where : {aliancaID : participacao.aliancaID}}).then(ranks => resolve(ranks))
                 else
                     resolve(null)
             }))
-
             Bluebird.all(adminPromessas).then(resultado => res.status(200).json(resultado))
             
-        }).catch(err => res.status(403).end(err.toString()))
+                
+        }).catch(err => res.status(400).end(err.toString()))
         
     }
 })
@@ -441,27 +393,9 @@ router.post("/salvar-cargos", (req, res) => {
     else
     {
         params.dados = JSON.parse(params.dados)
-        let permicoesPromisse = new Bluebird((resolve) => {
-            models.Usuario_Participa_Alianca.findOne({where : {usuarioID : req.session.usuario.id}}).then(participa => {
-                if(!participa)
-                    resolve(false)
-                else
-                {
-                    models.Alianca.findOne({where : {id : participa.aliancaID}, attributes : ['id', 'lider']}).then(alianca =>
-                    {
-                        if(alianca.lider == req.session.usuario.id)
-                            resolve(true)
-                        else if(participa.rank == null)
-                            resolve(false)
-                        else
-                            models.Alianca_Rank.findOne({where : {id : participa.rank}, attributes : ['ranks_criar']}).then(rank => resolve(rank.dataValues.ranks_criar))
-                    })
-                }
-            })
-        })
 
-        permicoesPromisse.then(permicao => {
-            if(permicao)
+        getParticipacao(req).then(participacao => {
+            if(participacao.rank.lider || participacao.rank.ranks_atribuir)
             {
                 models.Con.transaction().then(transacao => {
                     let promessas = new Array();
@@ -482,7 +416,7 @@ router.post("/salvar-cargos", (req, res) => {
             }
             else
                 res.status(403).end("Sem permições")
-        }).catch(err => res.status(403).end(err.toString()))
+        }).catch(err => res.status(400).end(err.toString()))
     }
 })
 
@@ -491,38 +425,17 @@ router.post('/criar-cargo', (req, res) => {
         res.status(403).end("Operação inválida")
     else
     {
-        var participaglobal;
-        let permicoesPromisse = new Bluebird((resolve) => {
-            models.Usuario_Participa_Alianca.findOne({where : {usuarioID : req.session.usuario.id}}).then(participa => {
-                if(!participa)
-                    resolve(false)
-                else
-                {
-                    participaglobal = participa
-                    models.Alianca.findOne({where : {id : participa.aliancaID}, attributes : ['id', 'lider']}).then(alianca =>
-                    {
-                        if(alianca.lider == req.session.usuario.id)
-                            resolve(true)
-                        else if(participa.rank == null)
-                            resolve(false)
-                        else
-                            models.Alianca_Rank.findOne({where : {id : participa.rank}, attributes : ['ranks_criar']}).then(rank => resolve(rank.dataValues.ranks_criar))
-                    })
-                }
-            })
-        })
-
-        permicoesPromisse.then(permicao => {
-            if(permicao)
+        getParticipacao(req).then(participacao => {
+            if(participacao.rank.lider || participacao.ranks_criar)
             {
-                models.Alianca_Rank.count({where : {aliancaID : participaglobal.aliancaID}}).then(contagem => {
+                models.Alianca_Rank.count({where : {aliancaID : participacao.aliancaID}}).then(contagem => {
                     let nome = "Cargo " + String(contagem + 1)
-                    models.Alianca_Rank.create({aliancaID : participaglobal.aliancaID, nome : nome}).then(criado => res.status(200).json(criado.dataValues))
+                    models.Alianca_Rank.create({aliancaID : participacao.aliancaID, nome : nome}).then(criado => res.status(200).json(criado.dataValues))
                 }).catch(() => {res.status(500).end("Erro ao criar cargo")})
             }
             else
-                res.status(403).end("Sem permições")    
-        })
+                res.status(403).end("Sem permições")
+        }).catch(err => res.status(400).end(err.toString()))
     }
 })
 
@@ -534,40 +447,15 @@ router.post('/excluir-cargo', (req, res) => {
         res.status(400).end("Parâmetros inválidos")
     else
     {
-        var participaglobal
-        let permicoesPromisse = new Bluebird((resolve, reject) => {
-            models.Usuario_Participa_Alianca.findOne({where : {usuarioID : req.session.usuario.id}}).then(participa => {
-                if(!participa)
-                    reject("Operação inválida")
-                else
-                {
-                    participaglobal = participa
-                    models.Alianca.findOne({where : {id : participa.aliancaID}, attributes : ['id', 'lider']}).then(alianca =>
-                    {
-                        if(alianca.lider == req.session.usuario.id)
-                            resolve({lider: true})
-                        else if(participa.rank == null)
-                            reject("Operação inválida")
-                        else
-                        {
-                            models.Alianca_Rank.findOne({where : {id : participa.rank}, attributes : ['tratados', 'frota', 'exercito', 'movimento', 'ranks_criar', 'paginaInterna', 'paginaExterna']}).then(rank => {
-                                rank.dataValues.lider = false;
-                                resolve(rank.dataValues)
-                            })
-                        }
-                    })
-                }
-            })
-        })
-
-        permicoesPromisse.then(permicoes => {
-            if(permicoes.lider || permicoes.ranks_criar)
-                models.Alianca_Rank.destroy({where : {id : params.id, aliancaID : participaglobal.aliancaID}}).then(() => res.status(200).end("Cargo excluido com sucesso"))
+        getParticipacao(req).then(participacao => {
+            if(participacao.rank.lider || participacao.ranks_criar)
+                models.Alianca_Rank.destroy({where : {id : params.id, aliancaID : participacao.aliancaID}}).then(() => res.status(200).end("Cargo excluido com sucesso"))
             else
                 res.status(403).end("Sem permições")
-        }).catch(() => res.status(500).end("Houve um erro ao excluir o cargo"))
+        }).catch(err => res.status(400).end(err.toString()))
     }
 })
+
 
 router.post('/atribuir-cargo', (req, res) => {
     let params = req.body
@@ -579,36 +467,11 @@ router.post('/atribuir-cargo', (req, res) => {
         res.status(400).end("Operaçã inválida")
     else
     {
-        var participaglobal
-        let permicoesPromisse = new Bluebird((resolve, reject) => {
-            models.Usuario_Participa_Alianca.findOne({where : {usuarioID : req.session.usuario.id}}).then(participa => {
-                if(!participa)
-                    reject("Operação inválida")
-                else
-                {
-                    participaglobal = participa
-                    models.Alianca.findOne({where : {id : participa.aliancaID}, attributes : ['id', 'lider']}).then(alianca =>
-                    {
-                        if(alianca.lider == req.session.usuario.id)
-                            resolve({lider: true})
-                        else if(participa.rank == null)
-                            reject("Operação inválida")
-                        else
-                        {
-                            models.Alianca_Rank.findOne({where : {id : participa.rank}, attributes : ['tratados', 'frota', 'exercito', 'movimento', 'ranks_criar', 'paginaInterna', 'paginaExterna']}).then(rank => {
-                                rank.dataValues.lider = false;
-                                resolve(rank.dataValues)
-                            })
-                        }
-                    })
-                }
-            })
-        })
-
-        permicoesPromisse.then(permicoes => {
-            if(permicoes.lider || permicoes.ranks-atribuir)
-            {   
-                models.Alianca.findOne({where : {id : participaglobal.aliancaID}}).then(alianca => {
+        getParticipacao(req).then(participacao => {
+            
+            if(participacao.rank.lider || participacao.rank.ranks_atribuir)
+            {
+                models.Alianca.findOne({where : {id : participacao.aliancaID}}).then(alianca => {
                     if(alianca.lider == params.id)
                         res.status(403).end("Operaçã inválida")
                     else if(params.cargo == 'null')
@@ -617,7 +480,7 @@ router.post('/atribuir-cargo', (req, res) => {
                     }
                     else
                     {
-                        models.Alianca_Rank.findOne({where : {id : params.cargo, aliancaID: participaglobal.aliancaID}}).then(rank => {
+                        models.Alianca_Rank.findOne({where : {id : params.cargo, aliancaID: participacao.aliancaID}}).then(rank => {
                             if(!rank)
                                 res.status(400).end("Operação inválida")
                             else
@@ -626,9 +489,10 @@ router.post('/atribuir-cargo', (req, res) => {
                     }
                 })
             }
+               
             else
                 res.status(403).end("Sem permições")
-        })
+        }).catch(err => res.status(400).end(err.toString()))
     }
 })
 

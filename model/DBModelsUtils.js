@@ -1,5 +1,5 @@
 const models = require('./DBModels');
-var BlueBird = require('bluebird');
+const BlueBird = require('bluebird');
 
 /**
  * @param {number} planetaID 

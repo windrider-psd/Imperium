@@ -274,9 +274,34 @@ function setViewGeral()
         },
     })
 }
+
+$(".tab-content").on('click', ".btn-expulsar-membro", function() {
+    var id = $(this).data('id')
+    var nome = $(this).data('nome')
+    var linha = $(this).parent().parent()
+    GerarConfirmacao("Tens certeza que desejas expulsar o membro "+nome+"?", function(){
+
+        $.ajax({
+            url : 'alianca/expulsar-membro',
+            method : 'POST',
+            data : {id : id, nome : nome},
+            success : function()
+            {
+                linha.remove();
+                GerarNotificacao("Membro expulso com sucesso", 'success')
+            },
+            error : function(err)
+            {
+                GerarNotificacao(err.responseText, 'danger')
+            }
+        })
+
+    })
+
+})
+
 $(".tab-content").on('change', '.select-att-cargo', function() {
     var params = {id : $(this).data('membro-id'), cargo : this.value}
-    console.log(params)
     $.ajax({
         url : 'alianca/atribuir-cargo',
         method : 'POST',

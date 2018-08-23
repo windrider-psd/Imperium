@@ -1,8 +1,8 @@
-var models = require('./DBModels');
-var cron = require('node-cron');
-var GR = require('./GerenciadorRecursos');
-var io = require('./io');
-var MUtils = require('./DBModelsUtils')
+const models = require('./DBModels');
+const cron = require('node-cron');
+const GR = require('./GerenciadorRecursos');
+const io = require('./io');
+const MUtils = require('./DBModelsUtils')
 const ranking = require('./Ranking')
 /**
  * @type {Array.<{planetaID : number, edificioID : number, timeout : NodeJS.Timer}>}
