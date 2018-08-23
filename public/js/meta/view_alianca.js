@@ -258,7 +258,7 @@ function setViewGeral()
                 if(resultado[i].usuario.id != userdata.session.id)
                     acoesString = "<button data-destinatario = '"+resultado[i].usuario.id+"' data-nome = '"+resultado[i].usuario.nome+"' class = 'btn btn-primary btn-sm btn-enviar-mensagem'><i class = 'fa fa-comment'></i></button>"
 
-                if((isLider || (userdata.alianca.rank != null && userdata.alianca.rank.expulsar)) && resultado[i].usuario.id != userdata.session.id)
+                if((isLider || (userdata.alianca.rank != null && userdata.alianca.rank.expulsar)) && resultado[i].usuario.id != userdata.session.id && resultado[i].usuario.id != userdata.alianca.lider)
                     acoesString += '<button type = "button" data-id = "'+resultado[i].usuario.id+'" data-nome = "'+resultado[i].usuario.nick+'" class = "btn btn-danger btn-sm btn-expulsar-membro"><i class = "fa fa-times"></i></button>'
                 
                 htmlString += '<tr><td>'+resultado[i].usuario.nick+'</td><td>'+stringCargo+'</td><td>'+resultado[i].usuario.rank+'</td><td>'+banidoString+'</td><td>'+feriasString+'</td><td>'+onlineString+'</td><td>'+acoesString+'</td></tr>'
@@ -280,14 +280,13 @@ $(".tab-content").on('click', ".btn-expulsar-membro", function() {
     var nome = $(this).data('nome')
     var linha = $(this).parent().parent()
     GerarConfirmacao("Tens certeza que desejas expulsar o membro "+nome+"?", function(){
-
         $.ajax({
             url : 'alianca/expulsar-membro',
             method : 'POST',
-            data : {id : id, nome : nome},
+            data : {id : id},
             success : function()
             {
-                linha.remove();
+                linha.remove()
                 GerarNotificacao("Membro expulso com sucesso", 'success')
             },
             error : function(err)
@@ -295,9 +294,7 @@ $(".tab-content").on('click', ".btn-expulsar-membro", function() {
                 GerarNotificacao(err.responseText, 'danger')
             }
         })
-
     })
-
 })
 
 $(".tab-content").on('change', '.select-att-cargo', function() {
@@ -362,7 +359,8 @@ function setViewAplicacoes(aplicacoes)
     for(var i = 0; i < aplicacoes.length; i++)
     {
         htmlString += '<div class = "table-responsive"><table class ="table table-striped"><tbody><tr><td>Nome:</td><td>'+aplicacoes[i].usuario.nick+'</td></tr><tr><td colspan="2">'+aplicacoes[i].texto+'</td></tr></table>'
-        htmlString += '<button class = "btn btn-success aceitar-btn" data-usuario = "'+aplicacoes[i].usuarioID+'" data-valor = "1">Aceitar</button><button class = "btn btn-danger aceitar-btn" data-usuario = "'+aplicacoes[i].usuarioID+'" data-valor = "0">Rejeitar</button></div><hr>'
+        if(userdata.alianca.lider == userdata.session.id || userdata.alianca.rank.aceitar_aplicacoes)
+            htmlString += '<button class = "btn btn-success aceitar-btn" data-usuario = "'+aplicacoes[i].usuarioID+'" data-valor = "1">Aceitar</button><button class = "btn btn-danger aceitar-btn" data-usuario = "'+aplicacoes[i].usuarioID+'" data-valor = "0">Rejeitar</button></div><hr>'
     }
     $(".tab-content").html(htmlString);
 }

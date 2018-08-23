@@ -233,7 +233,6 @@ router.post('/sair-alianca', (req, res) => {
     }
 })
 
-
 router.post('/aplicar-alianca', (req, res) => {
     /**
      * @type {{alianca : number, aplicacao : string}}
@@ -255,9 +254,6 @@ router.post('/cancelar-aplicacao', (req, res) => {
     else
         models.Alianca_Aplicacao.destroy({where : {usuarioID : req.session.usuario.id}}).then(() => res.status(200).end("Aplicação cancelada com sucesso")).catch(() => res.status(500).end("Houve um erro am remover a aplicação"))
 })
-
-
-
 
 router.get('/getAplicacoes', (req, res) => {
     if(!req.session.usuario)
@@ -290,7 +286,7 @@ router.post('/aceitar-aplicacao', (req, res) => {
         params.valor = params.valor == "1" || params.valor == "true"
 
         getParticipacao(req).then(participacao => {
-            if(participacao.rank.lider || participacao.rank.aceitar_aplicacao)
+            if(participacao.rank.lider || participacao.rank.aceitar_aplicacoes)
             {
                 models.Alianca_Aplicacao.findOne({where : {usuarioID : params.usuario, aliancaID : participacao.aliancaID}}).then(aplicacao => {
                     if(!aplicacao)
@@ -497,4 +493,30 @@ router.post('/atribuir-cargo', (req, res) => {
 })
 
 
+
+router.post('/expulsar-membro', (req, res) => {
+    let params = req.body
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else if(!params.id)
+        res.status(400).end("Parâmetros inválidos")
+    else if(!params.id == req.session.usuario.id)
+        res.status(400).end("Operaçã inválida")
+    else
+    {
+        getParticipacao(req).then(participacao => {
+            if(participacao.rank.lider || participacao.rank.expulsar)
+            {
+                models.Alianca.findOne({where : {id : participacao.aliancaID}}).then(alianca => {
+                    if(alianca.lider == params.id)
+                        res.status(403).end("Operaçã inválida")
+                    else
+                        models.Usuario_Participa_Alianca.destroy({where :{usuarioID : params.id, aliancaID : alianca.id}}).then(()  => res.status(200).end("Membro expulso")).catch(() => res.status(500).end('Houve um erro ao expulsar o jogador'))
+                })
+            }
+            else
+                res.status(403).end("Sem permições")
+        }).catch(err => res.status(400).end(err.toString()))
+    }
+})
 module.exports = router;
