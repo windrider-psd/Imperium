@@ -1,6 +1,8 @@
 extends templates/layout
 block titulo
   | !{alianca.nome}
+block posHead
+    link(rel="stylesheet", href="stylesheets/xbbcode.css")
 block content     
     .table-responsive
         table.table.table-striped#tabela-geral-alianca
@@ -15,7 +17,7 @@ block content
                     td Membros:
                     td.membros-contagem !{totalMembros}
                 tr
-                    td(colspan ="2") !{alianca.paginaExterna}
+                    td(colspan ="2").hidden#pagina-externa !{alianca.paginaExterna}
     -if(userdata.alianca == null && aplicacao == false)
         .row
             .col-md-offset-4.col-md-4.text-center
@@ -40,7 +42,15 @@ block content
     
     
 block posscripts
+    script(src = "js/xbbcode.js")
     script.
+        var resultExterna = XBBCODE.process({
+            text: $("#pagina-externa").text(),
+            removeMisalignedTags: false,
+            addInLineBreaks: false
+        });
+        $("#pagina-externa").html(resultExterna.html)
+        $("#pagina-externa").removeClass("hidden")
         var aliancaID = !{alianca.id}
         var aplicacaoTexto = "!{alianca.template_aplicacao}"
         $("#aplicacao-text").val(aplicacaoTexto)

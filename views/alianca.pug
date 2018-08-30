@@ -1,6 +1,10 @@
 extends templates/layout
 block titulo
   | Aliança
+
+block posHead
+  link(rel="stylesheet", href="js/sceditor/minified/themes/default.min.css")
+  link(rel="stylesheet", href="stylesheets/xbbcode.css")
 block content     
   .container-fluid
     .row
@@ -52,5 +56,9 @@ block content
   include includes/enviar-mensagem-privada
 
 block posscripts
-  script(src="js/meta/mensagens.js")
-  script(src="js/meta/view_alianca.js")
+  script(src = "js/xbbcode.js")
+  script(src = "js/sceditor/minified/sceditor.min.js")
+  script(src = "js/sceditor/languages/pt-BR.js")
+  script(src = "js/sceditor/minified/formats/bbcode.js")
+  script(src = "js/meta/mensagens.js")
+  script(src = "js/meta/view_alianca.js")

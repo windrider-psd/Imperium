@@ -28,6 +28,7 @@ html
           socket.emit('init', userdata.sessionID);
         });
     -}
+    block posHead
   body
     - if(typeof(userdata) !== 'undefined'){
         include ./../includes/navbar

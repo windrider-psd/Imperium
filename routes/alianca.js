@@ -495,6 +495,9 @@ router.post('/atribuir-cargo', (req, res) => {
 
 
 router.post('/expulsar-membro', (req, res) => {
+    /**
+     * @type {{id : number}}
+     */
     let params = req.body
     if(!req.session.usuario)
         res.status(403).end("Operação inválida")
@@ -517,6 +520,72 @@ router.post('/expulsar-membro', (req, res) => {
             else
                 res.status(403).end("Sem permições")
         }).catch(err => res.status(400).end(err.toString()))
+    }
+})
+
+router.post('/set-pagina-externa', (req, res) => {
+    /**
+     * @type {{bbcode : string}}
+     */
+    
+    let params = req.body
+    console.log(params)
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else if(typeof(params.bbcode) == 'undefined')
+        res.status(400).end("Parâmetros inválidos")
+    else
+    {
+        getParticipacao(req).then(participacao => {
+            if(participacao.rank.lider || participacao.rank.paginaExterna)
+            {
+
+                models.Alianca.update({paginaExterna : sanitizer.escape(params.bbcode)}, {where : {id : participacao.aliancaID}})
+                .then(() => 
+                    res.status(200).end("Página externa salva com sucesso")
+                )
+                .catch(err => 
+                    res.status(500).end(err.message)
+                )
+            }
+            else
+                res.status(403).end("Sem permições")
+        })
+        .catch(err => 
+            res.status(400).end(err.message))
+    }
+})
+
+
+router.post('/set-pagina-interna', (req, res) => {
+    /**
+     * @type {{bbcode : string}}
+     */
+    
+    let params = req.body
+    console.log(params)
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else if(typeof(params.bbcode) == 'undefined')
+        res.status(400).end("Parâmetros inválidos")
+    else
+    {
+        getParticipacao(req).then(participacao => {
+            if(participacao.rank.lider || participacao.rank.paginaInterna)
+            {
+                models.Alianca.update({paginaInterna : sanitizer.escape(params.bbcode)}, {where : {id : participacao.aliancaID}})
+                .then(() => 
+                    res.status(200).end("Página externa salva com sucesso")
+                )
+                .catch(err => 
+                    res.status(500).end(err.message)
+                )
+            }
+            else
+                res.status(403).end("Sem permições")
+        })
+        .catch(err => 
+            res.status(400).end(err.message))
     }
 })
 module.exports = router;

@@ -74,6 +74,27 @@ $("#btn-sair-alianca").on('click', function(){
     })
 });
 
+function CriarPaginaEditors()
+{
+    var elementos = $('.pagina-editor');
+    elementos.each(function(){
+        sceditor.create(this, {
+            format: 'bbcode',
+            style: 'js/sceditor/minified/themes/content/default.min.css',
+            emoticonsEnabled : false,
+            locale : 'pt-BR'
+        }); 
+    })
+}
+
+window.onresize = function(event) {
+    var elementos = $('.pagina-editor')
+    elementos.each(function(){
+        var editor = sceditor.instance(this)
+        editor.width("100%")
+    })
+};
+
 function setViewAdministracao()
 {
     $.ajax({
@@ -83,8 +104,11 @@ function setViewAdministracao()
         success : function(resposta)
         {
             var ranks = resposta[0]
+            var paginaInternaString = ''
+            var paginaExternaString = ''
+            var ranksString = ''
             if(ranks !== null){
-                ranksString = '<div class="table-responsive"><table class="table table-striped" id = "tabela-cargos"><thead><tr><th>nome</th><th>Ver Aplicações</th><th>Aceitar Aplicações</th><th>Expulsar</th><th>enviar mensagens circulares</th><th>ver online</th><th>tratados</th><th>Ver frota</th><th>Ver exército</th><th>ver movimento</th><th>Criar cargos</th><th>Atribuir cargos</th><th>Gerenciar Tabs (Fórum)</th><th>Gerenciar Topicos (fórum)</th><th>Editar Página Interna</th><th>Editar Página Interna</th><th>Excluir Cargo</th></tr></thead><tbody>'
+                ranksString = '<h4>Ranks</h4><div class="table-responsive"><table class="table table-striped" id = "tabela-cargos"><thead><tr><th>nome</th><th>Ver Aplicações</th><th>Aceitar Aplicações</th><th>Expulsar</th><th>enviar mensagens circulares</th><th>ver online</th><th>tratados</th><th>Ver frota</th><th>Ver exército</th><th>ver movimento</th><th>Criar cargos</th><th>Atribuir cargos</th><th>Gerenciar Tabs (Fórum)</th><th>Gerenciar Topicos (fórum)</th><th>Editar Página Interna</th><th>Editar Página Interna</th><th>Excluir Cargo</th></tr></thead><tbody>'
                 for(var i = 0; i < ranks.length; i++)
                 {
                     ranksString += '<tr data-id = "'+ranks[i].id+'"><td><input type "text" value = "'+ranks[i].nome+'" name = "nome"></td>'
@@ -101,9 +125,33 @@ function setViewAdministracao()
                     ranksString += "<td><button type = 'button' class = 'btn btn-danger btn-excluir-cargo'><i class = 'fa fa-times'></i></button></td>"
                     ranksString +="</tr>"
                 }
-                ranksString += "</tbody></table><button type = 'button' class = 'btn btn-primary salvar-cargos'>Salvar Alterações</button><button type = 'button' class = 'btn btn-success btn-criar-cargo'>Criar Cargo</button></div>"
-                $(".tab-content").html(ranksString)
             }
+            ranksString += "</tbody></table><button type = 'button' class = 'btn btn-primary salvar-cargos'>Salvar Alterações</button><button type = 'button' class = 'btn btn-success btn-criar-cargo'>Criar Cargo</button></div>"
+            if(isLider || (userdata.alianca.rank != null && userdata.alianca.rank.paginaInterna))
+            {
+                paginaInternaString = '<h4>Página Interna</h4><textarea class= "pagina-editor" id = "pagina-interna" style = "width:100%; height:230px"></textarea>'
+                + '<button class = "btn btn-success btn-salvar-pagina-interna">Salvar</button>'
+            }
+            if(isLider || (userdata.alianca.rank != null && userdata.alianca.rank.paginaExterna))
+            {
+                paginaExternaString = '<h4>Página Externa</h4><textarea class= "pagina-editor" id = "pagina-externa" style = "width:100%; height:230px"></textarea>'
+                + '<button class = "btn btn-success btn-salvar-pagina-externa">Salvar</button>'
+            }
+             
+
+            $(".tab-content").html(ranksString + paginaInternaString + paginaExternaString)
+            CriarPaginaEditors();
+            if($("#pagina-interna")[0] != null)
+            {
+                var instanciaInterna = sceditor.instance($("#pagina-interna")[0])
+                instanciaInterna.val(userdata.alianca.paginaInterna)
+            }
+            if($("#pagina-externa")[0] != null)
+            {
+                var instanciaExterna = sceditor.instance($("#pagina-externa")[0])
+                instanciaExterna.val(userdata.alianca.paginaExterna)
+            }
+            
         },
         error : function(err)
         {
@@ -112,8 +160,43 @@ function setViewAdministracao()
     })
 }
 
+$(".tab-content").on('click', '.btn-salvar-pagina-externa', function()
+{
+    var instancia = sceditor.instance($("#pagina-externa")[0]);
+    var bbcode = instancia.val();
+    $.ajax({
+        url : 'alianca/set-pagina-externa',
+        method : 'POST',
+        data : {bbcode : bbcode},
+        success : function()
+        {
+            GerarNotificacao("Página externa salva com sucesso", 'success');
+        },
+        error : function(err)
+        {
+            GerarNotificacao(err.responseText, 'danger')
+        },
+    })
+})
 
-
+$(".tab-content").on('click', '.btn-salvar-pagina-interna', function()
+{
+    var instancia = sceditor.instance($("#pagina-interna")[0]);
+    var bbcode = instancia.val();
+    $.ajax({
+        url : 'alianca/set-pagina-interna',
+        method : 'POST',
+        data : {bbcode : bbcode},
+        success : function()
+        {
+            GerarNotificacao("Página interna salva com sucesso", 'success');
+        },
+        error : function(err)
+        {
+            GerarNotificacao(err.responseText, 'danger')
+        },
+    })
+})
 $(".tab-content").on('click', '.btn-criar-cargo', function()
 {
     var div = $(this).parent().find("tbody")
@@ -124,8 +207,8 @@ $(".tab-content").on('click', '.btn-criar-cargo', function()
         success : function(criado)
         {
             var htmlString = '<tr data-id = "'+criado.id+'"><td><input type "text" value = "'+criado.nome+'" name = "nome"></td>'
-            delete criado.id;
-            delete criado.aliancaID;
+            delete criado.id
+            delete criado.aliancaID
             delete criado.nome
             for(var chave in criado)
             {
@@ -137,7 +220,7 @@ $(".tab-content").on('click', '.btn-criar-cargo', function()
             htmlString += "<td><button type = 'button' class = 'btn btn-danger btn-excluir-cargo'><i class = 'fa fa-times'></i></button></td>"
             htmlString +="</tr>"
             div.append(htmlString)
-            GerarNotificacao("Cargo criado", 'success');
+            GerarNotificacao("Cargo criado", 'success')
         },
         error : function(err)
         {
@@ -153,7 +236,7 @@ $(".tab-content").on('click', '.btn-excluir-cargo', function()
         url : 'alianca/excluir-cargo',
         method : 'POST',
         data : {id : linha.data('id')},
-        success : function(criado)
+        success : function()
         {
             linha.remove()
             GerarNotificacao("Cargo removido com sucesso", 'success');
@@ -264,6 +347,12 @@ function setViewGeral()
                 htmlString += '<tr><td>'+resultado[i].usuario.nick+'</td><td>'+stringCargo+'</td><td>'+resultado[i].usuario.rank+'</td><td>'+banidoString+'</td><td>'+feriasString+'</td><td>'+onlineString+'</td><td>'+acoesString+'</td></tr>'
             }
             htmlString +="</tbody></table></div>"
+            var htmlInterna = XBBCODE.process({
+                text: userdata.alianca.paginaInterna,
+                removeMisalignedTags: false,
+                addInLineBreaks: false
+            }).html;
+            htmlString += "<h4>Página Interna</h4><div>"+htmlInterna+"</div>"
             $(".tab-content").html(htmlString);
 
 
@@ -271,7 +360,7 @@ function setViewGeral()
         error : function(err)
         {
             GerarNotificacao(err.responseText, 'danger')
-        },
+        }
     })
 }
 
