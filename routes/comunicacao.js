@@ -16,7 +16,7 @@ router.post('/enviar-mensagem-privada', (req, res) =>
     res.status(403).end("Operação inválida")
   else if(!params.destinatario || !params.mensagem)
     res.status(400).end("Parâmetros inválidos")
-  else if(isNaN(params.destinatario) || typeof(params.mensagem) !== 'string' || typeof(params.assunto) !== 'string')
+  else if(isNaN(params.destinatario))
     res.status(400).end("Parâmetros inválidos")
   else if(params.destinatario == req.session.usuario.id || params.mensagem == '')
     res.status(400).end("Parâmetros inválidos")

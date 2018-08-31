@@ -24,7 +24,7 @@ CarregarTipo(undefined, 'pontosTotal', true);
 var total;
 var tipoAtual;
 const periodoPaginas = 10;
-
+const isLider = (userdata.alianca != null) ? userdata.session.id == userdata.alianca.lider : false
 /**
  * 
  * @param {number} pagina A página que será exibida
@@ -64,7 +64,17 @@ function CarregarTipo(pagina, tipo)
                     htmlString += "<td></td>"
 
                 if(usuarios[i].id != userdata.session.id)
-                    htmlString += "<td><button data-destinatario = '"+usuarios[i].id+"' data-nome = '"+usuarios[i].nome+"' class = 'btn btn-primary btn-sm btn-enviar-mensagem'><i class = 'fa fa-comment'></i></button></td>"
+                {
+                    htmlString += "<td><button data-destinatario = '"+usuarios[i].id+"' data-nome = '"+usuarios[i].nome+"' class = 'btn btn-primary btn-sm btn-enviar-mensagem'>"
+                        + "<i class = 'fa fa-comment'></i></button>"
+                    if(typeof(usuarios[i].alianca) === 'undefined' && (isLider || (userdata.alianca != null && userdata.alianca.rank != null && userdata.aliaca.rank.convidar == true)))
+                    {
+                        htmlString += "<button data-destinatario = '"+usuarios[i].id+"' data-nome = '"+usuarios[i].nome+"' class = 'btn btn-primary btn-sm btn-enviar-convite'>"
+                            + "<i class = 'fa fa-envelope-square'></i></button>"
+                    }
+                    htmlString += "</td>"
+                }
+                  
                 else
                     htmlString += "<td></td>"
                 
@@ -214,4 +224,8 @@ $(".paginacao").on('submit', '#form-paginacao-goto', function()
 
 $("#conteudo-ranking").on('click', ".btn-enviar-mensagem", function() {
     AbrirModalEnviarMensagemPrivada($(this).data('destinatario'), $(this).data('nome'));
+});
+
+$("#conteudo-ranking").on('click', ".btn-enviar-convite", function() {
+    AbrirModalEnviarConvite($(this).data('destinatario'), $(this).data('nome'));
 });

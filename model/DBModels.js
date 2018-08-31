@@ -444,7 +444,7 @@ const MensagemPrivada = con.define("Mensagem_Privada",{
         defaultValue : "Sem assunto",
         validate:
         {
-            max : Number(process.env.MESSAGE_SUBJECT_MAX_LENGTH)
+            len : [0, Number(process.env.MESSAGE_SUBJECT_MAX_LENGTH)]
         }
     },
     mensagem :
@@ -453,7 +453,7 @@ const MensagemPrivada = con.define("Mensagem_Privada",{
         allowNull : false,
         validate:
         {
-            max : Number(process.env.MESSAGE_CONTENT_MAX_LENGTH)
+            len : [0,Number(process.env.MESSAGE_CONTENT_MAX_LENGTH)]
         }
     },
     visualizada:
@@ -681,7 +681,13 @@ const Alianca_Rank = con.define('alianca_ranks', {
         type: sequalize.BOOLEAN,
         allowNull : false,
         defaultValue : false
-    }
+    },
+    convidar : //Convidar jogadores para a alianca
+    {
+        type: sequalize.BOOLEAN,
+        allowNull : false,
+        defaultValue : false
+    },
 
 }, {timestamps : false});
 
@@ -696,8 +702,7 @@ const Usuario_Participa_Alianca = con.define('usuario_participa_alianca', {
             key : 'id',
         },
         onDelete : "CASCADE",
-        unique : true,
-        primaryKey : true,
+        primaryKey : true
     },
     aliancaID:
     {
@@ -727,10 +732,53 @@ const Usuario_Participa_Alianca = con.define('usuario_participa_alianca', {
         type : sequalize.DATE,
         allowNull : false,
         defaultValue : sequalize.NOW
+    },
+    criacao :
+    {
+        type : sequalize.DATE,
+        defaultValue : sequalize.NOW,
+        allowNull : false
     }
 
 }, {timestamps : false});
 
+const Alianca_Convite = con.define('alianca_convite', {
+    usuarioID:
+    {
+        type: sequalize.INTEGER,
+        allowNull : false,
+        references :
+        {
+            model : Usuario,
+            key : 'id',
+        },
+        onDelete : "CASCADE",
+        unique : true,
+        primaryKey : true,
+    },
+    aliancaID:
+    {
+        type: sequalize.INTEGER,
+        allowNull : false,
+        references :
+        {
+            model : Alianca,
+            key : 'id',
+        },
+        primaryKey : true,
+        onDelete : "CASCADE",
+    },
+    mensagem :
+    {
+        type: sequalize.TEXT,
+        allowNull : false,
+        validate:
+        {
+            len : [0,Number(process.env.MESSAGE_CONTENT_MAX_LENGTH)]
+        }
+    },
+
+}, {timestamps : false})
 
 
 Usuario.hasOne(EsqueciSenha, {foreignKey : {name : "usuarioID", allowNull : false, primaryKey : true}, onDelete : "CASCADE"})
@@ -772,6 +820,7 @@ module.exports = {
     Planeta : Planeta,
     Construcao : Construcao, 
     Alianca_Aplicacao : Alianca_Aplicacao,
+    Alianca_Convite : Alianca_Convite,
     isReady : function(){return ready;}};
 
 con.authenticate().then(function()

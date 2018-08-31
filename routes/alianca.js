@@ -168,7 +168,12 @@ router.post('/criar-alianca', (req, res) =>
                         models.Con.transaction().then(transacao => {
                             models.Alianca.create({nome : nome, lider : req.session.usuario.id, tag : params.tag}, {transaction : transacao}).then((alianca) => {
                                 models.Usuario_Participa_Alianca.create({usuarioID : req.session.usuario.id, aliancaID : alianca.id, rank : null}, {transaction : transacao}).then(() =>
-                                    models.Alianca_Aplicacao.destroy({where : {usuarioID : req.session.usuario.id}, transaction : transacao}).then(() => transacao.commit().then(() => res.status(200).end("Aliança criada")))
+                                    models.Alianca_Aplicacao.destroy({where : {usuarioID : req.session.usuario.id}, transaction : transacao})
+                                        .then(() => {
+                                            models.Alianca_Convite.destroy({where : {usuarioID : req.session.usuario.id}})
+                                                .then(() => 
+                                                    transacao.commit().then(() => res.status(200).end("Aliança criada")))
+                                        })
                                 );
                             }).catch(() =>
                             {
@@ -580,6 +585,64 @@ router.post('/set-pagina-interna', (req, res) => {
                 .catch(err => 
                     res.status(500).end(err.message)
                 )
+            }
+            else
+                res.status(403).end("Sem permições")
+        })
+        .catch(err => 
+            res.status(400).end(err.message))
+    }
+})
+
+router.post('/enviar-convite', (req, res) => {
+    /**
+    * @type {{destinatario: number, mensagem : string}}
+    */
+    let params = req.body;
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else if(!params.destinatario || !params.mensagem)
+        res.status(400).end("Parâmetros inválidos")
+    else if(isNaN(params.destinatario))
+        res.status(400).end("Parâmetros inválidos")
+    else if(params.destinatario == req.session.usuario.id || params.mensagem == '')
+        res.status(400).end("Parâmetros inválidos")
+    else if(params.mensagem.length > Number(process.env.MESSAGE_CONTENT_MAX_LENGTH))
+        res.status(400).end("Mensagem muito longa")
+    else
+    {
+        getParticipacao(req).then(participacao => {
+            if(participacao.rank.lider || participacao.rank.convidar)
+            {
+                models.Usuario_Participa_Alianca.findOne({where : {usuarioID : params.destinatario}})
+                    .then(destinatario_participa => {
+                        if(!destinatario_participa)
+                        {
+                            models.Con.transaction()
+                                .then(transacao => {
+                                    models.Alianca_Convite.destroy({where: {usuarioID : Number(params.destinatario)}, transaction : transacao})
+                                        .then(() => {
+                                            models.Alianca_Convite.create({usuarioID : Number(params.destinatario), aliancaID : participacao.aliancaID, mensagem : sanitizer.escape(params.mensagem)}, {transaction : transacao})
+                                                .then(() => {
+                                                    transacao.commit().then(() => res.status(200).end("Convite enviado com sucesso"))
+                                                }).catch((err) => {
+                                                    transacao.rollback()
+                                                    res.status(500).end(err.message)
+                                                })
+                                        })
+                                        .catch((err) => {
+                                            transacao.rollback()
+                                            res.status(500).end(err.message)
+                                        })
+                                })
+                                .catch(err => res.status(500).end(err.message))
+                        }
+                        else
+                            res.status(400).end("Destinatário inválido")
+                    })
+                    .catch((err) => 
+                        res.status(500).end(err.message)    
+                    )
             }
             else
                 res.status(403).end("Sem permições")

@@ -147,6 +147,7 @@ class DBBuilder {
                         models.Usuario_Participa_Alianca.sync({force : force});        
                     })
                     models.Alianca_Aplicacao.sync({force: force});
+                    models.Alianca_Convite.sync({force: force});
                 })
                 models.MensagemPrivada.sync({force : force})
                 models.EsqeciSenha.sync({force : force})
