@@ -118,8 +118,10 @@ function setAceitacaoAplicacao(usuario, alianca, aceito)
             if(aceito)
             {
                 models.Usuario_Participa_Alianca.create({usuarioID : usuario, aliancaID : alianca}, {transaction : transacao}).then(() => {
-                    models.Alianca_Aplicacao.destroy({where : {usuarioID : usuario}, transaction : transacao}).then(() => {
-                        transacao.commit().then(() => resolve(true));
+                    models.Alianca_Convite.destroy({where : {usuarioID : usuario}, transaction : transacao}).then(() => {
+                        models.Alianca_Aplicacao.destroy({where : {usuarioID : usuario}, transaction : transacao}).then(() => {
+                            transacao.commit().then(() => resolve(true));
+                        })
                     })
                 }).catch(err => {
                     transacao.rollback()
@@ -651,4 +653,111 @@ router.post('/enviar-convite', (req, res) => {
             res.status(400).end(err.message))
     }
 })
+
+
+router.get('/getConvites', (req, res) => {
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else
+    {
+        models.Alianca_Convite.findAll({where : {usuarioID : req.session.usuario.id}})
+            .then(convites => {
+                /**
+                 * @type {Array.<Bluebird<{aliancaID : number, aliancaNome : string, aliancaTag : string, mensagem : string}>>}
+                 */
+                let promessas = new Array();
+
+                for(let i = 0; i < convites.length; i++)
+                {
+                    promessas.push(new Bluebird((resolve, reject) => {
+                        let convite = convites[i];
+                        models.Alianca.findOne({where :{id : convite.aliancaID}, attributes : ['nome', 'tag']})
+                            .then(alianca => {
+                                resolve({aliancaID : convite.aliancaID, aliancaNome : alianca.nome, aliancaTag : alianca.tag, mensagem : convite.mensagem});
+                            })
+                            .catch(err => 
+                                reject(err)
+                            )
+                    }))
+                
+                }
+                Bluebird.all(promessas)
+                    .then(resultado =>
+                        res.status(200).json(resultado)
+                    )
+                    .catch(err =>
+                        res.status(500).end(err.message)
+                    )
+            })
+            .catch(err =>
+                res.status(500).end(err.message)
+            )
+    }
+})
+
+
+router.post('/aceitar-convite', (req, res) => {
+    /**
+    * @type {{valor: number, aliancaID : number}}
+    */
+    let params = req.body;
+    console.log(params)
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else if(!params.valor || !params.aliancaID)
+        res.status(400).end("Parâmetros inválidos")
+    else
+    {
+        models.Usuario_Participa_Alianca.findOne({where : {usuarioID : req.session.usuario.id}, attributes : ['usuarioID']})
+            .then(participacao =>{
+                if(participacao)
+                    res.status(400).end("Não pode participar de uma aliança")
+                else
+                {
+                    models.Alianca_Convite.findOne({where : {usuarioID : req.session.usuario.id, aliancaID : params.aliancaID}})
+                        .then(convite => {
+                            if(convite)
+                            {
+                                models.Con.transaction()
+                                    .then(transacao => {
+                                        if(params.valor == 1) //Aceitar convite
+                                            models.Alianca_Convite.destroy({where : {usuarioID : req.session.usuario.id}, transaction : transacao})
+                                                .then(() => {
+                                                    models.Usuario_Participa_Alianca.create({usuarioID : req.session.usuario.id, aliancaID : params.aliancaID}, {transaction : transacao})
+                                                        .then(() => {
+                                                            models.Alianca_Aplicacao.destroy({where : {usuarioID : req.session.usuario.id}, transaction : transacao})
+                                                                .then(() => {
+                                                                    transacao.commit().then(() => res.status(200).end("Convite aceito"))
+                                                                })
+                                                        })
+                                                })
+                                                .catch(err => {
+                                                    transacao.rollback();
+                                                    res.status(500).end(err.message)
+                                                })
+                                        else //Recusar convite
+                                        {
+                                            models.Alianca_Convite.destroy({where : {usuarioID : req.session.usuario.id, aliancaID : params.aliancaID}, transaction : transacao})
+                                                .then(() => {
+                                                    transacao.commit().then(() => res.status(200).end("Convite recusado"))
+                                                })
+                                                .catch(err => {
+                                                    transacao.rollback()
+                                                    res.status(500).end(err.message)
+                                                })
+                                        }
+                                    })
+                            }
+                            else
+                                res.status(400).end("Convite não existe")
+                        })
+                }
+            })
+            .catch(err => 
+                res.status(500).end(err.message)
+            )
+    }
+})
+
+
 module.exports = router;

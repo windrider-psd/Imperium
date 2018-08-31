@@ -65,11 +65,11 @@ function CarregarTipo(pagina, tipo)
 
                 if(usuarios[i].id != userdata.session.id)
                 {
-                    htmlString += "<td><button data-destinatario = '"+usuarios[i].id+"' data-nome = '"+usuarios[i].nome+"' class = 'btn btn-primary btn-sm btn-enviar-mensagem'>"
+                    htmlString += "<td><button data-destinatario = '"+usuarios[i].id+"' data-nome = '"+usuarios[i].nome+"' class = 'btn btn-primary btn-sm btn-enviar-mensagem' title = 'Enviar mensagem'>"
                         + "<i class = 'fa fa-comment'></i></button>"
                     if(typeof(usuarios[i].alianca) === 'undefined' && (isLider || (userdata.alianca != null && userdata.alianca.rank != null && userdata.aliaca.rank.convidar == true)))
                     {
-                        htmlString += "<button data-destinatario = '"+usuarios[i].id+"' data-nome = '"+usuarios[i].nome+"' class = 'btn btn-primary btn-sm btn-enviar-convite'>"
+                        htmlString += "<button data-destinatario = '"+usuarios[i].id+"' data-nome = '"+usuarios[i].nome+"' class = 'btn btn-primary btn-sm btn-enviar-convite' title = 'Enviar convite de aliança'>"
                             + "<i class = 'fa fa-envelope-square'></i></button>"
                     }
                     htmlString += "</td>"
