@@ -857,5 +857,60 @@ router.post('/excluir-alianca', (req, res) =>
     }
 })
 
-
+router.post('/renomear-alianca', (req, res) => {
+    /**
+     * @type {{nome : string, tag : string}}
+     */
+    let params = req.body;
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else if(!params.nome || !params.tag)
+        res.status(400).end("Parâmetros inválidos")
+    else if(formatoSpecial.test(params.nome) || formatoSpecial2.test(params.tag))
+        res.status(400).end("Parâmetros inválidos")
+    else
+    {
+        getParticipacao(req)
+            .then(participacao => {
+                if(participacao.rank.lider)
+                {
+                    models.Alianca.findOne({
+                    where : 
+                    {
+                        id : {$not : participacao.aliancaID},
+                        $or :{
+                            nome : params.nome,
+                            tag : params.tag
+                        }
+                    },
+                    attributes : ['nome', 'tag']
+                    })
+                        .then(alianca => {
+                            if(!alianca)
+                            {
+                                models.Alianca.update({nome : params.nome, tag : params.tag},{where : {id : participacao.aliancaID}})
+                                    .then(() => 
+                                        res.status(200).end("Aliança renomeada")
+                                    )
+                                    .catch(err => 
+                                        res.status(500).end(err.message)
+                                    )
+                            }
+                            else if(alianca.nome.toLowerCase() == params.nome.toLowerCase())
+                                res.status(400).end("Nome já existe")
+                            else if(alianca.tag.toLowerCase() == params.tag.toLowerCase())
+                                res.status(400).end("TAG já existe")
+                            else
+                                res.status(500).end("Erro ao renomear a aliança")
+                        })
+                }
+                else
+                    res.status(403).end("Sem permição")
+            })
+            .catch(err =>
+                res.status(400).end(err.message)
+            )
+        
+    }
+})
 module.exports = router;

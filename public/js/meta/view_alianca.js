@@ -143,7 +143,7 @@ $(document).ready(function (){
                 
                 if(isLider)
                 {
-                    confString += '<h4>Renomear</h4><form onsubmit="return false" id="form-renomear-alianca"> <div class="form-group"> <label for="nome">Nome da aliança:</label> <input class="form-control" type="text" name="nome" placeholder="Digite o nome da aliança que será criada" required="required"/> </div><div class="form-group"> <label for="tag">Tag da aliança:</label> <input class="form-control" type="text" name="tag" placeholder="Digite o tag da aliança que será criada" required="required"/> </div><div class="row"> <div class="col-md-offset-3 col-md-6 text-center"> <button class="btn btn-primary btn-lg btn-block" type="submit">Renomear</button> </div></div></form>'
+                    confString += '<h4>Renomear</h4><form onsubmit="return false" id="form-renomear-alianca"> <div class="form-group"> <label for="nome">Nome da aliança:</label> <input class="form-control" type="text" name="nome" placeholder="Digite o nome da aliança" required="required" value = "'+userdata.alianca.nome+'"/> </div><div class="form-group"> <label for="tag">Tag da aliança:</label> <input class="form-control" type="text" name="tag" placeholder="Digite o tag da aliança" value = "'+userdata.alianca.tag+'" required="required"/> </div><div class="row"> <div class="col-md-offset-3 col-md-6 text-center"> <button class="btn btn-primary btn-lg btn-block" type="submit">Renomear</button> </div></div></form>'
                     confString += '<h4>Sucessor</h4>'
                     confString += '<h4>Excluir Aliança</h4><div class="row"> <div class="col-md-offset-3 col-md-6 text-center"><button class = "btn btn-danger btn-lg" id = "btn-excluir-alianca">Excluir aliança</button></div></div>'
                 }
@@ -185,6 +185,23 @@ $(document).ready(function (){
             })
         })
         
+    })
+    $("#tab-content-alianca").on('submit', "#form-renomear-alianca", function()
+    {
+        let params = FormToAssocArray($(this))
+        $.ajax({
+            url : 'alianca/renomear-alianca',
+            method : 'POST',
+            data : params,
+            success : function()
+            {
+                GerarNotificacao("Alianca renomeada com sucesso", 'success')
+            },
+            error : function(err)
+            {
+                GerarNotificacao(err.responseText, 'danger')
+            },
+        })
     })
 
     $("#tab-content-alianca").on('click', '.btn-salvar-pagina-externa', function()
