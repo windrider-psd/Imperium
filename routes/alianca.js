@@ -373,57 +373,6 @@ router.get('/getMembros', (req, res) => {
             })
         }) 
     }
-
-            /*models.Usuario_Participa_Alianca.findAll({where : {aliancaID : participacao.aliancaID}, attributes: ['usuarioID', 'rank']}).then(participacoes => {
-                let promessasAll = new Array();
-                for(let i = 0; i < participacoes.length; i++)
-                {
-                    promessasAll.push(new Bluebird(resolve => {
-                        let participap = participacoes[i];
-                        let promossasParticipa = new Array();
-                        promossasParticipa.push(new Bluebird(resolvep => {
-                            models.Usuario.findOne({where : {id : participap.usuarioID}, attributes : ['id', 'nick', 'ferias', 'banido']}).then(usuario => {
-                                ranking.GetRankingUsuario(usuario.id).then(rankusuario => {
-                                    usuario.dataValues.rank = rankusuario
-                                    resolvep(usuario.dataValues)
-                                })
-                            })
-                        }))
-                        promossasParticipa.push(new Bluebird(resolvep => {
-                            if(participap.rank == null)
-                                resolvep(null)
-                            else
-                                models.Alianca_Rank.findOne({where : {id : participap.rank}, attributes : ['id', 'nome']}).then(rank => resolvep(rank))
-                        }))
-                        Bluebird.all(promossasParticipa).then(resultado => {
-                            resolve(resultado);
-                        })
-                    }))
-                }
-
-                Bluebird.all(promessasAll).then(resultado => { //Array de [usuario, rank]
-                    let retorno = {resultado : new Array()}
-                    for(let i = 0; i < resultado.length; i++)
-                    {
-                        let respush = {usuario : resultado[i][0], rank : resultado[i][1]};
-                        if(permicao.lider || permicao.online)
-                            respush.online = io.isOnline(resultado[i][0].id)
-                        retorno.resultado.push(respush)
-                    }
-                    if(permicao.lider || permicao.ranks_atribuir)
-                    {
-                        models.Alianca_Rank.findAll({where : {aliancaID: participacao.aliancaID}, attributes : ['id', 'nome']}).then(ranks_alianca => {
-                            retorno.ranks = ranks_alianca
-                            res.status(200).json(retorno)
-                        })
-                    }
-                    else
-                        res.status(200).json(retorno)
-                })
-            })
-
-        }).catch(err => res.status(400).end(err.toString()))
-    }*/
 })
 
 router.get('/getAdministracao', (req, res) =>{
@@ -910,7 +859,62 @@ router.post('/renomear-alianca', (req, res) => {
             .catch(err =>
                 res.status(400).end(err.message)
             )
-        
     }
 })
+
+router.post('/set-sucessor', (req, res) =>{
+    /**
+     * @type {{sucessor : number}}
+     */
+    let params = req.body;
+    console.log(params)
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else if(!params.sucessor || params.sucessor == req.session.usuario.id)
+        res.status(400).end("Parâmetros inválidos")
+    else
+    {
+        getParticipacao(req)
+            .then(participacao => {
+                if(participacao.rank.lider)
+                {
+                    if(params.sucessor == 'null')
+                    {
+                        models.Alianca.update({sucessor : null}, {where : {id : participacao.aliancaID}})
+                        .then(() => 
+                            res.status(200).end("")
+                        )
+                        .catch(err => 
+                            res.status(err.message)
+                        )
+                    }
+                    else
+                    {
+                        models.Usuario_Participa_Alianca.findOne({where : {usuarioID : params.sucessor}})
+                            .then(usuario => {
+                                if(usuario)
+                                {
+                                    models.Alianca.update({sucessor : params.sucessor}, {where : {id : participacao.aliancaID}})
+                                        .then(() => 
+                                            res.status(200).end("")
+                                        )
+                                        .catch(err => 
+                                            res.status(err.message)
+                                        )
+                                }
+                                else
+                                    res.status(400).end("Parâmetros inválidos")
+                        })
+                    }
+                    
+                }
+                else
+                    res.status(403).end("Sem permição")
+            })
+            .catch(err => 
+                res.status(400).end(err.message)
+            )
+    }
+})
+
 module.exports = router;

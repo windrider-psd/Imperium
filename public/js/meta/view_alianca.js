@@ -105,7 +105,6 @@ $(document).ready(function (){
             {
                 let ranks = resposta[0]
                 let membros = resposta[1]
-                console.log(membros)
                 let paginaInternaString = ''
                 let paginaExternaString = ''
                 let ranksString = ''
@@ -144,7 +143,20 @@ $(document).ready(function (){
                 if(isLider)
                 {
                     confString += '<h4>Renomear</h4><form onsubmit="return false" id="form-renomear-alianca"> <div class="form-group"> <label for="nome">Nome da aliança:</label> <input class="form-control" type="text" name="nome" placeholder="Digite o nome da aliança" required="required" value = "'+userdata.alianca.nome+'"/> </div><div class="form-group"> <label for="tag">Tag da aliança:</label> <input class="form-control" type="text" name="tag" placeholder="Digite o tag da aliança" value = "'+userdata.alianca.tag+'" required="required"/> </div><div class="row"> <div class="col-md-offset-3 col-md-6 text-center"> <button class="btn btn-primary btn-lg btn-block" type="submit">Renomear</button> </div></div></form>'
-                    confString += '<h4>Sucessor</h4>'
+                    confString += '<h4>Sucessor</h4><select id = "select-sucessor"><option value = "null">Nenhum sucessor</option>'
+                    for(let i = 0; i < membros.length; i++)
+                    {
+                        if(membros[i].usuario.id != userdata.alianca.lider)
+                        {
+                            let cargoString = (membros[i].rank != null) ? membros[i].rank.nome : "Sem rank"
+                            confString += '<option value = "'+membros[i].usuario.id+'"'
+                            if(userdata.alianca.sucessor == membros[i].usuario.id)
+                                confString += "selected"
+                            confString += '>'+membros[i].usuario.nick+' ('+cargoString+') </option>'
+                        }
+                        
+                    }
+                    confString += "</select>"
                     confString += '<h4>Excluir Aliança</h4><div class="row"> <div class="col-md-offset-3 col-md-6 text-center"><button class = "btn btn-danger btn-lg" id = "btn-excluir-alianca">Excluir aliança</button></div></div>'
                 }
 
@@ -434,6 +446,24 @@ $(document).ready(function (){
         })
     })
     
+
+    $("#tab-content-alianca").on('change', '#select-sucessor', function() {
+        let id = $(this).find("option:selected").val()
+        $.ajax({
+            url : 'alianca/set-sucessor',
+            method : 'POST',
+            data : {sucessor : id},
+            success : function()
+            {
+                GerarNotificacao("Sucessor alterado com sucesso", 'success')
+            },
+            error : function(err)
+            {
+                GerarNotificacao(err.responseText, 'danger')
+            }
+        })
+    })
+
     $("#tab-content-alianca").on('change', '.select-att-cargo', function() {
         let params = {id : $(this).data('membro-id'), cargo : this.value}
         $.ajax({
