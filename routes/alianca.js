@@ -10,6 +10,43 @@ const formatoSpecial2 = /[ !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/ //Com espaço
 require('dotenv/config')
 
 
+function getMembros(aliancaID)
+{
+    return new Bluebird((resolvem, reject) => {
+        models.Usuario_Participa_Alianca.findAll({where : {aliancaID : aliancaID}, attributes: ['usuarioID', 'rank']}).then(participacoes => {
+            let promessasAll = new Array();
+            for(let i = 0; i < participacoes.length; i++)
+            {
+                promessasAll.push(new Bluebird(resolve => {
+                    let participap = participacoes[i];
+                    let promossasParticipa = new Array();
+                    promossasParticipa.push(new Bluebird(resolvep => {
+                        models.Usuario.findOne({where : {id : participap.usuarioID}, attributes : ['id', 'nick', 'ferias', 'banido']}).then(usuario => {
+                            ranking.GetRankingUsuario(usuario.id).then(rankusuario => {
+                                usuario.dataValues.rank = rankusuario
+                                resolvep(usuario.dataValues)
+                            })
+                        })
+                    }))
+                    promossasParticipa.push(new Bluebird(resolvep => {
+                        if(participap.rank == null)
+                            resolvep(null)
+                        else
+                            models.Alianca_Rank.findOne({where : {id : participap.rank}, attributes : ['id', 'nome']}).then(rank => resolvep(rank))
+                    }))
+                    Bluebird.all(promossasParticipa).then(resultado => {
+                        resolve(resultado);
+                    })
+                }))
+            }
+            Bluebird.all(promessasAll).then(resultado => {
+                resolvem(resultado)
+            })
+        })
+    })
+}
+
+
 /**
  * @param {Express.Request} req Requisição http (http.IncomingMessage)
  * @returns {Bluebird.<Object>}
@@ -18,12 +55,12 @@ function getParticipacao(req)
 {
     return new Bluebird((resolve, reject) => {
         if(!req.session.usuario)
-            reject("Usuário não encontrado")
+            reject(new Error("Usuário não encontrado"))
         else
         {
             models.Usuario_Participa_Alianca.findOne({where : {usuarioID : req.session.usuario.id}}).then(participa => {
                 if(!participa)
-                    reject("Sem aliança")
+                    reject(new Error("Sem aliança"))
                 else
                 {
                     models.Alianca.findOne({where : {id : participa.aliancaID}, attributes : ['id', 'lider']}).then(alianca =>
@@ -315,7 +352,29 @@ router.get('/getMembros', (req, res) => {
     {
         getParticipacao(req).then(participacao => {
             let permicao = participacao.rank
-            models.Usuario_Participa_Alianca.findAll({where : {aliancaID : participacao.aliancaID}, attributes: ['usuarioID', 'rank']}).then(participacoes => {
+            getMembros(participacao.aliancaID).then((resultado) => { //Array de [usuario, rank]
+                let retorno = {resultado : new Array()}
+                for(let i = 0; i < resultado.length; i++)
+                {
+                    let respush = {usuario : resultado[i][0], rank : resultado[i][1]};
+                    if(permicao.lider || permicao.online)
+                        respush.online = io.isOnline(resultado[i][0].id)
+                    retorno.resultado.push(respush)
+                }
+                if(permicao.lider || permicao.ranks_atribuir)
+                {
+                    models.Alianca_Rank.findAll({where : {aliancaID: participacao.aliancaID}, attributes : ['id', 'nome']}).then(ranks_alianca => {
+                        retorno.ranks = ranks_alianca
+                        res.status(200).json(retorno)
+                    })
+                }
+                else
+                    res.status(200).json(retorno)
+            })
+        }) 
+    }
+
+            /*models.Usuario_Participa_Alianca.findAll({where : {aliancaID : participacao.aliancaID}, attributes: ['usuarioID', 'rank']}).then(participacoes => {
                 let promessasAll = new Array();
                 for(let i = 0; i < participacoes.length; i++)
                 {
@@ -341,6 +400,7 @@ router.get('/getMembros', (req, res) => {
                         })
                     }))
                 }
+
                 Bluebird.all(promessasAll).then(resultado => { //Array de [usuario, rank]
                     let retorno = {resultado : new Array()}
                     for(let i = 0; i < resultado.length; i++)
@@ -363,7 +423,7 @@ router.get('/getMembros', (req, res) => {
             })
 
         }).catch(err => res.status(400).end(err.toString()))
-    }
+    }*/
 })
 
 router.get('/getAdministracao', (req, res) =>{
@@ -372,12 +432,24 @@ router.get('/getAdministracao', (req, res) =>{
     else
     {
         getParticipacao(req).then(participacao => {
-            let adminPromessas = new Array(); //[rank]
+            let adminPromessas = new Array(); //[rank, membros]
             adminPromessas.push(new Bluebird(resolve => {
                 if(participacao.rank.lider == true || participacao.rank.ranks_criar == true)
                     models.Alianca_Rank.findAll({where : {aliancaID : participacao.aliancaID}}).then(ranks => resolve(ranks))
                 else
                     resolve(null)
+            }))
+
+            adminPromessas.push(new Bluebird((resolve, reject) => {
+                if(participacao.rank.lider == true)
+                {
+                    getMembros(participacao.aliancaID).then(resultado => { //Array de [usuario, rank]
+                        let retorno = new Array()
+                        for(let i = 0; i < resultado.length; i++)
+                            retorno.push({usuario : resultado[i][0], rank : resultado[i][1]})
+                        resolve(retorno)
+                    })
+                }
             }))
             Bluebird.all(adminPromessas).then(resultado => res.status(200).json(resultado))
             
@@ -488,7 +560,7 @@ router.post('/atribuir-cargo', (req, res) => {
                                 res.status(400).end("Operação inválida")
                             else
                                 models.Usuario_Participa_Alianca.update({rank : params.cargo}, {where : {usuarioID : params.id}}).then(() => res.status(200).end("Cargo atualizado")).catch(() => res.status(500).end("Erro ao atualizar o cargo"))
-                        }).catch(err => console.log(err))
+                        })
                     }
                 })
             }
@@ -536,7 +608,6 @@ router.post('/set-pagina-externa', (req, res) => {
      */
     
     let params = req.body
-    console.log(params)
     if(!req.session.usuario)
         res.status(403).end("Operação inválida")
     else if(typeof(params.bbcode) == 'undefined')
@@ -570,7 +641,6 @@ router.post('/set-pagina-interna', (req, res) => {
      */
     
     let params = req.body
-    console.log(params)
     if(!req.session.usuario)
         res.status(403).end("Operação inválida")
     else if(typeof(params.bbcode) == 'undefined')
@@ -701,7 +771,6 @@ router.post('/aceitar-convite', (req, res) => {
     * @type {{valor: number, aliancaID : number}}
     */
     let params = req.body;
-    console.log(params)
     if(!req.session.usuario)
         res.status(403).end("Operação inválida")
     else if(!params.valor || !params.aliancaID)
@@ -755,6 +824,35 @@ router.post('/aceitar-convite', (req, res) => {
             })
             .catch(err => 
                 res.status(500).end(err.message)
+            )
+    }
+})
+
+
+
+router.post('/excluir-alianca', (req, res) => 
+{
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else
+    {
+        getParticipacao(req)
+            .then(participacao => {
+                if(participacao.rank.lider)
+                {
+                    models.Alianca.destroy({where : {id : participacao.aliancaID}})
+                        .then(() => {
+                            res.status(200).end("Aliança excluida")
+                        })
+                        .catch(err => {
+                            res.status(500).end(err.message)
+                        })
+                }
+                else
+                    res.status(403).end("Sem permição")
+            })
+            .catch(err => 
+                res.status(403).end(err.message)
             )
     }
 })
