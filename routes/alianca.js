@@ -867,7 +867,6 @@ router.post('/set-sucessor', (req, res) =>{
      * @type {{sucessor : number}}
      */
     let params = req.body;
-    console.log(params)
     if(!req.session.usuario)
         res.status(403).end("Operação inválida")
     else if(!params.sucessor || params.sucessor == req.session.usuario.id)
@@ -916,5 +915,361 @@ router.post('/set-sucessor', (req, res) =>{
             )
     }
 })
+
+
+const tamanhoPaginaTopicos = 10;
+router.get('/get-topicos', (req, res) => {
+    /**
+     * @type {{pagina : number}}
+     */
+    let params = req.query
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else
+    {
+        getParticipacao(req)
+            .then(participacao => {
+                models.Forum_Topico.findAll({
+                    where :{
+                        aliancaID : participacao.aliancaID
+                    },
+                    order:
+                    [
+                        ['destaque', 'desc'],
+                        ['atualizado', 'desc']
+                    ],
+                    offset : (params.pagina - 1) * tamanhoPaginaTopicos
+                })
+                    .then(topicos => {
+                        res.status(200).json(topicos)
+                    })
+                    .catch(err => 
+                        res.status(500).end(err.message)
+                    )
+            })
+            .catch(err => 
+                res.status(400).end(err.message)
+            )
+    }
+})
+
+const tamanhoPaginaMensagemTopico = 15;
+router.get('/get-mensagens-topico', (req, res) => {
+    /**
+     * @type {{topico : number, pagina : number}}
+     */
+    let params = req.query
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else if(!(params.topico && params.pagina))
+        res.status(400).end("Parâmetros inválidos")
+    else
+    {
+        getParticipacao(req)
+            .then(participacao => {
+
+                models.Forum_Topico.findOne({where : {aliancaID : participacao.aliancaID, id : params.topico}})
+                    .then(topico => {
+                        if(!topico)
+                            res.status(400).end("Tópico não existe")
+                        else
+                        {
+                            models.Forum_Mensagem.findAll({
+                                where :{
+                                    topicoID : params.topico,
+                                },
+                                order:
+                                [
+                                    ['id', 'desc']
+                                ],
+                                offset : (params.pagina - 1) * tamanhoPaginaMensagemTopico
+                            })
+                                .then(mensagens => {
+                                    res.status(200).json(mensagens)
+                                })
+                                .catch(err => 
+                                    res.status(500).end(err.message)
+                                )
+                        }
+                    })
+            })
+            .catch(err => 
+                res.status(400).end(err.message)
+            )
+    }
+})
+
+
+router.post('/inserir-topico', (req, res) => {
+    /**
+     * @type {{nome : string, responder : boolean, destaque : boolean}}
+     */
+    let params = req.body
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else if(!(params.nome && params.responder && params.destaque))
+        res.status(400).end("Parâmetros inválidos")
+    else if(!params.nome.length == 0)
+        res.status(400).end("Nome do tópico deve contem 1 caractér")
+    else
+    {
+        getParticipacao(req)
+            .then(participacao => {
+                if(participacao.rank.lider || participacao.rank.gerenciar_forum)
+                {
+                    params.responder = params.responder == "1"
+                    params.destaque = params.destaque == "1"
+                    params.nome = sanitizer.escape(params.nome)
+
+                    models.Forum_Topico.create({aliancaID : participacao.aliancaID, nome : params.nome, responder : params.responder, destaque : params.destaque})
+                        .then(topico => 
+                            res.status(200).json(topico.dataValues)
+                        )  
+                        .catch(err => 
+                            res.status(500).end(err.message)
+                        )
+                }
+                else
+                    res.status(403).end("Sem permição")
+            })
+            .catch(err => 
+                res.status(400).end(err.message)
+            )
+    }
+})
+
+
+router.post('/inserir-mensagem-topico', (req, res) => {
+    /**
+     * @type {{conteudo : string, topico : number}}
+     */
+    let params = req.body
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else if(!(params.conteudo && params.topico))
+        res.status(400).end("Parâmetros inválidos")
+    else if(!params.conteudo.length == 0)
+        res.status(400).end("Nome do tópico deve contem 1 caractér")
+    else
+    {
+        getParticipacao(req)
+            .then(participacao => {
+                params.conteudo = sanitizer.escape(params.conteudo)
+
+                models.Forum_Topico.findOne({where : {aliancaID : participacao.aliancaID, id : params.topico}})
+                    .then(topico => {
+                        if(!topico)
+                            res.status(400).end("Tópico não existe")
+                        else
+                        {
+                            models.Forum_Mensagem.create({conteudo : params.conteudo, usuarioID : req.session.usuario.id, topicoID : params.topico})
+                                .then((mensagem) => 
+                                    res.status(200).json(mensagem)
+                                ) 
+                        }
+                    })
+                    .catch(err => 
+                        res.status(500).end(err.message)
+                    )
+            })
+            .catch(err => 
+                res.status(400).end(err.message)
+            )
+    }
+})
+
+
+
+router.post('/alterar-topico', (req, res) => {
+ /**
+     * @type {{nome : string, responder : boolean, destaque : boolean, id : number}}
+     */
+    let params = req.body
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else if(!(params.nome && params.responder && params.id))
+        res.status(400).end("Parâmetros inválidos")
+    else if(!params.nome.length == 0)
+        res.status(400).end("Nome do tópico deve contem 1 caractér")
+    else
+    {
+        getParticipacao(req)
+            .then(participacao => {
+                if(participacao.rank.lider || participacao.rank.gerenciar_forum)
+                {
+                    models.Forum_Topico.findOne({where : {aliancaID : participacao.aliancaID, id : params.id}})
+                        .then(topico => {
+                            if(topico)
+                            {
+                                params.responder = params.responder == "1"
+                                params.destaque = params.destaque == "1"
+                                params.nome = sanitizer.escape(params.nome)
+                                models.Forum_Topico.update({nome : params.nome, responder : params.responder, destaque : params.destaque}, {where : {id : params.id}})
+                                    .then(() => {
+                                        res.status(200).end("Tópico atualizadom com sucesso")
+                                    })
+                            }
+                            else
+                                res.status(400).end("Tópico inválido")
+                        })
+                        .catch(err => 
+                            res.status(500).end(err.message)
+                        )
+
+                    models.Forum_Topico.create({aliancaID : participacao.aliancaID, nome : params.nome, responder : params.responder})
+                        .then(topico => 
+                            res.status(200).json(topico.dataValues)
+                        )  
+                        .catch(err => 
+                            res.status(500).end(err.message)
+                        )
+                }
+                else
+                    res.status(403).end("Sem permição")
+            })
+            .catch(err => 
+                res.status(400).end(err.message)
+            )
+    }
+})
+
+
+router.post('/alterar-mensagem', (req, res) => {
+    /**
+     * @type {{id : number, conteudo : string}}
+     */
+    let params = req.body
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else if(!(params.id && params.conteudo))
+        res.status(400).end("Parâmetros inválidos")
+    else
+    {
+        getParticipacao(req)
+            .then(participacao => {
+                models.Forum_Mensagem.findOne({where : {id : params.id}, attributes : ['topicoID']})
+                    .then(mensagem => {
+                        if(mensagem && (mensagem.usuarioID == req.session.usuario.id || participacao.rank.lider || participacao.rank.gerenciar_forum))
+                        {
+                            models.Forum_Topico.findOne({where : {id : mensagem.topicoID}, attributes : ['aliancaID']})
+                                .then((topico) => {
+                                    if(topico.aliancaID == participacao.aliancaID)
+                                    {
+                                        params.conteudo = sanitizer.escape(params.conteudo)
+                                        mensagem.conteudo = params.conteudo
+                                        mensagem.update()
+                                            .then(() =>
+                                                res.status(200).end("Mensagem alterada com sucesso")
+                                            )
+                                            .catch(err =>
+                                                res.status(500).end(err.message)
+                                            )
+                                    }
+                                    else
+                                        res.status(403).end("Mensagem inválida")
+                                })
+                        }
+                        else
+                            res.status(403).end("Mensagem não existe")
+                    })
+
+                models.Forum_Topico.destroy({where : {id : params.id, aliancaID : participacao.aliancaID}})
+                    .then(() => 
+                        res.status(200).end("Tópico excluido com sucesso")
+                    )
+                    .catch(err => 
+                        res.status(500).end(err.message)
+                    )
+            })
+            .catch(err => 
+                res.status(400).end(err.message)
+            )
+    }
+})
+
+
+router.post('/excluir-topico', (req, res) => {
+    /**
+     * @type {{id : number}}
+     */
+    let params = req.body
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else if(!params.id)
+        res.status(400).end("Parâmetros inválidos")
+    else
+    {
+        getParticipacao(req)
+            .then(participacao => {
+                if(participacao.rank.lider || participacao.rank.gerenciar_forum)
+                {
+                    models.Forum_Topico.destroy({where : {id : params.id, aliancaID : participacao.aliancaID}})
+                        .then(() => 
+                            res.status(200).end("Tópico excluido com sucesso")
+                        )
+                        .catch(err => 
+                            res.status(500).end(err.message)
+                        )
+                }
+                else
+                    res.status(403).end("Sem permição")
+            })
+            .catch(err => 
+                res.status(400).end(err.message)
+            )
+    }
+})
+
+router.post('/excluir-mensagem', (req, res) => {
+    /**
+     * @type {{id : number}}
+     */
+    let params = req.body
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else if(!params.id)
+        res.status(400).end("Parâmetros inválidos")
+    else
+    {
+        getParticipacao(req)
+            .then(participacao => {
+                models.Forum_Mensagem.findOne({where : {id : params.id}, attributes : ['topicoID']})
+                    .then(mensagem => {
+                        if(mensagem && (mensagem.usuarioID == req.session.usuario.id || participacao.rank.lider || participacao.rank.gerenciar_forum))
+                        {
+                            models.Forum_Topico.findOne({where : {id : mensagem.topicoID}, attributes : ['aliancaID']})
+                                .then((topico) => {
+                                    if(topico.aliancaID == participacao.aliancaID)
+                                    {
+                                        mensagem.destroy()
+                                            .then(() =>
+                                                res.status(200).end("Mensagem excluida com sucesso")
+                                            )
+                                            .catch(err =>
+                                                res.status(500).end(err.message)
+                                            )
+                                    }
+                                    else
+                                        res.status(403).end("Mensagem inválida")
+                                })
+                        }
+                        else
+                            res.status(403).end("Mensagem não existe")
+                    })
+
+                models.Forum_Topico.destroy({where : {id : params.id, aliancaID : participacao.aliancaID}})
+                    .then(() => 
+                        res.status(200).end("Tópico excluido com sucesso")
+                    )
+                    .catch(err => 
+                        res.status(500).end(err.message)
+                    )
+            })
+            .catch(err => 
+                res.status(400).end(err.message)
+            )
+    }
+})
+
 
 module.exports = router;

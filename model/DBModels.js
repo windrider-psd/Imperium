@@ -658,13 +658,7 @@ const Alianca_Rank = con.define('alianca_ranks', {
         allowNull : false,
         defaultValue : false
     },
-    forum_tabs: //Poder criar tabs no fórum da aliança
-    {
-        type: sequalize.BOOLEAN,
-        allowNull : false,
-        defaultValue : false
-    },
-    forum_topicos: //Poder criar tópicos no fórum da aliança
+    gerenciar_forum: //Pode gerenciar o fórum da aliança
     {
         type: sequalize.BOOLEAN,
         allowNull : false,
@@ -821,6 +815,12 @@ const Forum_Topico = con.define('forum_topico', {
         type : sequalize.BOOLEAN,
         defaultValue : true,
         allowNull : false
+    },
+    destaque : 
+    {
+        type : sequalize.BOOLEAN,
+        defaultValue : false,
+        allowNull : false
     }
 }, {timestamps : false})
 
@@ -857,8 +857,14 @@ const Forum_Mensagem = con.define('forum_mensagem', {
     {
         type: sequalize.TEXT,
         allowNull : false,
-    }
-})
+    },
+    criacao :
+    {
+        type : sequalize.DATE,
+        defaultValue : sequalize.NOW,
+        allowNull : false
+    },
+}, {timestamps : false})
 
 
 Usuario.hasOne(EsqueciSenha, {foreignKey : {name : "usuarioID", allowNull : false, primaryKey : true}, onDelete : "CASCADE"})
