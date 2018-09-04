@@ -23,6 +23,13 @@ aside
         li
             img(src='images/alianca.png', alt='')
             span Aliança
+    -if(userdata.alianca != null){
+    a(href = '/forum').link-planeta
+        li
+            img(src='images/alianca.png', alt='')
+            span Fórum da aliança
+    -}
+
 script.
     var estado_menu = 0;
     $(document).ready(function() {

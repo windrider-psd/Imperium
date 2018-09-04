@@ -781,6 +781,86 @@ const Alianca_Convite = con.define('alianca_convite', {
 }, {timestamps : false})
 
 
+const Forum_Topico = con.define('forum_topico', {
+    id:
+    {
+        type: sequalize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    aliancaID:
+    {
+        type: sequalize.INTEGER,
+        allowNull : false,
+        references :
+        {
+            model : Alianca,
+            key : 'id',
+        },
+        onDelete : "CASCADE",
+    },
+    nome :
+    {
+        type: sequalize.STRING,
+        allowNull : false
+    },
+    criacao :
+    {
+        type : sequalize.DATE,
+        defaultValue : sequalize.NOW,
+        allowNull : false
+    },
+    atualizado :
+    {
+        type : sequalize.DATE,
+        defaultValue : sequalize.NOW,
+        allowNull : false
+    },
+    responder :
+    {
+        type : sequalize.BOOLEAN,
+        defaultValue : true,
+        allowNull : false
+    }
+}, {timestamps : false})
+
+const Forum_Mensagem = con.define('forum_mensagem', {
+    id:
+    {
+        type: sequalize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    topicoID:
+    {
+        type: sequalize.INTEGER,
+        allowNull : false,
+        references :
+        {
+            model : Forum_Topico,
+            key : 'id',
+        },
+        onDelete : "CASCADE",
+    },
+    usuarioID:
+    {
+        type: sequalize.INTEGER,
+        allowNull : false,
+        references :
+        {
+            model : Usuario,
+            key : 'id',
+        },
+        onDelete : "CASCADE",
+    },
+    conteudo:
+    {
+        type: sequalize.TEXT,
+        allowNull : false,
+    }
+})
+
+
 Usuario.hasOne(EsqueciSenha, {foreignKey : {name : "usuarioID", allowNull : false, primaryKey : true}, onDelete : "CASCADE"})
 EsqueciSenha.removeAttribute('id');
 Setor.hasMany(Planeta, {foreignKey : {name : "setorID", allowNull : false}, onDelete : "CASCADE"})
@@ -821,6 +901,8 @@ module.exports = {
     Construcao : Construcao, 
     Alianca_Aplicacao : Alianca_Aplicacao,
     Alianca_Convite : Alianca_Convite,
+    Forum_Mensagem : Forum_Mensagem,
+    Forum_Topico : Forum_Topico,
     isReady : function(){return ready;}};
 
 con.authenticate().then(function()
