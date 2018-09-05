@@ -133,7 +133,6 @@ function getAplicacoes(aliancaID)
                 }
                 resolve(aplicacoes)
             })
-            
         })
     })
 }
@@ -960,11 +959,13 @@ router.get('/get-topicos', (req, res) => {
     let params = req.query
     if(!req.session.usuario)
         res.status(403).end("Operação inválida")
+    else if(!params.pagina || isNaN(params.pagina))
+        res.status(400).end("Parâmetros inválidos")
     else
     {
         getParticipacao(req)
             .then(participacao => {
-                models.Forum_Topico.findAll({
+                models.Forum_Topico.findAndCountAll({
                     where :{
                         aliancaID : participacao.aliancaID
                     },
@@ -973,10 +974,53 @@ router.get('/get-topicos', (req, res) => {
                         ['destaque', 'desc'],
                         ['atualizado', 'desc']
                     ],
-                    offset : (params.pagina - 1) * tamanhoPaginaTopicos
+                    limit : tamanhoPaginaTopicos,
+                    offset : ((params.pagina > 0 ? params.pagina : 1) - 1) * tamanhoPaginaTopicos
                 })
-                    .then(topicos => {
-                        res.status(200).json(topicos)
+                    .then(resulado => {
+                        let topicos = resulado.rows
+                        let totalTopicos = resulado.count
+                        let promesas = new Array();
+                        topicos.forEach((topico, index) => {
+                            promesas.push(new Promise((resolve, reject) => {
+                                models.Forum_Mensagem.findAndCount({where :{topicoID : topico.id}, attributes : ['id', 'usuarioID', 'criacao'], order : [['id', 'DESC']], limit : 1})
+                                    .then(resultado => {
+                                        let totalMensagens = resultado.count
+                                        if(totalMensagens != 0)
+                                        {   
+                                            let ultimaMensagem = resultado.rows[0]
+                                            models.Usuario.findOne({where : {id : ultimaMensagem.usuarioID}, attributes: ['id', 'nick']})
+                                                .then(usuarioUltimaMensagem => {
+                                                    ultimaMensagem.dataValues.usuario = usuarioUltimaMensagem
+                                                    topicos[index].dataValues.ultimaMensagem = ultimaMensagem.dataValues
+                                                    topicos[index].dataValues.totalMensagens = totalMensagens;
+                                                    resolve()
+                                                })
+                                                .catch(err => 
+                                                    reject(err)
+                                                )
+                                        }
+                                        else
+                                        {
+                                            topicos[index].dataValues.ultimaMensagem = null
+                                            topicos[index].dataValues.totalMensagens = 0;
+                                            resolve()
+                                        }
+                                        
+                                    })
+                                    .catch(err => 
+                                        reject(err)
+                                    )
+                            }))
+                        })
+
+                        Promise.all(promesas)
+                            .then(() => 
+                                res.status(200).json({topicos : topicos, total : totalTopicos, tamanhoPagina : tamanhoPaginaTopicos})
+                            )
+                            .catch(err => 
+                                res.status(500).end(err.message)
+                            )
                     })
                     .catch(err => 
                         res.status(500).end(err.message)
@@ -1017,7 +1061,8 @@ router.get('/get-mensagens-topico', (req, res) => {
                                 [
                                     ['id', 'desc']
                                 ],
-                                offset : (params.pagina - 1) * tamanhoPaginaMensagemTopico
+                                limit : tamanhoPaginaMensagemTopico, 
+                                offset : ((params.pagina > 0 ? params.pagina : 1) - 1) * tamanhoPaginaMensagemTopico
                             })
                                 .then(mensagens => {
                                     res.status(200).json(mensagens)
@@ -1044,7 +1089,7 @@ router.post('/inserir-topico', (req, res) => {
         res.status(403).end("Operação inválida")
     else if(!(params.nome && params.responder && params.destaque))
         res.status(400).end("Parâmetros inválidos")
-    else if(!params.nome.length == 0)
+    else if(params.nome.length == 0)
         res.status(400).end("Nome do tópico deve contem 1 caractér")
     else
     {
@@ -1052,10 +1097,10 @@ router.post('/inserir-topico', (req, res) => {
             .then(participacao => {
                 if(participacao.rank.lider || participacao.rank.gerenciar_forum)
                 {
-                    params.responder = params.responder == "1"
-                    params.destaque = params.destaque == "1"
+                    params.responder = params.responder == "true" || params.responder == "1"
+                    params.destaque = params.destaque == "true" || params.destaque == "1"
                     params.nome = sanitizer.escape(params.nome)
-
+                    
                     models.Forum_Topico.create({aliancaID : participacao.aliancaID, nome : params.nome, responder : params.responder, destaque : params.destaque})
                         .then(topico => 
                             res.status(200).json(topico.dataValues)
@@ -1083,7 +1128,7 @@ router.post('/inserir-mensagem-topico', (req, res) => {
         res.status(403).end("Operação inválida")
     else if(!(params.conteudo && params.topico))
         res.status(400).end("Parâmetros inválidos")
-    else if(!params.conteudo.length == 0)
+    else if(params.conteudo.length == 0)
         res.status(400).end("Nome do tópico deve contem 1 caractér")
     else
     {
@@ -1124,7 +1169,7 @@ router.post('/alterar-topico', (req, res) => {
         res.status(403).end("Operação inválida")
     else if(!(params.nome && params.responder && params.id))
         res.status(400).end("Parâmetros inválidos")
-    else if(!params.nome.length == 0)
+    else if(params.nome.length == 0)
         res.status(400).end("Nome do tópico deve contem 1 caractér")
     else
     {
@@ -1136,8 +1181,8 @@ router.post('/alterar-topico', (req, res) => {
                         .then(topico => {
                             if(topico)
                             {
-                                params.responder = params.responder == "1"
-                                params.destaque = params.destaque == "1"
+                                params.responder = params.responder == "true" || params.responder == "1"
+                                params.destaque = params.destaque == "true" ||  params.destaque == "1"
                                 params.nome = sanitizer.escape(params.nome)
                                 models.Forum_Topico.update({nome : params.nome, responder : params.responder, destaque : params.destaque}, {where : {id : params.id}})
                                     .then(() => {

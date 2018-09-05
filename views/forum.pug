@@ -2,21 +2,45 @@ extends templates/layout
 block titulo
   | Visão Geral
 block content     
-    include includes/navbar
-    .container
-      .row
-        button(type="button", data-tipo = "pontosTotal").btn.btn-warning.btn-pontos.active Pontuação total
-        button(type="button", data-tipo = "pontosEconomia").btn.btn-primary.btn-pontos Pontuação Econômica
-        button(type="button", data-tipo = "pontosMilitar").btn.btn-danger.btn-pontos Pontuação Militar
-        button(type="button", data-tipo = "pontosPesquisa").btn.btn-success.btn-pontos Pontuação de pesquisa
-      .row
-        .col-md-12
-          br
-          .table-responsive
-            table.table.table-bordered
-              tbody#conteudo-forum
-        .paginacao.pagination
-        #conteudo-forum-admin
+  include includes/navbar
+  h1 Fórum da 
+    =userdata.alianca.nome
+  .container-fluid
+    .row
+      .col-md-12
+        br
+        .table-responsive
+          table.table.table-bordered#conteudo-forum
+      #paginacao-forum.pagination
+  
+    #conteudo-forum-admin
+  #modal-adicionar-topico.modal.fade(role='dialog')
+    .modal-dialog
+      .modal-content
+        .modal-header
+          button.close(type='button', data-dismiss='modal') ×
+          h4.modal-title Adicionar tópico
+        .modal-body
+          .container-fluid
+            .row
+              .col-md-offset-1.col-md-10.col-sm-12
+                  form(onsubmit='return false')#form-adicionar-topico
+                      .form-group
+                        label(for="nome") Nome do tópico
+                        input(type="text", name="nome").form-control
+                      .checkbox
+                        label(for="responder")
+                          input(type="checkbox", name="responder") 
+                          | Apenas o líder e administradores do fórum podem responder
+                      .checkbox
+                        label(for="destaque")
+                          input(type="checkbox", name="destaque") 
+                          | Tópico em destaque
+                      .row
+                          .col-md-offset-3.col-md-6.text-center
+                              button.btn.btn-primary.btn-lg.btn-block(type='submit') Criar
 
 
 block posscripts
+  script(src="js/pagination.min.js")
+  script(src="js/meta/view_forum.js")

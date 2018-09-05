@@ -136,6 +136,23 @@ router.get('/alianca', (req, res) => {
     res.status(403).render('login');
 });
 
+router.get('/forum', (req, res) => {
+  if(req.session.usuario)
+  {
+    getUserData(req)
+      .then(userdata => {
+        if(userdata.alianca != null)
+          res.render('forum', {userdata : userdata})
+        else
+          req.query.planetaid != null ? res.redirect('alianca?planetaid='+req.query.planetaid) : res.redirect('alianca')
+      })
+      .catch(() => res.status(403).render('login'));
+  }
+    
+  else 
+    res.status(403).render('login');
+});
+
 router.get('/ranking', (req, res) => {
   if(req.session.usuario)
     getUserData(req).then(userdata => res.render('ranking', {userdata : userdata, resultadosPorPagina : Number(process.env.RANKING_MAX_RESULTADOS)})).catch(() =>res.status(403).render('login'));

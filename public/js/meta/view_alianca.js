@@ -37,7 +37,8 @@ $(document).ready(function (){
             },
             success : function()
             {
-                GerarNotificacao("Aliança criada com sucesso", 'success')
+                location.reload(true);
+                //GerarNotificacao("Aliança criada com sucesso", 'success')
             },
             error : function(err)
             {
@@ -61,7 +62,8 @@ $(document).ready(function (){
             },
             success : function()
             {
-                GerarNotificacao("Saída realizada com sucesso", 'success')
+                //GerarNotificacao("Saída realizada com sucesso", 'success')
+                location.reload(true);
             },
             error : function(err)
             {
