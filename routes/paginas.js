@@ -23,7 +23,6 @@ function getUserData(req)
               models.Alianca.findOne({where: {id : participa.aliancaID}}).then(alianca =>{
                 models.Usuario_Participa_Alianca.count({where : {aliancaID : alianca.id}}).then(contagem => {
                   alianca.dataValues.totalMembros = contagem;
-                  console.log(alianca.dataValues)
                   if(alianca.dataValues.paginaExterna != null)
                     alianca.dataValues.paginaExterna = alianca.dataValues.paginaExterna.replace(/(?:\r\n|\r|\n)/g, '');
                   if(alianca.dataValues.paginaInterna != null)

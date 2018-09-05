@@ -917,6 +917,41 @@ router.post('/set-sucessor', (req, res) =>{
 })
 
 
+router.post('/set-template-aplicacao', (req, res) => {
+    /**
+     * @type {{template : string}}
+     */
+    let params = req.body
+
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else if(typeof(params.template) == 'undefined')
+        res.status(400).end("Parâmetros inválidos")
+    else
+    {
+        getParticipacao(req)
+            .then(participacao => {
+                if(participacao.rank.lider)
+                {
+                    params.template = sanitizer.escape(params.template).replace(/(?:\r\n|\r|\n)/g, '<br />')
+
+                    models.Alianca.update({aplicacao_template : params.template}, {where : {id : participacao.aliancaID}})
+                        .then(() => 
+                            res.status(200).end("Template atualizado com sucesso")
+                        )
+                        .catch(err => 
+                            res.status(500).end(err.message)
+                        )
+                }
+                else
+                    res.status(403).end("Sem permição")
+            })
+        .catch(err => 
+            res.status(403).end(err.message)
+        )
+    }
+})
+
 const tamanhoPaginaTopicos = 10;
 router.get('/get-topicos', (req, res) => {
     /**

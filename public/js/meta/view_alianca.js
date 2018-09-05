@@ -157,6 +157,8 @@ $(document).ready(function (){
                         
                     }
                     confString += "</select>"
+                    confString += "<h4>Template de aplicação</h4><textarea  class = 'form-control' style = 'resize:vertical' rows = '10' id = 'template_aplicacao'>"+((userdata.alianca.aplicacao_template != null) ?  userdata.alianca.aplicacao_template : "")+"</textarea>"
+                    confString += '<button class = "btn btn-success" id = "btn-salvar-template">Salvar template</button>'
                     confString += '<h4>Excluir Aliança</h4><div class="row"> <div class="col-md-offset-3 col-md-6 text-center"><button class = "btn btn-danger btn-lg" id = "btn-excluir-alianca">Excluir aliança</button></div></div>'
                 }
 
@@ -215,7 +217,22 @@ $(document).ready(function (){
             },
         })
     })
-
+    $("#tab-content-alianca").on('click', '#btn-salvar-template', function() {
+        let template = $("#template_aplicacao").val()
+        $.ajax({
+            url : 'alianca/set-template-aplicacao',
+            method : 'POST',
+            data : {template : template},
+            success : function()
+            {
+                GerarNotificacao("Template salvo com sucesso.", 'success')
+            },
+            error : function(err)
+            {
+                GerarNotificacao(err.responseText, 'danger')
+            },
+        })
+    })
     $("#tab-content-alianca").on('click', '.btn-salvar-pagina-externa', function()
     {
         let instancia = sceditor.instance($("#pagina-externa")[0]);

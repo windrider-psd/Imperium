@@ -35,7 +35,7 @@ block content
                                     .form-group
                                         .form-group
                                             label(for='aplicacao') Texto da aplicação: 
-                                            textarea(name='aplicacao', rows = '10', style = "resize: vertical; width:100%", value = "")#aplicacao-text.form-control
+                                            textarea(name='aplicacao', rows = '10', style = "resize: vertical; width:100%")#aplicacao-text.form-control
                                     .row
                                         .col-md-12.text-center
                                             button.btn.btn-primary.btn-lg.btn-block(type='submit') Enviar
@@ -52,8 +52,8 @@ block posscripts
         $("#pagina-externa").html(resultExterna.html)
         $("#pagina-externa").removeClass("hidden")
         var aliancaID = !{alianca.id}
-        var aplicacaoTexto = "!{alianca.template_aplicacao}"
-        $("#aplicacao-text").val(aplicacaoTexto)
+        var aplicacaoTexto = "!{alianca.aplicacao_template}"
+        $("#aplicacao-text").html(aplicacaoTexto.replace(/<br \/>/g, '\n'))
         $("#btn-enviar-aplicacao").on('click', function()
         {
             $("#modal-aplicacao").modal("show");
