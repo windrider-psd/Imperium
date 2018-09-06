@@ -1046,26 +1046,48 @@ router.get('/get-mensagens-topico', (req, res) => {
     {
         getParticipacao(req)
             .then(participacao => {
-
                 models.Forum_Topico.findOne({where : {aliancaID : participacao.aliancaID, id : params.topico}})
                     .then(topico => {
                         if(!topico)
                             res.status(400).end("Tópico não existe")
                         else
                         {
-                            models.Forum_Mensagem.findAll({
+                            models.Forum_Mensagem.findAndCount({
                                 where :{
                                     topicoID : params.topico,
                                 },
                                 order:
                                 [
-                                    ['id', 'desc']
+                                    ['id', 'asc']
                                 ],
                                 limit : tamanhoPaginaMensagemTopico, 
                                 offset : ((params.pagina > 0 ? params.pagina : 1) - 1) * tamanhoPaginaMensagemTopico
                             })
-                                .then(mensagens => {
-                                    res.status(200).json(mensagens)
+                                .then(resultado => {
+                                    let mensagens = resultado.rows
+                                    let totalMensagens = resultado.count
+                                    let promesas = new Array();
+                                    mensagens.forEach((mensagem, index) => {
+                                        promesas.push(new Promise((resolve, reject) => {
+                                            models.Usuario.findOne({where : {id : mensagem.usuarioID}, attributes: ['id', 'nick']})
+                                                .then(usuarioMensagem => {
+                                                    mensagens[index].dataValues.usuario = usuarioMensagem.dataValues;
+                                                    resolve()
+                                                })
+                                                .catch(err => 
+                                                    reject(err)
+                                                )
+                                        }))
+                                    })
+
+                                    Promise.all(promesas)
+                                        .then(() => 
+                                            res.status(200).json({mensagens : mensagens, total : totalMensagens, tamanhoPagina : tamanhoPaginaMensagemTopico})
+                                        )
+                                        .catch(err => 
+                                            res.status(500).end(err.message)
+                                        )
+
                                 })
                                 .catch(err => 
                                     res.status(500).end(err.message)
@@ -1142,10 +1164,29 @@ router.post('/inserir-mensagem-topico', (req, res) => {
                             res.status(400).end("Tópico não existe")
                         else
                         {
-                            models.Forum_Mensagem.create({conteudo : params.conteudo, usuarioID : req.session.usuario.id, topicoID : params.topico})
-                                .then((mensagem) => 
-                                    res.status(200).json(mensagem)
-                                ) 
+                            models.Con.transaction()
+                                .then(transacao => {
+                                    let promessas = new Array()
+                                    promessas.push(
+                                        models.Forum_Mensagem.create({conteudo : params.conteudo, usuarioID : req.session.usuario.id, topicoID : params.topico}, {transaction : transacao})
+                                    )
+                                    promessas.push(
+                                        models.Forum_Topico.update({criacao : new Date()}, {where : {id : topico.id}, transaction : transacao})
+                                    )
+                                    Bluebird.all(promessas)
+                                        .then(resultado => {
+                                            transacao.commit()
+                                                .then(() => 
+                                                    res.status(200).json(resultado[0]) //Resultado[0] = mensagem criada
+                                                )
+                                        })
+                                        .catch(err => 
+                                            res.status(500).end(err.message)
+                                        )
+                                })
+
+
+                            
                         }
                     })
                     .catch(err => 

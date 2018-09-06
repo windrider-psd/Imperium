@@ -1,0 +1,18 @@
+extends templates/layout
+block titulo
+  | !{topico.nome}
+block content     
+    include includes/navbar
+    h1 !{topico.nome}
+    #mensagens-conteudo
+    .container
+      .row
+        .well(style='padding-bottom:0')
+          form(onsubmit='return false')#form-inserir-mensagem-forum
+            textarea(name='conteudo', placeholder='Digite sua mensagem...', rows='5' style = "resize:vertical").form-control
+            br
+            button.btn.btn-info(type='submit') Postar mensagem
+
+block posscripts
+  script(src="js/pagination.min.js")
+  script(src="js/meta/view_topico-forum.js")

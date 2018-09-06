@@ -32,7 +32,7 @@ $(document).ready(function() {
                 
                 for(let i = 0; i < topicos.length; i++)
                 {
-                    htmlString += '<tr><td data-id = "'+topicos[i].id+'" class = "td-topico-nome"><a href = "topico-forum?topicoid='+topicos[i].id+'" class = "link">'+topicos[i].nome+'</td><td>'+topicos[i].totalMensagens+'</td><td>'+(topicos[i].ultimaMensagem != null ? topicos[i].ultimaMensagem.nick : "Nenhuma mensagem")+'</td>'
+                    htmlString += '<tr><td data-id = "'+topicos[i].id+'" class = "td-topico-nome"><a href = "topico-forum?topicoid='+topicos[i].id+'" class = "link">'+topicos[i].nome+'</td><td>'+topicos[i].totalMensagens+'</td><td>'+(topicos[i].ultimaMensagem != null ? topicos[i].ultimaMensagem.usuario.nick : "Nenhuma mensagem")+'</td>'
                     if(isLider || userdata.alianca.rank.gerenciar_forum)
                         htmlString += '<td><button class = "btn btn-primary btn-editar-topico" data-id = "'+topicos[i].id+'" data-nome = "'+topicos[i].nome+'" data-responder = "'+topicos[i].responder+'" data-destaque = "'+topicos[i].destaque+'"><i class = "fa fa-edit" title = "Editar tópico"></i></button><button class = "btn btn-danger btn-excluir-topico" data-id = "'+topicos[i].id+'"><i class = "fa fa-times" title = "Excluir tópico"></i></button></td>'
                     htmlString += '</tr>'

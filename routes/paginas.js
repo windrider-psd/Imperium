@@ -100,6 +100,31 @@ router.get('/login', (req, res) => {
     res.render('login');
 });
 
+router.get('/topico-forum', (req, res, next) => {
+  if(req.session.usuario)
+  {
+    getUserData(req).then(userdata => {
+      if(!userdata.alianca != null && typeof(req.query.topicoid) != 'undefined')
+      {
+        models.Forum_Topico.findOne({where : {aliancaID : userdata.alianca.id, id : req.query.topicoid}})
+          .then(topico =>{
+            if(topico)
+              res.render('topico-forum', {userdata : userdata, topico : topico})
+            else
+              res.render('inicial', {userdata : userdata})
+          })
+          .catch(() =>
+            next()
+          )
+      }
+      else
+        res.render('inicial', {userdata : userdata})
+    }).catch(() => res.render('login'));
+  }
+  else
+    res.render('login');
+});
+
 router.get('/cadastrar', (req, res) => res.render('cadastrar'));
 
 router.get('/inicial', (req, res) => {
