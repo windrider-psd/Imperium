@@ -39,6 +39,32 @@ block content
                       .row
                           .col-md-offset-3.col-md-6.text-center
                               button.btn.btn-primary.btn-lg.btn-block(type='submit') Criar
+  #modal-editar-topico.modal.fade(role='dialog')
+    .modal-dialog
+      .modal-content
+        .modal-header
+          button.close(type='button', data-dismiss='modal') ×
+          h4.modal-title Editar tópico
+        .modal-body
+          .container-fluid
+            .row
+              .col-md-offset-1.col-md-10.col-sm-12
+                form(onsubmit='return false')#form-editar-topico
+                  input(type="hidden", name="id")#form-editar-topico-id
+                  .form-group
+                    label(for="nome") Nome do tópico
+                    input(type="text", name="nome")#form-editar-topico-nome.form-control
+                  .checkbox
+                    label(for="responder")
+                      input(type="checkbox", name="responder")#form-editar-topico-responder
+                      | Apenas o líder e administradores do fórum podem responder
+                  .checkbox
+                    label(for="destaque")
+                      input(type="checkbox", name="destaque")#form-editar-topico-destaque
+                      | Tópico em destaque
+                  .row
+                    .col-md-offset-3.col-md-6.text-center
+                      button.btn.btn-primary.btn-lg.btn-block(type='submit') Editar
 
 
 block posscripts

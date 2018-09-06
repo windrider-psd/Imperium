@@ -1160,7 +1160,7 @@ router.post('/inserir-mensagem-topico', (req, res) => {
 
 
 
-router.post('/alterar-topico', (req, res) => {
+router.post('/editar-topico', (req, res) => {
  /**
      * @type {{nome : string, responder : boolean, destaque : boolean, id : number}}
      */
@@ -1195,14 +1195,6 @@ router.post('/alterar-topico', (req, res) => {
                         .catch(err => 
                             res.status(500).end(err.message)
                         )
-
-                    models.Forum_Topico.create({aliancaID : participacao.aliancaID, nome : params.nome, responder : params.responder})
-                        .then(topico => 
-                            res.status(200).json(topico.dataValues)
-                        )  
-                        .catch(err => 
-                            res.status(500).end(err.message)
-                        )
                 }
                 else
                     res.status(403).end("Sem permição")
@@ -1214,7 +1206,7 @@ router.post('/alterar-topico', (req, res) => {
 })
 
 
-router.post('/alterar-mensagem', (req, res) => {
+router.post('/editar-mensagem', (req, res) => {
     /**
      * @type {{id : number, conteudo : string}}
      */

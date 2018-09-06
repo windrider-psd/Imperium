@@ -32,9 +32,9 @@ $(document).ready(function() {
                 
                 for(let i = 0; i < topicos.length; i++)
                 {
-                    htmlString += '<tr><td><a href = "topico-forum?topicoid='+topicos[i].id+'" class = "link">'+topicos[i].nome+'</td><td>'+topicos[i].totalMensagens+'</td><td>'+(topicos[i].ultimaMensagem != null ? topicos[i].ultimaMensagem.nick : "Nenhuma mensagem")+'</td>'
+                    htmlString += '<tr><td data-id = "'+topicos[i].id+'" class = "td-topico-nome"><a href = "topico-forum?topicoid='+topicos[i].id+'" class = "link">'+topicos[i].nome+'</td><td>'+topicos[i].totalMensagens+'</td><td>'+(topicos[i].ultimaMensagem != null ? topicos[i].ultimaMensagem.nick : "Nenhuma mensagem")+'</td>'
                     if(isLider || userdata.alianca.rank.gerenciar_forum)
-                        htmlString += '<td><button class = "btn btn-primary btn-editar-topico" data-id = "'+topicos[i].id+'"><i class = "fa fa-edit" title = "Editar tópico"></i></button><button class = "btn btn-danger btn-excluir-topico" data-id = "'+topicos[i].id+'"><i class = "fa fa-times" title = "Excluir tópico"></i></button></td>'
+                        htmlString += '<td><button class = "btn btn-primary btn-editar-topico" data-id = "'+topicos[i].id+'" data-nome = "'+topicos[i].nome+'" data-responder = "'+topicos[i].responder+'" data-destaque = "'+topicos[i].destaque+'"><i class = "fa fa-edit" title = "Editar tópico"></i></button><button class = "btn btn-danger btn-excluir-topico" data-id = "'+topicos[i].id+'"><i class = "fa fa-times" title = "Excluir tópico"></i></button></td>'
                     htmlString += '</tr>'
                 }
                 htmlString += "</tbody>"
@@ -116,13 +116,48 @@ $(document).ready(function() {
                 },
                 error : function (err)
                 {
-                    console.log(err)
                     GerarNotificacao(err.responseText, "danger")
                 }
             })
         })
-        
     })
+
+    $("#conteudo-forum").on('click', '.btn-editar-topico', function()
+    {
+        let id = $(this).data('id')
+        let nome = $(this).data('nome')
+        let responder = $(this).data('responder')
+        let destaque = $(this).data('destaque')
+
+        $("#form-editar-topico-id").val(id)
+        $("#form-editar-topico-nome").val(nome)
+        $("#form-editar-topico-responder").attr('checked', responder)
+        $("#form-editar-topico-destaque").attr('checked', destaque)
+        $("#modal-editar-topico").modal('show')
+    })
+
+    $("#form-editar-topico").on('submit', function(){
+        let info = FormToAssocArray($(this))
+        $.ajax({
+            url :'alianca/editar-topico',
+            method : "POST",
+            data : info,
+            success : function()
+            {
+                let btn = $('.btn-editar-topico[data-id="'+info.id+'"]')
+                btn.data('nome', info.nome)
+                btn.data('responder', info.responder)
+                btn.data('destaque', info.destaque)
+                $(".td-topico-nome[data-id='"+info.id+"'] a").text(info.nome)
+                GerarNotificacao("Tópico renomeado com sucesso", 'success')
+            },
+            error : function (err)
+            {
+                GerarNotificacao(err.responseText, "danger")
+            }
+        })
+    })
+
     $("#form-adicionar-topico").on('submit', function(){
         let info = FormToAssocArray($(this))
         $.ajax({
