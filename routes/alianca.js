@@ -1156,42 +1156,45 @@ router.post('/inserir-mensagem-topico', (req, res) => {
     {
         getParticipacao(req)
             .then(participacao => {
-                params.conteudo = sanitizer.escape(params.conteudo)
+                if(participacao.rank.lider || participacao.rank.gerenciar_forum)
+                {
+                    params.conteudo = sanitizer.escape(params.conteudo)
 
-                models.Forum_Topico.findOne({where : {aliancaID : participacao.aliancaID, id : params.topico}})
-                    .then(topico => {
-                        if(!topico)
-                            res.status(400).end("Tópico não existe")
-                        else
-                        {
-                            models.Con.transaction()
-                                .then(transacao => {
-                                    let promessas = new Array()
-                                    promessas.push(
-                                        models.Forum_Mensagem.create({conteudo : params.conteudo, usuarioID : req.session.usuario.id, topicoID : params.topico}, {transaction : transacao})
-                                    )
-                                    promessas.push(
-                                        models.Forum_Topico.update({criacao : new Date()}, {where : {id : topico.id}, transaction : transacao})
-                                    )
-                                    Bluebird.all(promessas)
-                                        .then(resultado => {
-                                            transacao.commit()
-                                                .then(() => 
-                                                    res.status(200).json(resultado[0]) //Resultado[0] = mensagem criada
-                                                )
-                                        })
-                                        .catch(err => 
-                                            res.status(500).end(err.message)
+                    models.Forum_Topico.findOne({where : {aliancaID : participacao.aliancaID, id : params.topico}})
+                        .then(topico => {
+                            if(!topico)
+                                res.status(400).end("Tópico não existe")
+                            else
+                            {
+                                models.Con.transaction()
+                                    .then(transacao => {
+                                        let promessas = new Array()
+                                        promessas.push(
+                                            models.Forum_Mensagem.create({conteudo : params.conteudo, usuarioID : req.session.usuario.id, topicoID : params.topico}, {transaction : transacao})
                                         )
-                                })
-
-
-                            
-                        }
-                    })
-                    .catch(err => 
-                        res.status(500).end(err.message)
-                    )
+                                        promessas.push(
+                                            models.Forum_Topico.update({criacao : new Date()}, {where : {id : topico.id}, transaction : transacao})
+                                        )
+                                        Bluebird.all(promessas)
+                                            .then(resultado => {
+                                                transacao.commit()
+                                                    .then(() => 
+                                                        res.status(200).json(resultado[0]) //Resultado[0] = mensagem criada
+                                                    )
+                                            })
+                                            .catch(err => 
+                                                res.status(500).end(err.message)
+                                            )
+                                    })
+                            }
+                        })
+                        .catch(err => 
+                            res.status(500).end(err.message)
+                        )
+                }
+                else
+                    res.status(403).end("Sem permição")
+                
             })
             .catch(err => 
                 res.status(400).end(err.message)
@@ -1346,7 +1349,7 @@ router.post('/excluir-mensagem', (req, res) => {
     {
         getParticipacao(req)
             .then(participacao => {
-                models.Forum_Mensagem.findOne({where : {id : params.id}, attributes : ['topicoID']})
+                models.Forum_Mensagem.findOne({where : {id : params.id}, attributes : ['id', 'topicoID', 'usuarioID']})
                     .then(mensagem => {
                         if(mensagem && (mensagem.usuarioID == req.session.usuario.id || participacao.rank.lider || participacao.rank.gerenciar_forum))
                         {
@@ -1354,7 +1357,7 @@ router.post('/excluir-mensagem', (req, res) => {
                                 .then((topico) => {
                                     if(topico.aliancaID == participacao.aliancaID)
                                     {
-                                        mensagem.destroy()
+                                        models.Forum_Mensagem.destroy({where : {id : mensagem.id}})
                                             .then(() =>
                                                 res.status(200).end("Mensagem excluida com sucesso")
                                             )
@@ -1370,13 +1373,6 @@ router.post('/excluir-mensagem', (req, res) => {
                             res.status(403).end("Mensagem não existe")
                     })
 
-                models.Forum_Topico.destroy({where : {id : params.id, aliancaID : participacao.aliancaID}})
-                    .then(() => 
-                        res.status(200).end("Tópico excluido com sucesso")
-                    )
-                    .catch(err => 
-                        res.status(500).end(err.message)
-                    )
             })
             .catch(err => 
                 res.status(400).end(err.message)

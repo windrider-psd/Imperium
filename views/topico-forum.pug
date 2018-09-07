@@ -5,7 +5,7 @@ block content
     include includes/navbar
     h1 !{topico.nome}
     #mensagens-conteudo
-    .container
+    .container#conteiner-adicionar-mensagem(style = 'display:none')
       .row
         .well(style='padding-bottom:0')
           form(onsubmit='return false')#form-inserir-mensagem-forum
