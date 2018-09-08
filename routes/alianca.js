@@ -1250,7 +1250,7 @@ router.post('/editar-topico', (req, res) => {
 })
 
 
-router.post('/editar-mensagem', (req, res) => {
+router.post('/editar-mensagem-topico', (req, res) => {
     /**
      * @type {{id : number, conteudo : string}}
      */
@@ -1272,8 +1272,7 @@ router.post('/editar-mensagem', (req, res) => {
                                     if(topico.aliancaID == participacao.aliancaID)
                                     {
                                         params.conteudo = sanitizer.escape(params.conteudo)
-                                        mensagem.conteudo = params.conteudo
-                                        mensagem.update()
+                                        models.Forum_Mensagem.update({conteudo : params.conteudo}, {where : {id : params.id}})
                                             .then(() =>
                                                 res.status(200).end("Mensagem alterada com sucesso")
                                             )
@@ -1288,14 +1287,6 @@ router.post('/editar-mensagem', (req, res) => {
                         else
                             res.status(403).end("Mensagem não existe")
                     })
-
-                models.Forum_Topico.destroy({where : {id : params.id, aliancaID : participacao.aliancaID}})
-                    .then(() => 
-                        res.status(200).end("Tópico excluido com sucesso")
-                    )
-                    .catch(err => 
-                        res.status(500).end(err.message)
-                    )
             })
             .catch(err => 
                 res.status(400).end(err.message)
