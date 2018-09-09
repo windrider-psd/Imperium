@@ -1372,4 +1372,180 @@ router.post('/excluir-mensagem', (req, res) => {
 })
 
 
+const tamanhoPaginaCiculares = 15
+router.get('/get-mensagens-circulares', (req, res) => {
+    /**
+     * @type {{pagina : number}}
+     */
+    let params = req.query
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else if(!params.pagina)
+        res.status(400).end("Parâmetros inválidos")
+    else
+    {
+        getParticipacao(req)
+            .then(participacao =>{
+                models.Alianca_Mensagem_Circular_Visualizada.findAndCountAll({
+                    where : 
+                    {
+                        usuarioID : participacao.usuarioID, 
+                        excluida : false
+                    },
+                    order : 
+                    [
+                        ['mensagemID', 'DESC']
+                    ],
+                    limit : tamanhoPaginaCiculares, 
+                    offset : ((params.pagina > 0 ? params.pagina : 1) - 1) * tamanhoPaginaCiculares})
+                        .then(resultado => {
+                            let pseudomensagens = resultado.rows
+                            let total = resultado.count
+
+                            let promessas = new Array()
+                            pseudomensagens.forEach((pmensagem, index) =>{
+                                promessas.push(
+                                    models.Alianca_Mensagem_Circular.findOne({where : {id : pmensagem.mensagemID}})
+                                        .then(mensagem => {
+                                            pmensagem.dataValues.conteudo = mensagem.dataValues
+                                        })
+                                )
+                            })
+                            Bluebird.all(promessas)
+                                .then(() =>{
+                                    res.status(200).json({mensagens : pseudomensagens, total : total, tamanhoPagina : tamanhoPaginaCiculares})
+                                })
+                                .catch(err =>
+                                    res.status(500).end(err.message)
+                                )
+                        })
+            })
+    }
+})
+/**
+ * 
+ * @param {number} aliancaID O id da aliança
+ * @param {string} mensagem O conteúdo da mensagem
+ * @param {number} [remetente] O id do remetente. Opcional
+ * @description Envia uma mensagem circular
+ * @returns {Bluebird.<Object>} Retorna Bluebird com o objecto sequelize.model da mensagem
+ */
+function EnviarMensagemCircular(aliancaID, mensagem, remetente)
+{
+    let origem = (typeof(remetente) !== 'undefined') ? remetente : false
+    return new Bluebird((resolve, reject) => {
+        models.Con.transaction()
+            .then(transacao => {
+                models.Alianca_Mensagem_Circular.create({mensagem : sanitizer.escape(mensagem), aliancaID : aliancaID}, {transaction : transacao})
+                    .then(criada => {
+                            models.Usuario_Participa_Alianca.findAll({where : {aliancaID : aliancaID}, transaction : transacao, attributes : ['usuarioID']})
+                            .then(participacoes => {
+                                let promessas = new Array()
+                                participacoes.forEach((parti) => {
+                                    promessas.push(
+                                        models.Alianca_Mensagem_Circular_Visualizada.create({
+                                            usuarioID : parti.usuarioID,
+                                            mensagemID : criada.id, 
+                                            visualizada : (origem !== false) ? parti.usuarioID == origem : false}
+                                            , 
+                                            {transaction : transacao})
+                                    )
+                                })
+                                Bluebird.all(promessas)
+                                    .then(() => {
+                                        transacao.commit()
+                                            .then(() => 
+                                                resolve(criada)
+                                            )
+                                            .catch(err =>
+                                            {
+                                                transacao.rollback()
+                                                reject(err)
+                                            }) 
+                                    })
+                                    .catch(err =>
+                                    {
+                                        transacao.rollback()
+                                        reject(err)
+                                    }) 
+                            })
+                            .catch(err =>
+                            {
+                                transacao.rollback()
+                                reject(err)
+                            })  
+
+                    })
+                    .catch(err =>
+                    {
+                        transacao.rollback()
+                        reject(err)
+                    })
+            })
+            .catch(err =>
+                reject(err)
+            )
+    })
+}
+
+router.post('/set-mensagem-circular-visualizada', (req, res) => {
+    /**
+     * @type {{mensagemID : number}}
+     */
+    let params = req.body
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else if(!params.mensagemID)
+        res.status(400).end("Parâmetros inválidos")
+    else
+    {
+        getParticipacao(req)
+            .then(participacao => {
+                models.Alianca_Mensagem_Circular_Visualizada.update({visualizada : true}, {where : {usuarioID : req.session.usuario.id, mensagemID : params.mensagemID}})
+                    .then(() => {
+                        res.status(200).end("Mensgem visualizada com sucesso")
+                    })
+                    .catch(err =>
+                        res.status(500).end(err.message)
+                    )
+            })
+            .catch(err => 
+                res.status(400).end(err.message)
+            )
+    }
+})
+
+router.post('/enviar-mensagem-circular', (req, res) => {
+    /**
+     * @type {{conteudo : string}}
+     */
+    let params = req.body
+    if(!req.session.usuario)
+        res.status(403).end("Operação inválida")
+    else if(!params.conteudo)
+        res.status(400).end("Parâmetros inválidos")
+    else
+    {
+        getParticipacao(req)
+            .then(participacao => {
+                if(participacao.rank.lider || participacao.rank.mensagens)
+                {
+                    EnviarMensagemCircular(participacao.aliancaID, params.conteudo, participacao.usuarioID)
+                        .then(criada => {
+                            res.status(200).json(criada)
+                        })
+                        .catch(err => 
+                            res.status(500).end(err.message)
+                        )  
+                }
+                else
+                    res.status(403).end("Sem permição")
+            })
+            .catch(err => 
+                res.status(400).end(err.message)
+            )
+    }
+})
+
+
 module.exports = router;

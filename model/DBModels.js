@@ -622,12 +622,6 @@ const Alianca_Rank = con.define('alianca_ranks', {
         allowNull : false,
         defaultValue : false
     },
-    tratados: //Poder gerenciar tratados
-    {
-        type: sequalize.BOOLEAN,
-        allowNull : false,
-        defaultValue : false
-    },
     frota: //Visualizar frotas da aliança
     {
         type: sequalize.BOOLEAN,
@@ -867,6 +861,78 @@ const Forum_Mensagem = con.define('forum_mensagem', {
 }, {timestamps : false})
 
 
+const Alianca_Mensagem_Circular = con.define("mensagem-circular",{
+    id:
+    {
+        type: sequalize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    aliancaID:
+    {
+        type: sequalize.INTEGER,
+        allowNull : false,
+        references :
+        {
+            model : Alianca,
+            key : 'id',
+        },
+        onDelete : "CASCADE",
+    },
+    mensagem :
+    {
+        type: sequalize.TEXT,
+        allowNull : false,
+        validate:
+        {
+            len : [0,Number(process.env.MESSAGE_CONTENT_MAX_LENGTH)]
+        }
+    },
+    criacao :
+    {
+        type : sequalize.DATE,
+        defaultValue : sequalize.NOW,
+        allowNull : false
+    } 
+}, {timestamps : false});
+
+const Alianca_Mensagem_Circular_Visualizada = con.define("mensagem-circular-visualizada", {
+    usuarioID:
+    {
+        type: sequalize.INTEGER,
+        allowNull : false,
+        references :
+        {
+            model : Usuario,
+            key : 'id',
+        },
+        onDelete : "CASCADE",
+        primaryKey : true
+    },
+    mensagemID : {
+        type: sequalize.INTEGER,
+        allowNull : false,
+        references :
+        {
+            model : Alianca_Mensagem_Circular,
+            key : 'id',
+        },
+        primaryKey : true,
+        onDelete : "CASCADE",
+    },
+    visualizada :{
+        type : sequalize.BOOLEAN,
+        defaultValue : false,
+        allowNull : false
+    },
+    excluida :{
+        type : sequalize.BOOLEAN,
+        defaultValue : false,
+        allowNull : false
+    }
+}, {timestamps : false})
+
+
 Usuario.hasOne(EsqueciSenha, {foreignKey : {name : "usuarioID", allowNull : false, primaryKey : true}, onDelete : "CASCADE"})
 EsqueciSenha.removeAttribute('id');
 Setor.hasMany(Planeta, {foreignKey : {name : "setorID", allowNull : false}, onDelete : "CASCADE"})
@@ -909,6 +975,8 @@ module.exports = {
     Alianca_Convite : Alianca_Convite,
     Forum_Mensagem : Forum_Mensagem,
     Forum_Topico : Forum_Topico,
+    Alianca_Mensagem_Circular : Alianca_Mensagem_Circular,
+    Alianca_Mensagem_Circular_Visualizada : Alianca_Mensagem_Circular_Visualizada,
     isReady : function(){return ready;}};
 
 con.authenticate().then(function()

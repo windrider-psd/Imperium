@@ -20,7 +20,7 @@ $(document).ready(function() {
             method : "GET",
             data : {pagina : pagina, topico : qs.topicoid},
             success : function(resposta)
-            {   
+            {
                 let mensagens = resposta.mensagens
                 let total = resposta.total
                 let tamanhoPaginas = resposta.tamanhoPagina

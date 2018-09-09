@@ -149,6 +149,10 @@ class DBBuilder {
                     models.Alianca_Aplicacao.sync({force: force});
                     models.Alianca_Convite.sync({force: force});
 
+                    models.Alianca_Mensagem_Circular.sync({force : force})
+                        .then(() => 
+                            models.Alianca_Mensagem_Circular_Visualizada.sync({foce : force})
+                        )
                     models.Forum_Topico.sync({force : force})
                         .then(() => 
                             models.Forum_Mensagem.sync({force : force})
