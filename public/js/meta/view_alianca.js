@@ -575,6 +575,37 @@ $(document).ready(function (){
     {
         setViewAdministracao()
     })
+    $("#tab-mensagem-circular").on('click', function()
+    {
+        setViewCircular()
+    })
+
+    function setViewCircular()
+    {
+        let htmlString = "<h4>Enviar Mensagem Circular</h4>"
+        htmlString += '<form id = "form-circular" onsubmit = "return false">'
+        htmlString += '<textarea class="form-control" name="conteudo" placeholder="Digite sua mensagem..." rows="5" style="resize:vertical;"></textarea><br/>'
+        htmlString += '<button class="btn btn-primary" type="submit">Enviar mensagem</button></form>'
+        $("#tab-content-alianca").html(htmlString)
+    }
+
+    $("#tab-content-alianca").on('submit', "#form-circular", function()
+    {
+        let params = FormToAssocArray($(this))
+        $.ajax({
+            url : 'alianca/enviar-mensagem-circular',
+            method : 'POST',
+            data : params,
+            success : function()
+            {
+                GerarNotificacao("Mensagem enviada com sucesso", 'success')
+            },
+            error : function(err)
+            {
+                GerarNotificacao(err.responseText, 'danger')
+            },
+        })
+    })
     
     
     $("#tab-content-alianca").on('click','.aceitar-btn', function()
