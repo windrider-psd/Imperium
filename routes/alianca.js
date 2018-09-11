@@ -3,7 +3,7 @@ var router = express.Router();
 const models = require('./../model/DBModels')
 const sanitizer = require("sanitizer")
 const io = require('./../model/io')
-const ranking = require('./../model/Ranking')
+const ranking = require('./../services/Ranking')
 const Bluebird = require('bluebird');
 const formatoSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/ //Sem espaço
 const formatoSpecial2 = /[ !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/ //Com espaço

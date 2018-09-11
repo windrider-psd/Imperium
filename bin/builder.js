@@ -1,4 +1,4 @@
-const builder = require('./../model/DBModelsBuilder')
+const builder = require('./../services/DBModelsBuilder')
 const models = require("./../model/DBModels")
 const yargs = require('yargs').argv
 

@@ -6,14 +6,15 @@
 
 const debug = require('debug')('jogo:server');
 const http = require('http');
-const Croner = require('./../model/Croner');
+const Croner = require('./../services/Croner');
 const io = require('./../model/io');
 const yargs = require('yargs').argv
 const session = require('express-session')
 const RedisStore = require('connect-redis')(session);
 const redis = require('redis').createClient({host : 'localhost', port : 6379});
 
-const portaServidoIO = (yargs.ioPort) ? yargs.ioPort : 2000;
+const portaServidoIO = 2000;
+console.log("Porta servidor Socket.io: " + portaServidoIO)
 const armazenadorSessao = new RedisStore({host : 'localhost', port : 6379, client : redis})
 const sessaomiddleware = session({
   store : armazenadorSessao,

@@ -228,20 +228,8 @@ block content
                 button.btn-calcelar-melhoria.btn.btn-warning.btn-sm.hidden Calcelar Melhoria
 
 block posscripts
-    script(src="js/meta/view_edificios.js")
-    script(src="js/meta/view_recursos.js")
-    script.
-        if(planeta)
-        {
-            $("#nome-planeta").text(planeta.nome);
-            $("title").text(planeta.nome + " - Imperium");
-            GetEdificios();
-            GetConstrucoes();
-        }
-        else
-        {
-            GerarNotificacao("Planeta não encontrado", 'danger');
-        }
+    script(src="js/dist/pages/recursos.bundle.js")
+    script(src="js/dist/pages/edificios.bundle.js")
         
 
 

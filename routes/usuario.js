@@ -4,13 +4,13 @@ const database = require('./../model/DBModels')
 const bcrypt = require('bcrypt');
 const sanitizer = require('sanitizer')
 const emailer = require('./../model/Emailer')
-const random = require('./../model/Aleatorio')
+const random = require('./../services/Aleatorio')
 const conexao = database.Con;
 const Usuario = database.Usuario;
 const Esqueci = database.EsqeciSenha;
 const Setor = database.Setor;
 const Planeta = database.Planeta;
-const ranking = require('./../model/Ranking')
+const ranking = require('./../services/Ranking')
 require('dotenv/config')
 const rankingResultadosPorPagina = Number(process.env.RANKING_MAX_RESULTADOS);
 
@@ -40,7 +40,7 @@ function EnviarEmailAtivacao(req, id, chave, email)
   let mensagem = "<html><head></head><body><p>Você recebeu essa mensagem porque você criou uma conta no jogo Imperium.</p>"
   + "<p>Para ativar sua senha, clique no link abaixo</p>"
   +  "<a href = "+link+">"+link+"</a><br /><p>Caso esteja enfrentando alguma dificuldade, contacte o suporte</p><p>Se esta mensagem não para você, por favor, ignore esta mensagem</p></body></html>";
-  emailer.enviarEmail(email, "Imperium - Ativar Conta", mensagem, (err, info) =>
+  emailer.EnviarEmail(email, "Imperium - Ativar Conta", mensagem, (err, info) =>
   {
     if(err) console.log(err)
     console.log(info);
@@ -73,7 +73,7 @@ router.post('/cadastrar', function(req, res) {
         res.status(400).end("O nick precisa conter pelo menos 4 caracteres");
         return;
       }
-      if(!emailer.validarEmail(params.email))
+      if(!emailer.ValidarEmail(params.email))
       {
         res.status(400).end("O email digitado não é valido");
         return;
@@ -201,7 +201,7 @@ router.post('/criaresqueci', (req, res) =>
     res.status(403).end("Requisição inválida");
   else if(!params.email)
     res.status(400).end("Parâmetros inválidos");
-  else if(!emailer.validarEmail(params.email))
+  else if(!emailer.ValidarEmail(params.email))
     res.status(400).end("Email inválido");
   else
   {
@@ -219,7 +219,7 @@ router.post('/criaresqueci', (req, res) =>
           {
               let mensagem = getMensagemEsqueci(req, valores.id, criado.dataValues.chave);
     
-              emailer.enviarEmail(valores.email, "Imperium - Recuperação de senha", mensagem, (err) =>
+              emailer.EnviarEmail(valores.email, "Imperium - Recuperação de senha", mensagem, (err) =>
               {
                 if(err)
                 {
@@ -243,7 +243,7 @@ router.post('/reenviaresqueci', (req, res) =>
     res.status(403).end("Requisição inválida");
   else if(!params.email)
     res.status(400).end("Parâmetros inválidos");
-  else if(!emailer.validarEmail(params.email))
+  else if(!emailer.ValidarEmail(params.email))
     res.status(400).end("Email inválido");
   else
   {
@@ -256,7 +256,7 @@ router.post('/reenviaresqueci', (req, res) =>
           if(encontrado)
           {
               let mensagem = getMensagemEsqueci(req, user.dataValues.id, encontrado.dataValues.chave);
-              emailer.enviarEmail(user.dataValues.email, "Imperium - Recuperação de senha", mensagem, (err) =>
+              emailer.EnviarEmail(user.dataValues.email, "Imperium - Recuperação de senha", mensagem, (err) =>
               {
                 if(err)
                 {
@@ -368,7 +368,7 @@ router.post('/alterar-email', function(req, res)
       res.status(200).end("Email alterado com sucesso");
       
       let mensagem = getMensagemTrocaEmail()
-      emailer.enviarEmail(params.email.toLowerCase(), "Imperium - Troca de email", mensagem)
+      emailer.EnviarEmail(params.email.toLowerCase(), "Imperium - Troca de email", mensagem)
       req.session.usuario.email == params.email
     }).catch(conexao.ValidationError, (err) =>
     {
@@ -422,7 +422,7 @@ router.post('/alterar-senha', function(req, res)
                 user.senha = hash
                 user.save().then(() =>
                 {
-                  emailer.enviarEmail(req.session.usuario.email, "Imperium - Troca de senha", getMensagemTrocaSenha())
+                  emailer.EnviarEmail(req.session.usuario.email, "Imperium - Troca de senha", getMensagemTrocaSenha())
                   res.status(200).end("Senha alterada com sucesso")
                 }).catch(() => res.status(500).end("Erro ao alterar a senha."))
               }

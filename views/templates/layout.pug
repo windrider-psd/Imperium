@@ -16,18 +16,14 @@ html
     link(rel='stylesheet', href="/stylesheets/fontawesome-all.min.css")
     link(rel='stylesheet', href='/stylesheets/pagination.css')
     link(rel='stylesheet', href='/stylesheets/style.css')
-    script(src="js/jquery.js")
-    script(src="js/socket.io.js")
-    script(src="js/util.js")
+    script(src="js/dist/bundle.general.js")
     - if(typeof(userdata) !== 'undefined'){
       script.
         const userdataString = '!{JSON.stringify(userdata).replace(/[\/\(\)\']/g, "\\$&")}'
-        var userdata = JSON.parse(userdataString);
-        const socket = io.connect('!{enderecoIP}:!{ioPort}')
-        socket.on('connect', function()
-        {
-          socket.emit('init', userdata.sessionID);
-        });
+        userdata = JSON.parse(userdataString)  
+        ip = '!{enderecoIP}'   
+        ioPort = '!{ioPort}'
+      script(src="js/dist/bundle.general.userdata.js")
     -}
     block posHead
   body
@@ -50,21 +46,5 @@ html
                         |  [!{planeta.posX}, !{planeta.posY}]
       block content
       
-      
-       
-    script(src="js/bootstrap.min.js")
-    script(src="js/bootbox.min.js")
-    script(src="js/bootstrap-notify.min.js")
-    script(src="js/meta/view_planeta_parser.js")
-    script(src="js/recursos.js")
     block posscripts
-    script.
-      $(document).ready(function()
-      {
-        $(".link-planeta").each(function()
-        {
-           _url = $(this).attr('href');
-           _url += (_url.split('?')[1] ? '&':'?') + 'planetaid=' + planeta.id;
-          $(this).attr('href', _url)
-        })
-      });
+      

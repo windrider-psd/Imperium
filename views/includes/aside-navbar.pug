@@ -29,22 +29,3 @@ aside
             img(src='images/alianca.png', alt='')
             span Fórum da aliança
     -}
-
-script.
-    var estado_menu = 0;
-    $(document).ready(function() {
-        $("#abrir_menu_div").on('click', function() {
-            if (estado_menu == 0) {
-                $("#abrir_menu_div_seta").css("display", "none");
-                $("#abrir_menu_div_fechar").css("display", "block");
-                $("aside").css("width", "100%");
-                estado_menu = 1;
-            } else {
-
-                $("#abrir_menu_div_seta").css("display", "block");
-                $("#abrir_menu_div_fechar").css("display", "none");
-                $("aside").css("width", "");
-                estado_menu = 0;
-            }
-        });
-    });

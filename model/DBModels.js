@@ -979,11 +979,11 @@ module.exports = {
     Alianca_Mensagem_Circular_Visualizada : Alianca_Mensagem_Circular_Visualizada,
     isReady : function(){return ready;}};
 
-con.authenticate().then(function()
+con.authenticate().then(() =>
 {
     console.log("Conexao Criada");
     ready = true;
-}).catch(function(err)
+}).catch((err) =>
 {
     console.log(err.parent);
 });

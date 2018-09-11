@@ -1,8 +1,8 @@
 var express = require('express');
 var router = express.Router();
 const models = require('./../model/DBModels')
-const MUtils = require('./../model/DBModelsUtils')
-const ranking = require('./../model/Ranking');
+const MUtils = require('./../services/DBModelsUtils')
+const ranking = require('./../services/Ranking');
 const Bluebird = require("bluebird");
 require('dotenv/config')
 /**

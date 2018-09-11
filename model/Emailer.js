@@ -20,7 +20,7 @@ const transportador =  nodemailer.createTransport({
  * @param {String} conteudo O conteudo da mensagem
  * @param {Function} __callback callback(err, info)
  */
-function enviarEmail (destino, assunto, conteudo, __callback)
+function EnviarEmail (destino, assunto, conteudo, __callback)
 {
     var opcoes = {
         from : process.env.EMAIL_USER,
@@ -42,12 +42,12 @@ function enviarEmail (destino, assunto, conteudo, __callback)
  * @description Analisa o email fornecido e retorna true se for valido e false se não for valido
  * @returns {boolean}
  */
-function validarEmail(email)
+function ValidarEmail(email)
 {
     var re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
     return re.test(String(email).toLowerCase());
 }
 module.exports = {
-    enviarEmail : enviarEmail,
-    validarEmail : validarEmail
+    EnviarEmail : EnviarEmail,
+    ValidarEmail : ValidarEmail
 }

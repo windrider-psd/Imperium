@@ -31,27 +31,5 @@ block content
       span Já possui uma conta?
           a(href="login").link  Acesse sua conta 
 block posscripts
-  script.
-    $("#form-cadastro").on('submit', function()
-    {
-      var info = FormToAssocArray($(this));
-      $.ajax({
-        method : "POST",
-        url : "usuario/cadastrar",
-        data : info,
-        
-        success : function()
-        {
-          GerarNotificacao("Conta criada com sucesso", "success");
-          window.location.href = "/"
-        },
-        error : function(mensagem)
-        {
-          GerarNotificacao(mensagem.responseText, "danger");
-        }
-      })
-    });
-    $(document).ready(function()
-    {
-      $('main').css('width', 'initial')
-    });
+  script(src="js/dist/pages/recursos.bundle.js")
+  script(src="js/dist/pages/login-cadastro.bundle.js")

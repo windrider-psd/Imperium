@@ -1,8 +1,8 @@
 var express = require('express');
 var router = express.Router();
 const models = require('./../model/DBModels')
-const GR = require('./../model/GerenciadorRecursos')
-const croner = require('./../model/Croner');
+const GR = require('./../services/shared/GerenciadorRecursos')
+const croner = require('./../services/Croner');
 const io = require('./../model/io')
 
 router.post('/melhorar', function(req, res)
