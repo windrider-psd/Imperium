@@ -57,7 +57,7 @@ router.post('/melhorar', function(req, res)
                                 res.status(400).end("Você não tem recursos necessários");
                             else
                             {
-                                let tempo = GR.GetTempoConstrucao(custo.ferro, custo.cristal, custo.uranio)
+                                let tempo = GR.GetTempoConstrucao(custo.ferro, custo.cristal, custo.componentes, custo.titanio, planeta.fabricaRobos)
                                 croner.AdicionarConstrucao(planeta.id, GR.GetEdificioID(coluna), tempo, (err, construcao) =>
                                 {
                                     if(err)

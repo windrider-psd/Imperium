@@ -78,10 +78,10 @@ function GetArmazenamentoArmazem(nivelArmazem)
  * @description Calcula o custo de melhoria do armazem
  * @returns {CustoEdificio}
  */
-function GeCustoUpgradeArmazem(nivelArmazem)
+function GetCustoUpgradeArmazem(nivelArmazem)
 {
     let custo = Math.ceil((250 * Math.pow(1.9, (nivelArmazem - 1))));
-    return {ferro : custo, cristal : custo, titanio : custo};
+    return {ferro : custo, cristal : custo, titanio : custo, componentes : 0};
 }
 
 
@@ -151,7 +151,7 @@ function GetCustoEdificioPorId(id, nivel)
         case 'minaCristal':
             return GetCustoUpgradeMinaCristal(nivel);
         case 'fabricaComponente':
-            return GetCustoUpgradeFabricaComponentes(nivel);
+            return GetCustoUpgradeFabricaComponente(nivel);
         case 'minaTitanio':
             return GetCustoUpgradeMinaTitanio(nivel)
         case 'fazenda': 
@@ -161,7 +161,7 @@ function GetCustoEdificioPorId(id, nivel)
         case 'reatorFusao':
             return GetCustoUpgradeReatorFusao (nivel)
         case 'armazem':
-            return GeCustoUpgradeArmazem(nivel)
+            return GetCustoUpgradeArmazem(nivel)
         default:
             return false
     }
@@ -235,7 +235,7 @@ function GetConsumoTotal(nivelMinaFerro, nivelMinaCristal, nivelFabricaComponent
  * @param {number} [niveis.minaFerro] 
  * @param {number} [niveis.minaCristal]
  * @param {number} [niveis.minaTitanio]
- * @param {number} [niveis.fabricaComponentes]
+ * @param {number} [niveis.fabricaComponente]
  * @param {number} [niveis.fazenda]
  * @param {Object} [posSol] O vetor de posição do sol
  * @param {number} [posSol.x] 
@@ -250,14 +250,14 @@ function GetConsumoTotal(nivelMinaFerro, nivelMinaCristal, nivelFabricaComponent
 function GetProducaoTotal(niveis, nivelPlanta, nivelReator, posSol, posPlaneta, intensidadeSolar)
 {
     let energiaTotal = GetEnergia(nivelPlanta, nivelReator, posSol, posPlaneta, intensidadeSolar)
-    let consumo = GetConsumoTotal(niveis.minaFerro, niveis.minaCristal, niveis.minaTitanio, niveis.fabricaComponente, niveis.fazenda);
+    let consumo = GetConsumoTotal(niveis.minaFerro, niveis.minaCristal, niveis.fabricaComponente, niveis.minaTitanio, niveis.fazenda);
     let isp = GetIntensidadeSolarPlaneta(posSol, posPlaneta, intensidadeSolar)
     return {
         
         ferro : GetProducaoFerro(niveis.minaFerro, consumo, energiaTotal, isp), 
         cristal : GetProducaoCristal(niveis.minaCristal, consumo, energiaTotal, isp),
         titanio : GetProducaoTitanio(niveis.minaTitanio, consumo, energiaTotal),
-        componentes : GetProducaoComponentes(niveis.fabricaComponentes, consumo, energiaTotal),
+        componente : GetProducaoComponente(niveis.fabricaComponente, consumo, energiaTotal),
         comida : GetProducaoComida (niveis.fazenda, consumo, energiaTotal, isp),
     }
 }
@@ -350,7 +350,7 @@ function GetConsumoMinaCristal (nivelMina)
  * @param {number} nivelFabrica O Nível da fabrica de componentes do planeta
  * @returns {number} Retorno um Integer da produção de componentes do planeta
  */
-function GetProducaoComponentes(nivelFabrica, consumoEnergiaTotal, totalEnergiaProduzida)
+function GetProducaoComponente(nivelFabrica, consumoEnergiaTotal, totalEnergiaProduzida)
 {
     let multiplicador = (totalEnergiaProduzida - consumoEnergiaTotal < 0) ? (totalEnergiaProduzida / consumoEnergiaTotal) : 1
     return Math.ceil((baseFabricaComponente * nivelFabrica * Math.pow(1.1, nivelFabrica)) * multiplicador  + baseComponente)
@@ -360,7 +360,7 @@ function GetProducaoComponentes(nivelFabrica, consumoEnergiaTotal, totalEnergiaP
  * @param {number} nivelMina O Nível da mina de cristal do planeta
  * @returns {CustoEdificio} 
  */
-function GetCustoUpgradeFabricaComponentes(nivelFabrica)
+function GetCustoUpgradeFabricaComponente(nivelFabrica)
 {
     let custoFerro = Math.ceil((112 * Math.pow(1.4, (nivelFabrica - 1))));
     let custoCristal = Math.ceil((145 * Math.pow(1.3, (nivelFabrica - 1))));
@@ -388,7 +388,7 @@ function GetConsumoFabricaComponente (nivelFabrica)
 function GetProducaoTitanio(nivelMina, consumoEnergiaTotal, totalEnergiaProduzida)
 {
     let multiplicador = (totalEnergiaProduzida - consumoEnergiaTotal < 0) ? (totalEnergiaProduzida / consumoEnergiaTotal) : 1
-    return Math.ceil((baseMinaTitanio * nivelMina * Math.pow(1.1, nivelMina) * multiplicador) + baseMinaTitanio)
+    return Math.ceil((baseMinaTitanio * nivelMina * Math.pow(1.1, nivelMina) * multiplicador) + baseTitanio)
 }
 
 /**
@@ -454,8 +454,19 @@ function GetConsumoFazenda (nivelFazenda)
     return Math.ceil(20 * nivelFazenda * Math.pow(1.1, nivelFazenda));
 }
 
-
 // Energia
+
+    /**
+     * 
+     * @param {number} nivelPlanta 
+     * @param {number} nivelReator 
+     * @param {number} intensidadeSolarPlaneta
+     * @returns {number} O total de energia produzida em um planeta 
+     */
+    function GetProducaoEnergia(nivelPlanta, nivelReator, intensidadeSolarPlaneta)
+    {
+        return GetProducaoEnergiaPlantaSolar(nivelPlanta, intensidadeSolarPlaneta) + GetProducaoEnergiaReatorFusao(nivelReator)
+    }
 
     //Planta Solar
 
@@ -553,8 +564,8 @@ function GetConsumoFazenda (nivelFazenda)
     exports.GetProducaoEnergiaReatorFusao = GetProducaoEnergiaReatorFusao,
     exports.GetEnergia = GetEnergia,
     
-    exports.GetProducaoComponentes = GetProducaoComponentes,
-    exports.GetCustoUpgradeFabricaComponentes = GetCustoUpgradeFabricaComponentes,
+    exports.GetProducaoComponente = GetProducaoComponente,
+    exports.GetCustoUpgradeFabricaComponente = GetCustoUpgradeFabricaComponente,
 
     exports.GetProducaoTitanio = GetProducaoTitanio,
     exports.GetCustoUpgradeMinaTitanio = GetCustoUpgradeMinaTitanio,
@@ -583,7 +594,8 @@ function GetConsumoFazenda (nivelFazenda)
     exports.GetTotalArmazenamentoRecursos = GetTotalArmazenamentoRecursos,
     exports.GetProtecaoArmazem = GetProtecaoArmazem,
     exports.GetArmazenamentoArmazem = GetArmazenamentoArmazem,
-    exports.GeCustoUpgradeArmazem = GeCustoUpgradeArmazem
+    exports.GetCustoUpgradeArmazem = GetCustoUpgradeArmazem,
+    exports.GetProducaoEnergia = GetProducaoEnergia
 
 
 }(typeof exports === 'undefined' ? this.GerenciadorRecursos = {} : exports));

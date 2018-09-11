@@ -94,7 +94,7 @@ $(".btn-ugrade-edificio").on('click', function()
             
             $("#recurso-ferro .recurso-atual").text($("#recurso-ferro .recurso-atual").text() - custo.ferro);
             $("#recurso-cristal .recurso-atual").text($("#recurso-cristal .recurso-atual").text() - custo.cristal);
-            $("#recurso-uranio .recurso-atual").text($("#recurso-uranio .recurso-atual").text() - custo.uranio);
+            $("#recurso-titanio .recurso-atual").text($("#recurso-titanio .recurso-atual").text() - custo.titanio);
 
         },
         error : function(err)
@@ -122,82 +122,78 @@ setInterval(function(){
 
 function GetEdificios()
 {
+    let isp = GerenciadorRecursos.GetIntensidadeSolarPlaneta(posSolObj, posPlanetaObj, setor.intensidadeSolar)
+    let consumo = GerenciadorRecursos.GetConsumoTotal(planeta.minaFerro, planeta.minaCristal, planeta.fabricaComponente, planeta.minaTitanio, planeta.fazenda)
+    let producaoEnergia=  GerenciadorRecursos.GetProducaoEnergia(planeta.plantaSolar, planeta.reatorFusao, isp);
     let custo = GerenciadorRecursos.GetCustoUpgradeMinaFerro(planeta.minaFerro + 1);
-    let tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.uranio);
+    let tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.componentes, custo.titanio, planeta.fabricaRobos);
+    
     $("#edificio-ferro .edificio-nivel").text(planeta.minaFerro);
     $("#edificio-ferro .custo-ferro span").text(custo.ferro);
     $("#edificio-ferro .custo-cristal span").text(custo.cristal);
-    $("#edificio-ferro .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoFerro(planeta.minaFerro + 1) - GerenciadorRecursos.GetProducaoFerro(planeta.minaFerro)) * 6)+ "/minuto");
+    $("#edificio-ferro .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoFerro(planeta.minaFerro + 1, consumo, producaoEnergia, isp) - GerenciadorRecursos.GetProducaoFerro(planeta.minaFerro, consumo, producaoEnergia, isp)) * 6)+ "/minuto");
     $("#edificio-ferro .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
 
 
     custo = GerenciadorRecursos.GetCustoUpgradeMinaCristal(planeta.minaFerro + 1);
-    tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.uranio);
+    tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.componentes, custo.titanio, planeta.fabricaRobos);
     $("#edificio-cristal .edificio-nivel").text(planeta.minaCristal);
     $("#edificio-cristal .custo-ferro span").text(custo.ferro);
     $("#edificio-cristal .custo-cristal span").text(custo.cristal);
-    $("#edificio-cristal .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoCristal(planeta.minaCristal + 1) - GerenciadorRecursos.GetProducaoCristal(planeta.minaCristal)) * 6)+ "/minuto");
+    $("#edificio-cristal .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoCristal(planeta.minaCristal + 1, consumo, producaoEnergia, isp) - GerenciadorRecursos.GetProducaoCristal(planeta.minaCristal, consumo, producaoEnergia, isp)) * 6)+ "/minuto");
     $("#edificio-cristal .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
 
     custo = GerenciadorRecursos.GetCustoUpgradePlantaSolar(planeta.plantaSolar + 1);
-    tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.uranio);
+    tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.componentes, custo.titanio, planeta.fabricaRobos);
     let intensidadeSolar = GerenciadorRecursos.GetIntensidadeSolarPlaneta(posSolObj, posPlanetaObj, setor.intensidadeSolar);
     $("#edificio-planta-solar .edificio-nivel").text(planeta.plantaSolar);
     $("#edificio-planta-solar .custo-ferro span").text(custo.ferro);
     $("#edificio-planta-solar .custo-cristal span").text(custo.cristal);
-    $("#edificio-planta-solar .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoEnergiaPlantaSolar(planeta.plantaSolar + 1, intensidadeSolar) - GerenciadorRecursos.GetProducaoEnergiaPlantaSolar(planeta.plantaSolar, intensidadeSolar)) * 6) + " total");
+    $("#edificio-planta-solar .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoEnergiaPlantaSolar(planeta.plantaSolar + 1, isp) - GerenciadorRecursos.GetProducaoEnergiaPlantaSolar(planeta.plantaSolar, isp)) * 6) + " total");
     $("#edificio-planta-solar .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
 
     custo = GerenciadorRecursos.GetCustoUpgradeReatorFusao(planeta.reatorFusao + 1);
-    tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.uranio);
+    tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.componentes, custo.titanio, planeta.fabricaRobos);
     $("#edificio-reator-fusao .edificio-nivel").text(planeta.reatorFusao);
     $("#edificio-reator-fusao .custo-ferro span").text(custo.ferro);
     $("#edificio-reator-fusao .custo-cristal span").text(custo.cristal);
-    $("#edificio-reator-fusao .custo-uranio span").text(custo.uranio);
+    $("#edificio-reator-fusao .custo-titanio span").text(custo.titanio);
     $("#edificio-reator-fusao .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoEnergiaReatorFusao(planeta.reatorFusao + 1) - GerenciadorRecursos.GetProducaoEnergiaReatorFusao(planeta.reatorFusao)) * 6)+ " total");
     $("#edificio-reator-fusao .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
 
-    custo = GerenciadorRecursos.GetCustoUpgradeMinaUranio(planeta.minaUranio + 1);
-    tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.uranio);
-    $("#edificio-uranio .edificio-nivel").text(planeta.minaUranio);
-    $("#edificio-uranio .custo-ferro span").text(custo.ferro);
-    $("#edificio-uranio .custo-cristal span").text(custo.cristal);
-    $("#edificio-uranio .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoUranio(planeta.minaUranio + 1) - GerenciadorRecursos.GetProducaoUranio(planeta.minaUranio)) * 6)+ "/minuto");
-    $("#edificio-uranio .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
+    custo = GerenciadorRecursos.GetCustoUpgradeMinaTitanio(planeta.minaTitanio + 1);
+    tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.componentes, custo.titanio, planeta.fabricaRobos);
+    $("#edificio-titanio .edificio-nivel").text(planeta.minaTitanio);
+    $("#edificio-titanio .custo-ferro span").text(custo.ferro);
+    $("#edificio-titanio .custo-cristal span").text(custo.cristal);
+    $("#edificio-titanio .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoTitanio(planeta.minaTitanio + 1, consumo, producaoEnergia) - GerenciadorRecursos.GetProducaoTitanio(planeta.minaTitanio, consumo, producaoEnergia)) * 6)+ "/minuto");
+    $("#edificio-titanio .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
 
-    custo = GerenciadorRecursos.GetCustoUpgradeFabricaEletronica(planeta.fabricaEletronica + 1);
-    tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.uranio);
-    $("#edificio-fabrica-eletronica .edificio-nivel").text(planeta.fabricaEletronica);
-    $("#edificio-fabrica-eletronica .custo-ferro span").text(custo.ferro);
-    $("#edificio-fabrica-eletronica .custo-cristal span").text(custo.cristal);
-    $("#edificio-fabrica-eletronica .custo-uranio span").text(custo.uranio);
-    $("#edificio-fabrica-eletronica .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoEletronica(planeta.fabricaEletronica + 1) - GerenciadorRecursos.GetProducaoEletronica(planeta.fabricaEletronica)) * 6) + "/minuto");
-    $("#edificio-fabrica-eletronica .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
+    custo = GerenciadorRecursos.GetCustoUpgradeFabricaComponente(planeta.fabricaComponente + 1);
+    tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.componentes, custo.titanio, planeta.fabricaRobos);
+    $("#edificio-fabrica-componente .edificio-nivel").text(planeta.fabricaComponente);
+    $("#edificio-fabrica-componente .custo-ferro span").text(custo.ferro);
+    $("#edificio-fabrica-componente .custo-cristal span").text(custo.cristal);
+    $("#edificio-fabrica-componente .custo-titanio span").text(custo.titanio);
+    $("#edificio-fabrica-componente .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoComponente(planeta.fabricaComponente + 1, consumo, producaoEnergia) - GerenciadorRecursos.GetProducaoComponente(planeta.fabricaComponente, consumo, producaoEnergia)) * 6) + "/minuto");
+    $("#edificio-fabrica-componente .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
 
-    custo = GerenciadorRecursos.GetCustoUpgradeSintetizadorCombustivel(planeta.fabricaEletronica + 1);
-    tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.uranio);
-    $("#edificio-sintetizador-combustivel .edificio-nivel").text(planeta.sintetizadorCombustivel);
-    $("#edificio-sintetizador-combustivel .custo-ferro span").text(custo.ferro);
-    $("#edificio-sintetizador-combustivel .custo-cristal span").text(custo.cristal);
-    $("#edificio-sintetizador-combustivel .custo-uranio span").text(custo.uranio);
-    $("#edificio-sintetizador-combustivel .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoCombustivel(planeta.sintetizadorCombustivel + 1) - GerenciadorRecursos.GetProducaoCombustivel(planeta.sintetizadorCombustivel)) * 6) + "/minuto");
-    $("#edificio-sintetizador-combustivel .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
     
-    custo = GerenciadorRecursos.GeCustoUpgradeArmazem(planeta.armazem + 1);
-    tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.uranio);
+    custo = GerenciadorRecursos.GetCustoUpgradeArmazem(planeta.armazem + 1);
+    tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.componentes, custo.titanio, planeta.fabricaRobos);
     $("#edificio-armazem .edificio-nivel").text(planeta.armazem);
     $("#edificio-armazem .custo-ferro span").text(custo.ferro);
     $("#edificio-armazem .custo-cristal span").text(custo.cristal);
-    $("#edificio-armazem .custo-uranio span").text(custo.uranio);
+    $("#edificio-armazem .custo-titanio span").text(custo.titanio);
     $("#edificio-armazem .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetArmazenamentoArmazem(planeta.armazem + 1) - GerenciadorRecursos.GetArmazenamentoArmazem(planeta.armazem))) + " total de armazemento de recursos");
     $("#edificio-armazem .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
 
     custo = GerenciadorRecursos.GetCustoUpgradeFazenda(planeta.fazenda + 1);
-    tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.uranio);
+    tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.componentes, custo.titanio, planeta.fabricaRobos);
     $("#edificio-fazenda .edificio-nivel").text(planeta.fazenda);
     $("#edificio-fazenda .custo-ferro span").text(custo.ferro);
     $("#edificio-fazenda .custo-cristal span").text(custo.cristal);
-    $("#edificio-fazenda .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoComida(planeta.fazenda + 1) - GerenciadorRecursos.GetProducaoComida(planeta.fazenda)) * 6) + "/minuto");
+    $("#edificio-fazenda .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoComida(planeta.fazenda + 1, consumo, producaoEnergia, isp) - GerenciadorRecursos.GetProducaoComida(planeta.fazenda,consumo, producaoEnergia, isp)) * 6) + "/minuto");
     $("#edificio-fazenda .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
 }
 
@@ -232,11 +228,11 @@ socket.on('edificio-melhoria-completa', function(data)
     planeta[stringEdificio] = planeta[stringEdificio] + 1;
     JEdificio.find(".edificio-nivel").text(planeta[stringEdificio]);
     let custo = GerenciadorRecursos.GetCustoEdificioPorId(data.edificioID,  planeta[stringEdificio] + 1);
-    let tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.uranio);
+    let tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.titanio);
 
     JEdificio.find(".custo-ferro span").text(custo.ferro);
     JEdificio.find(".custo-cristal span").text(custo.cristal);
-    JEdificio.find(".custo-uranio span").text(custo.uranio);
+    JEdificio.find(".custo-titanio span").text(custo.titanio);
 
     JEdificio.find(".edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoFerro(planeta[stringEdificio] + 1) - GerenciadorRecursos.GetProducaoFerro(planeta[stringEdificio])) * 6)+ "/minuto");
     JEdificio.find(".edificio-tempo-melhoria-antes span").text(tempoMelhoria);

@@ -30,7 +30,7 @@ var adicionarRecurso = cron.schedule('*/10 * * * * *', function()
                             planetas.forEach((planeta) =>
                             {
                                 let producao = GR.GetProducaoTotal({
-                                    fabricaComponentes : planeta.fabricaComponentes,
+                                    fabricaComponente : planeta.fabricaComponente,
                                     fazenda : planeta.fazenda,
                                     minaCristal : planeta.minaCristal,
                                     minaFerro : planeta.minaFerro,
@@ -52,7 +52,7 @@ var adicionarRecurso = cron.schedule('*/10 * * * * *', function()
                                 soma = producao.cristal + planeta.recursoCristal;
                                 let updateCristal = (soma < capacidade) ? soma : capacidade; 
                                 
-                                soma = producao.componentes + planeta.recursoComponente;
+                                soma = producao.componente + planeta.recursoComponente;
                                 let updateComponentes = (soma < capacidade) ? soma : capacidade; 
 
                                 soma = producao.comida + planeta.recursoComida;
