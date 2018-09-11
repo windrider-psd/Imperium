@@ -219,19 +219,13 @@ const Planeta = con.define('Planeta',
         allowNull : false,
         defaultValue : 0,
     },
-    recursoEletronica :
+    recursoComponente :
     {
         type : sequalize.INTEGER,
         allowNull : false,
         defaultValue : 0,
     },
-    recursoUranio :
-    {
-        type : sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0,
-    },
-    recursoCombustivel :
+    recursoTitanio :
     {
         type : sequalize.INTEGER,
         allowNull : false,
@@ -255,19 +249,13 @@ const Planeta = con.define('Planeta',
         allowNull : false,
         defaultValue : 0
     },
-    fabricaEletronica :
+    fabricaComponente :
     {
         type : sequalize.INTEGER,
         allowNull : false,
         defaultValue : 0
     },
-    minaUranio :
-    {
-        type : sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0
-    },
-    sintetizadorCombustivel :
+    minaTitanio :
     {
         type : sequalize.INTEGER,
         allowNull : false,
@@ -292,6 +280,12 @@ const Planeta = con.define('Planeta',
         defaultValue : 0
     },
     armazem : 
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0
+    },
+    fabricaRobos :
     {
         type : sequalize.INTEGER,
         allowNull : false,

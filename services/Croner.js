@@ -30,12 +30,11 @@ var adicionarRecurso = cron.schedule('*/10 * * * * *', function()
                             planetas.forEach((planeta) =>
                             {
                                 let producao = GR.GetProducaoTotal({
-                                    fabricaEletronica : planeta.fabricaEletronica,
+                                    fabricaComponentes : planeta.fabricaComponentes,
                                     fazenda : planeta.fazenda,
                                     minaCristal : planeta.minaCristal,
                                     minaFerro : planeta.minaFerro,
-                                    minaUranio : planeta.minaUranio,
-                                    sintetizador : planeta.sintetizadorCombustivel
+                                    minaTitanio : planeta.minaTitanio,
                                 }, planeta.plantaSolar, planeta.reatorFusao, {
                                     x: setor.solPosX,
                                     y : setor.solPosY
@@ -53,25 +52,22 @@ var adicionarRecurso = cron.schedule('*/10 * * * * *', function()
                                 soma = producao.cristal + planeta.recursoCristal;
                                 let updateCristal = (soma < capacidade) ? soma : capacidade; 
                                 
-                                soma = producao.eletronica + planeta.recursoEletronica;
-                                let updateEletronica = (soma < capacidade) ? soma : capacidade; 
+                                soma = producao.componentes + planeta.recursoComponente;
+                                let updateComponentes = (soma < capacidade) ? soma : capacidade; 
 
                                 soma = producao.comida + planeta.recursoComida;
                                 let updateComida = (soma < capacidade) ? soma : capacidade; 
                                 
-                                soma = producao.uranio + planeta.recursoUranio;
-                                let updateUranio = (soma < capacidade) ? soma : capacidade; 
+                                soma = producao.titanio + planeta.recursoTitanio;
+                                let updateTitanio = (soma < capacidade) ? soma : capacidade; 
 
-                                soma = producao.combustivel + planeta.recursoCombustivel;
-                                let updateComustivel = (soma < capacidade) ? soma : capacidade; 
                                 
                                 let update = {
                                     recursoFerro : updateFerro, 
                                     recursoCristal : updateCristal,
-                                    recursoEletronica : updateEletronica, 
-                                    recursoCombustivel : updateComustivel,
+                                    recursoTitanio : updateTitanio, 
                                     recursoComida : updateComida,
-                                    recursoUranio : updateUranio
+                                    recursoComponente : updateComponentes
                                 }
 
                                 models.Planeta.update(update, {where : {id : planeta.id}});
