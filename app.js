@@ -12,7 +12,6 @@ var aliancaRouter = require("./routes/alianca")
 var browserify = require('browserify-middleware')
 var helmet = require('helmet')
 var DDDoS = require('dddos')
-
 module.exports = function CriarApp(sessao)
 {
   var app = express()
@@ -35,7 +34,6 @@ module.exports = function CriarApp(sessao)
   app.use(bodyParser.json())
   app.use(bodyParser.urlencoded({ extended: true }))
   
-  app.get('/js/bundle_chart.js', browserify(['chartjs', 'chartjs-plugin-zoom']))
   app.get('/js/recursos.js', (req, res) =>
   {
     res.setHeader("content-type", "application/javascript")
@@ -64,7 +62,6 @@ module.exports = function CriarApp(sessao)
     res.render('error')
   });
   app.locals.enderecoIP = require('ip').address()
-  
   return app
 }
 

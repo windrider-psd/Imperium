@@ -62,19 +62,19 @@ $(document).ready(function() {
         }
     }
 
-    socket.on('recurso-planeta' + planeta.id, function(update)
-    {
-        $("#recurso-ferro .recurso-atual").text(update.recursoFerro);
-        $("#recurso-cristal .recurso-atual").text(update.recursoCristal);
-        $("#recurso-uranio .recurso-atual").text(update.recursoUranio);
-        $("#recurso-eletronica .recurso-atual").text(update.recursoEletronica);
-        $("#recurso-combustivel .recurso-atual").text(update.recursoCombustivel);
-        $("#recurso-comida .recurso-atual").text(update.recursoComida);
-    })
 
     if(planeta)
     {
         $("title").text(planeta.nome + " - Imperium");
         GetRecursos(planeta.armazem);
     }
+})
+socket.on('recurso-planeta' + planeta.id, function(update)
+{
+    $("#recurso-ferro .recurso-atual").text(update.recursoFerro);
+    $("#recurso-cristal .recurso-atual").text(update.recursoCristal);
+    $("#recurso-uranio .recurso-atual").text(update.recursoUranio);
+    $("#recurso-eletronica .recurso-atual").text(update.recursoEletronica);
+    $("#recurso-combustivel .recurso-atual").text(update.recursoCombustivel);
+    $("#recurso-comida .recurso-atual").text(update.recursoComida);
 })

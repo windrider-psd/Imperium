@@ -16,7 +16,7 @@ html
     link(rel='stylesheet', href="/stylesheets/fontawesome-all.min.css")
     link(rel='stylesheet', href='/stylesheets/pagination.css')
     link(rel='stylesheet', href='/stylesheets/style.css')
-    script(src="js/dist/bundle.general.js")
+    
     - if(typeof(userdata) !== 'undefined'){
       script.
         const userdataString = '!{JSON.stringify(userdata).replace(/[\/\(\)\']/g, "\\$&")}'
@@ -26,6 +26,7 @@ html
       script(src="js/dist/bundle.general.userdata.js")
     -}
     block posHead
+    script(src="js/dist/bundle.general.js")
   body
     - if(typeof(userdata) !== 'undefined'){
         include ./../includes/navbar
@@ -44,7 +45,9 @@ html
                     li 
                       a(href = "/recursos?planetaid="+planeta.id)= planeta.nome
                         |  [!{planeta.posX}, !{planeta.posY}]
+        include ./../includes/recursos
       block content
-      
+    script(src="js/dist/pages/recursos.bundle.js")
     block posscripts
+      
       

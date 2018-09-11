@@ -31,7 +31,7 @@ function UndoMelhoria(JEdificio)
     JEdificio.find(".edificio-tempo-melhoria-antes").show();
     btnUpgrade.removeClass("btn-primary");
     btnUpgrade.addClass("btn-success");
-    btnUpgrade.text("Melhorar Edificio");
+    btnUpgrade.text("Melhorar");
     btnUpgrade.prop('disabled', false);
     btnCancelar.addClass('hidden');
     tempoMelhoria.addClass("hidden"); 
@@ -47,7 +47,7 @@ $(".btn-calcelar-melhoria").on('click', function()
     {
         $.ajax({
             url: 'edificio/cancelar-melhoria',
-            data : {planeta: idPlaneta, edificio : id},
+            data : {planeta: planeta.id, edificio : id},
             method : "POST",
             beforeSend : function()
             {
@@ -79,7 +79,7 @@ $(".btn-ugrade-edificio").on('click', function()
     let edificio = divEdificio.data('edificio');
     $.ajax({
         url : 'edificio/melhorar',
-        data : {planeta : idPlaneta, edificio : edificio},
+        data : {planeta : planeta.id, edificio : edificio},
         method : "POST",
         dataType : 'JSON',
         beforeSend : function()
@@ -120,7 +120,6 @@ setInterval(function(){
     })
 }, 1000)
 
-
 function GetEdificios()
 {
     let custo = GerenciadorRecursos.GetCustoUpgradeMinaFerro(planeta.minaFerro + 1);
@@ -130,6 +129,7 @@ function GetEdificios()
     $("#edificio-ferro .custo-cristal span").text(custo.cristal);
     $("#edificio-ferro .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoFerro(planeta.minaFerro + 1) - GerenciadorRecursos.GetProducaoFerro(planeta.minaFerro)) * 6)+ "/minuto");
     $("#edificio-ferro .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
+
 
     custo = GerenciadorRecursos.GetCustoUpgradeMinaCristal(planeta.minaFerro + 1);
     tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.uranio);
@@ -224,7 +224,6 @@ function GetConstrucoes()
 
 GetEdificios()
 
-
 socket.on('edificio-melhoria-completa', function(data)
 {
     let stringEdificio = GerenciadorRecursos.EdificioIDParaString(data.edificioID);
@@ -249,7 +248,7 @@ socket.on('cancelar-melhoria', function(data)
     {
         let stringEdificio = GerenciadorRecursos.EdificioIDParaString(data.edificioID);
         let JEdificio = $(".edificio[data-edificio='"+stringEdificio+"']");
-        let custo = GerenciadorRecursos.GetCustoEdificioPorId(data.edificioID);
+        //let custo = GerenciadorRecursos.GetCustoEdificioPorId(data.edificioID);
 
         UndoMelhoria(JEdificio);
     } 

@@ -5,6 +5,9 @@ block titulo
 block posHead
   link(rel="stylesheet", href="js/sceditor/minified/themes/default.min.css")
   link(rel="stylesheet", href="stylesheets/xbbcode.css")
+  script(src = "js/sceditor/minified/sceditor.min.js")
+  script(src = "js/sceditor/languages/pt-BR.js")
+  script(src = "js/sceditor/minified/formats/bbcode.js")
 block content     
   .container-fluid
     .row
@@ -56,5 +59,5 @@ block content
   include includes/enviar-mensagem-privada
 
 block posscripts
-  script(src="js/dist/pages/recursos.bundle.js")
+
   script(src="js/dist/pages/alianca.bundle.js")
