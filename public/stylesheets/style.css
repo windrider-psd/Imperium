@@ -1,3 +1,84 @@
+@import url('https://fonts.googleapis.com/css?family=Audiowide|Exo+2');
+
+#login-header
+{
+  text-align: center;
+  background: url('./../images/spgw.png') left no-repeat;
+  background-size: cover;
+  height: 630px;
+  padding-top: 50px;
+}
+#login-card
+{
+  display: inline-block;
+  width: 35%;
+  min-width: 550px;
+  max-width: 670px;
+}
+#login-header  h1
+{
+  font-family: 'Audiowide', cursive;
+  color: #ffffff;
+  text-shadow: 2px 2px #070059;
+}
+#login-content
+{
+  box-shadow: 0px 5px 8px #000000;
+}
+
+#login-content .nav li a
+{
+  color:white;
+  font-family: 'Exo 2', sans-serif;
+  border:none;
+}
+#login-content .nav li.active a
+{
+  background-color: #3D6282;
+  cursor: pointer
+}
+#login-content .nav li:not(.active) a
+{
+  background-color: #041A23;
+  cursor: pointer;
+}
+#login-content .tab-content
+{
+  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#3d6282+0,041a23+100 */
+background: #3d6282; /* Old browsers */
+background: -moz-linear-gradient(top, #3d6282 0%, #041a23 100%); /* FF3.6-15 */
+background: -webkit-linear-gradient(top, #3d6282 0%,#041a23 100%); /* Chrome10-25,Safari5.1-6 */
+background: linear-gradient(to bottom, #3d6282 0%,#041a23 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3d6282', endColorstr='#041a23',GradientType=0 ); /* IE6-9 */
+  text-align: left;
+  color:white;
+    padding: 10px 10px 20px 10px;
+    font-family: 'Exo 2', sans-serif;
+}
+
+.imperium-input
+{
+  border-radius: 0px;
+  border-top-left-radius: 15px;
+  border-bottom-right-radius: 5px;
+}
+
+.imperium-label
+{
+  text-shadow: -1px 2px #00000091;;
+}
+
+@media screen and (max-width:570px){
+  #login-card
+  {
+    min-width: 100%;
+  }
+} 
+
+
+
+
+
 a {
   color: #00B7FF;
 }

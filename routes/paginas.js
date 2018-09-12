@@ -81,23 +81,23 @@ router.all('*', (req, res, next) =>
 });
 router.get('/', (req, res) => {
   if(req.session.usuario)
-    getUserData(req).then(userdata => res.render('recursos', {userdata : userdata})).catch(() => res.render('login'));
+    getUserData(req).then(userdata => res.render('recursos', {userdata : userdata})).catch(() => res.render('login-cadastro'));
   else
-    res.render('login');
+    res.render('login-cadastro');
 });
 router.get('/opcoes', (req, res) =>
 {
   if(req.session.usuario)
-    getUserData(req).then(userdata => res.render('opcoes', {userdata : userdata})).catch(() => res.status(403).render('login'));
+    getUserData(req).then(userdata => res.render('opcoes', {userdata : userdata})).catch(() => res.status(403).render('login-cadastro'));
   else
-    res.status(403).render('login');
+    res.status(403).render('login-cadastro');
 });
 
 router.get('/login', (req, res) => {
   if(req.session.usuario)
-    getUserData(req).then(userdata => res.render('inicial', {userdata : userdata})).catch(() => res.render('login'));
+    getUserData(req).then(userdata => res.render('inicial', {userdata : userdata})).catch(() => res.render('login-cadastro'));
   else
-    res.render('login');
+    res.render('login-cadastro');
 });
 
 router.get('/topico-forum', (req, res, next) => {
@@ -119,38 +119,38 @@ router.get('/topico-forum', (req, res, next) => {
       }
       else
         res.render('inicial', {userdata : userdata})
-    }).catch(() => res.render('login'));
+    }).catch(() => res.render('login-cadastro'));
   }
   else
-    res.render('login');
+    res.render('login-cadastro');
 });
 
 router.get('/cadastrar', (req, res) => res.render('cadastrar'));
 
 router.get('/inicial', (req, res) => {
   if(req.session.usuario)
-    getUserData(req).then(userdata => res.render('inicial', {userdata : userdata})).catch(() => res.status(403).render('login'));
+    getUserData(req).then(userdata => res.render('inicial', {userdata : userdata})).catch(() => res.status(403).render('login-cadastro'));
   else 
-    res.status(403).render('login');
+    res.status(403).render('login-cadastro');
 });
 
 router.get('/recursos', (req, res) => {
   if(req.session.usuario)
-    getUserData(req).then(userdata => res.render('recursos', {userdata : userdata})).catch(() => res.status(403).render('login'));
+    getUserData(req).then(userdata => res.render('recursos', {userdata : userdata})).catch(() => res.status(403).render('login-cadastro'));
   else 
-    res.status(403).render('login');
+    res.status(403).render('login-cadastro');
 });
 router.get('/alianca', (req, res) => {
   if(req.session.usuario)
   {
     models.Alianca_Aplicacao.findOne({where : {usuarioID : req.session.usuario.id}}).then(aplicacao => {
       if(!aplicacao)
-        getUserData(req).then(userdata => res.render('alianca', {userdata : userdata, aplicacao : false})).catch(() => res.status(403).render('login'));
+        getUserData(req).then(userdata => res.render('alianca', {userdata : userdata, aplicacao : false})).catch(() => res.status(403).render('login-cadastro'));
       else
       {
         models.Alianca.findOne({where : {id: aplicacao.aliancaID}, attributes :['id', 'nome', 'tag']}).then(alianca => {
           aplicacao.dataValues.alianca = alianca;
-          getUserData(req).then(userdata => res.render('alianca', {userdata : userdata, aplicacao : aplicacao.dataValues})).catch(() => res.status(403).render('login'));
+          getUserData(req).then(userdata => res.render('alianca', {userdata : userdata, aplicacao : aplicacao.dataValues})).catch(() => res.status(403).render('login-cadastro'));
         })
       }
     })
@@ -158,7 +158,7 @@ router.get('/alianca', (req, res) => {
   }
     
   else 
-    res.status(403).render('login');
+    res.status(403).render('login-cadastro');
 });
 
 router.get('/forum', (req, res) => {
@@ -171,25 +171,25 @@ router.get('/forum', (req, res) => {
         else
           req.query.planetaid != null ? res.redirect('alianca?planetaid='+req.query.planetaid) : res.redirect('alianca')
       })
-      .catch(() => res.status(403).render('login'));
+      .catch(() => res.status(403).render('login-cadastro'));
   }
     
   else 
-    res.status(403).render('login');
+    res.status(403).render('login-cadastro');
 });
 
 router.get('/ranking', (req, res) => {
   if(req.session.usuario)
-    getUserData(req).then(userdata => res.render('ranking', {userdata : userdata, resultadosPorPagina : Number(process.env.RANKING_MAX_RESULTADOS)})).catch(() =>res.status(403).render('login'));
+    getUserData(req).then(userdata => res.render('ranking', {userdata : userdata, resultadosPorPagina : Number(process.env.RANKING_MAX_RESULTADOS)})).catch(() =>res.status(403).render('login-cadastro'));
   else 
-    res.status(403).render('login');
+    res.status(403).render('login-cadastro');
 });
 
 router.get('/mensagens', (req, res) => {
   if(req.session.usuario)
-    getUserData(req).then(userdata => res.render('mensagens', {userdata : userdata, resultadosPorPagina : Number(process.env.MESSAGE_PAGE_COUNT)})).catch(() => res.status(403).render('login'));
+    getUserData(req).then(userdata => res.render('mensagens', {userdata : userdata, resultadosPorPagina : Number(process.env.MESSAGE_PAGE_COUNT)})).catch(() => res.status(403).render('login-cadastro'));
   else 
-    res.status(403).render('login');
+    res.status(403).render('login-cadastro');
 });
 
 router.get('/recuperar-senha', (req, res) =>{
@@ -263,14 +263,14 @@ router.get('/paginaExterna', (req, res) => {
         else
         {
           models.Alianca_Aplicacao.findOne({where : {usuarioID : req.session.usuario.id}}).then(aplicacao => {
-            models.Usuario_Participa_Alianca.count({where : {aliancaID : alianca.id}}).then(contagem => getUserData(req).then(userdata => res.render('paginaExterna', {userdata : userdata, alianca : alianca.dataValues, totalMembros : contagem, aplicacao : Boolean(aplicacao)})).catch(() => res.render('login')))
+            models.Usuario_Participa_Alianca.count({where : {aliancaID : alianca.id}}).then(contagem => getUserData(req).then(userdata => res.render('paginaExterna', {userdata : userdata, alianca : alianca.dataValues, totalMembros : contagem, aplicacao : Boolean(aplicacao)})).catch(() => res.render('login-cadastro')))
           })
         }
       })
     }
   }
   else
-    res.render('login');
+    res.render('login-cadastro');
 })
 
 module.exports = router;

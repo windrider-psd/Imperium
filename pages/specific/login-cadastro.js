@@ -108,5 +108,18 @@ const utils = require('./../general/userdata/utils')
         }
       })
     });
-      $('main').css('width', 'initial')
+    $("#nav-tab-cadastro").on('click', function()
+    {
+      $("#nav-tab-login").removeClass('active')
+      $(this).addClass('active')
+      $("#form-login").addClass('hidden')
+      $("#form-cadastro").removeClass('hidden')
     })
+    $("#nav-tab-login").on('click', function()
+    {
+      $("#nav-tab-cadastro").removeClass('active')
+      $(this).addClass('active')
+      $("#form-cadastro").addClass('hidden')
+      $("#form-login").removeClass('hidden')
+    })
+  })
