@@ -109,7 +109,8 @@ function GerarNotificacao(mensagem, tipo)
 function GerarConfirmacao(mensagem, __callback)
 {
     bootbox.confirm({ 
-    message: mensagem, 
+    message: mensagem,
+    title : 'Confirmação',
     buttons: {
             cancel: {
                 label: '<i class="fa fa-times"></i> Cancelar'

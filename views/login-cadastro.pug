@@ -1,7 +1,7 @@
 doctype html
 html
   head
-    title Imperium
+    title Página Inicial - Imperium
     meta(charset = "UTF-8")
     meta(name = "viewport", content = "width=device-width, initial-scale=1")
     meta(http-equiv = "X-UA-Compatible", content = "IE=edge")
@@ -13,6 +13,7 @@ html
     link(rel='stylesheet', href="/stylesheets/animate.css")
     link(rel='stylesheet', href="/stylesheets/fontawesome-all.min.css")
     link(rel='stylesheet', href='/stylesheets/pagination.css')
+    link(rel='stylesheet', href='/stylesheets/imperium.css')
     link(rel='stylesheet', href='/stylesheets/style.css')
     script(src="js/dist/bundle.general.js")
   body
@@ -25,35 +26,38 @@ html
                         a(href="#") Login
                     li#nav-tab-cadastro
                         a(href="#") Cadastrar
-                .tab-content
+                .tab-content.imperium-gradient-background-heavy
                     form(onsubmit="return false")#form-login
                         .form-group
                             label(for="nick").imperium-label Nickname ou email:
-                            input.form-control(type='text', name='usuario', placeholder='Digite seu Nickname ou email').imperium-input
+                            input.form-control(type='text', name='usuario', placeholder='Digite seu Nickname ou email', required).imperium-input
                         .form-group(style="margin-bottom:0px")
                             label(for="senha").imperium-label Senha:
-                            input.form-control(type='password', name='senha', placeholder='*******').imperium-input
-                        span
-                            a(href="#")#esqueci-link.link Esqueci minha senha
+                            input.form-control(type='password', name='senha', placeholder='*******', required).imperium-input
+                        span.imperium-link.imperium-color-light#esqueci-link Esqueci minha senha
                         .row(style="margin-top:10px;")
                             .col-md-offset-3.col-md-6.col-sm-12
-                                button.btn.btn-block.btn-success.btn-block(type='submit') Login
+                                button.btn.btn-block.btn-success.btn-block(type='submit').imperium-input Login
                     form(onsubmit="return false")#form-cadastro.hidden
                         .form-group
                             label(for="nick").imperium-label Nickname:
-                            input.form-control.my-input(type='text', name='nick', placeholder='Nickname da sua conta').imperium-input
+                            input.form-control.my-input(type='text', name='nick', placeholder='Nickname da sua conta', required).imperium-input
                         .form-group
                             label(for="email").imperium-label Email:
-                            input.form-control.my-input(type='email', name='email', placeholder='exemplo@dominio.com').imperium-input
+                            input.form-control.my-input(type='email', name='email', placeholder='exemplo@dominio.com', required).imperium-input
                         .form-group
                             label(for="senha").imperium-label Senha:
-                            input.form-control.my-input(type='password', name='senha', placeholder='*******').imperium-input
+                            input.form-control.my-input(type='password', name='senha', placeholder='*******', required).imperium-input
                         .form-group
                             label(for="confsenha").imperium-label Confirmação da senha:
-                            input.form-control.my-input(type='password', name='confsenha', placeholder='*******').imperium-input
-                        div.row
+                            input.form-control.my-input(type='password', name='confsenha', placeholder='*******', required).imperium-input
+                        span Ao cadastar, você concorda com os 
+                            span.imperium-link.imperium-color-light termos e condições de uso 
+                            | e com as 
+                            span.imperium-link.imperium-color-light políticas de privacidade
+                        div.row(style="margin-top:10px;")
                             .col-md-offset-3.col-md-6.col-sm-12
-                                button.btn.btn-block.btn-success.btn-block(type='submit') Cadastrar
+                                button.btn.btn-block.btn-success.btn-block(type='submit').imperium-input Cadastrar
     section.sobre-section#sobre-section-cards
         .container
             .col-md-4
@@ -77,7 +81,7 @@ html
         p Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin bibendum ullamcorper dolor, quis vehicula orci.
     #modalEsqueci.modal.fade(role='dialog')
         .modal-dialog
-            .modal-content
+            .modal-content.imperium-modal.imperium-gradient-background-light
                 .modal-header
                     button.close(type='button', data-dismiss='modal') ×
                     h4.modal-title Esqueci minha senha
@@ -87,10 +91,10 @@ html
                             form#form-enviar-esqueci(onsubmit='return false')
                                 .form-group
                                     label(for='email') Digite seu Email para podermos redefinir sua senha: 
-                                    input.form-control(type='email', name='email', placeholder='exemplo@dominio.com', required='')
+                                    input.form-control(type='email', name='email', placeholder='exemplo@dominio.com', required='').imperium-input
                                 .row
                                     .col-md-12.text-center
-                                        button.btn.btn-primary.btn-block(type='submit') Enviar
+                                        button.btn.btn-primary.btn-block(type='submit').imperium-input Enviar
                         #pos-conteudo-enviar-esqueci.col-md-offset-1.col-md-10.col-sm-12
                             img.img-responsive(src='images/email.png', style='display:block;margin:auto;max-width:140px;')
                             h3.text-center Enviamos uma mensagem para seu email

@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css?family=Audiowide|Exo+2');
+@import url('https://fonts.googleapis.com/css?family=Changa:800|Kanit:700|Orbitron:900|Raleway:800|Roboto:900|Russo+One|Source+Sans+Pro:700|Source+Sans+Pro:700');
 
 #login-header
 {
@@ -45,33 +46,12 @@
 #login-content .tab-content
 {
   /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#3d6282+0,041a23+100 */
-  background: #3d6282; /* Old browsers */
-  background: -moz-linear-gradient(top, #3d6282 0%, #041a23 100%); /* FF3.6-15 */
-  background: -webkit-linear-gradient(top, #3d6282 0%,#041a23 100%); /* Chrome10-25,Safari5.1-6 */
-  background: linear-gradient(to bottom, #3d6282 0%,#041a23 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3d6282', endColorstr='#041a23',GradientType=0 ); /* IE6-9 */
   text-align: left;
   color:white;
   padding: 10px 10px 20px 10px;
   font-family: 'Exo 2', sans-serif;
 }
 
-.imperium-input
-{
-  border-radius: 0px;
-  border-top-left-radius: 15px;
-  border-bottom-right-radius: 5px;
-}
-
-.imperium-label
-{
-  text-shadow: -1px 2px #00000091;;
-}
-
-.imperium-link
-{
-  color:#f07b05
-}
 
 @media screen and (max-width:570px){
   #login-card
@@ -91,7 +71,8 @@
   position: relative;
   color:white;
   text-align: center;
-  font-family: 'Exo 2', sans-serif;
+  font-family: 'Rubik Mono One', sans-serif;
+
   padding:120px 0;
 }
 .sobre-section::before
@@ -103,8 +84,8 @@
   display: block;
   width: 100%;
   height: 2px;
-  background: #600;
-  box-shadow: 0px 0px 10px 1px #600;
+  background: #374a85;
+  box-shadow: 0px 0px 10px 1px #374a85;
   z-index: 100;
 }
 
@@ -112,9 +93,9 @@
 {
   font-weight: bold;
   color: white;
-  font-size: 30px;
+  font-size: 32px;
   text-shadow: 2px 2px #070059;
-  color:#f07b05
+  color:#f07b05;
 }
 
 .sobre-section p
@@ -132,6 +113,7 @@
   margin-top:10px;
   font-weight: bold;
   font-size: 25px;
+  font-family: 'Raleway', 'Arial'
 }
 #sobre-section-cards p
 {
@@ -152,6 +134,7 @@
 {
   background: url('./../images/login-background.jpg') left no-repeat;
   background-size: cover;
+  
 }
 
 
