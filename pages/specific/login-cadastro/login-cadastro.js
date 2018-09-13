@@ -1,5 +1,4 @@
 var infoEsqueci;
-require('./login-cadastro.css')
 const $ = require('jquery')
 const utils = require('./../../general/userdata/utils')
   $(document).ready(function() {

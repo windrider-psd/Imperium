@@ -29,6 +29,7 @@
   color:white;
   font-family: 'Exo 2', sans-serif;
   border:none;
+  border-radius: 0px;
 }
 #login-content .nav li.active a
 {

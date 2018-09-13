@@ -6,11 +6,10 @@ let pagesEntry = {}
 for(let i = 0; i < pagesDir.length; i++)
 {
     let dirname = pagesDir[i].split('/')
-    //console.log(pagename)
     dirname = dirname[dirname.length - 2]
     
 
-    let dirJS = glob.sync('./pages/specific/'+dirname+'/*.js')
+    let dirJS = glob.sync('./pages/specific/'+dirname+'/*')
     pagesEntry[dirname] = []
     for(let j = 0; j < dirJS.length; j++)
     {
@@ -19,7 +18,6 @@ for(let i = 0; i < pagesDir.length; i++)
         paganame = pagename.split('.')[0]
         pagesEntry[dirname].push(dirJS[j])
     }
-    //paganame = pagename.split('.')[0]
     
 }
 let general_entry = glob.sync('./pages/general/*.js')
@@ -61,7 +59,6 @@ module.exports =
                 }
             ]
         }
-        //plugins : plugins
     },
     {
         mode : 'development',
@@ -93,7 +90,6 @@ module.exports =
                 },
             ],
         }
-        //plugins : plugins
     },
     {
         mode : 'development',
@@ -102,7 +98,6 @@ module.exports =
             path : __dirname + '/public/js/dist',
             filename : 'bundle.general.userdata.js'
         },
-       // plugins : plugins
     }
 ]
     
