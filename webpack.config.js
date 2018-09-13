@@ -1,13 +1,26 @@
 let glob = require('glob')
 let path = require('path')
-let pages = glob.sync('./pages/specific/**/*.js')
-let pagesObj = {}
-for(let i = 0; i < pages.length; i++)
+
+let pagesDir = glob.sync('./pages/specific/*/')
+let pagesEntry = {}
+for(let i = 0; i < pagesDir.length; i++)
 {
-    let pagename = pages[i].split('/')
-    pagename = pagename[pagename.length - 1]
-    paganame = pagename.split('.')[0]
-    pagesObj[paganame] = [pages[i]]
+    let dirname = pagesDir[i].split('/')
+    //console.log(pagename)
+    dirname = dirname[dirname.length - 2]
+    
+
+    let dirJS = glob.sync('./pages/specific/'+dirname+'/*.js')
+    pagesEntry[dirname] = []
+    for(let j = 0; j < dirJS.length; j++)
+    {
+        let pagename = dirJS[j].split('/')
+        pagename = pagename[pagename.length - 1]
+        paganame = pagename.split('.')[0]
+        pagesEntry[dirname].push(dirJS[j])
+    }
+    //paganame = pagename.split('.')[0]
+    
 }
 let general_entry = glob.sync('./pages/general/*.js')
 let userdata_entry = glob.sync('./pages/general/userdata/*.js')
@@ -52,7 +65,7 @@ module.exports =
     },
     {
         mode : 'development',
-        entry : pagesObj,
+        entry : pagesEntry,
         output : {
             path : __dirname + '/public/js/dist/pages',
             filename : '[name].bundle.js',
