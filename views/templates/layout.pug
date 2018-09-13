@@ -10,13 +10,6 @@ html
     meta(name = "author" content = "Christian Lemos")
     link(rel = "icon", href = "/images/logo_pre.png")
     
-    link(rel='stylesheet', href="/stylesheets/bootstrap.min.css")
-    link(rel='stylesheet', href="/stylesheets/bootstrap-theme.min.css")
-    link(rel='stylesheet', href="/stylesheets/animate.css")
-    link(rel='stylesheet', href="/stylesheets/fontawesome-all.min.css")
-    link(rel='stylesheet', href='/stylesheets/pagination.css')
-    link(rel='stylesheet', href='/stylesheets/style.css')
-    
     - if(typeof(userdata) !== 'undefined'){
       script.
         const userdataString = '!{JSON.stringify(userdata).replace(/[\/\(\)\']/g, "\\$&")}'

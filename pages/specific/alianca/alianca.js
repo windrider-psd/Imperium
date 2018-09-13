@@ -22,7 +22,7 @@
  */
 
 const $ = require('jquery')
-const utils = require('./../general/userdata/utils')
+const utils = require('./../../general/userdata/utils')
 var isLider;
 $(document).ready(function (){
     $("#form-criar-alianca").on('submit', function(){

@@ -1,6 +1,6 @@
 let glob = require('glob')
-
-let pages = glob.sync('./pages/specific/*.js')
+let path = require('path')
+let pages = glob.sync('./pages/specific/**/*.js')
 let pagesObj = {}
 for(let i = 0; i < pages.length; i++)
 {
@@ -9,9 +9,6 @@ for(let i = 0; i < pages.length; i++)
     paganame = pagename.split('.')[0]
     pagesObj[paganame] = [pages[i]]
 }
-
-let plugins = []
-
 let general_entry = glob.sync('./pages/general/*.js')
 let userdata_entry = glob.sync('./pages/general/userdata/*.js')
 
@@ -22,8 +19,35 @@ module.exports =
         entry : general_entry,
         output : {
             path : __dirname + '/public/js/dist',
-            filename : 'bundle.general.js'
+            filename : 'bundle.general.js',
+            publicPath: './public/'
         },
+        module:{
+            rules:[
+                { 
+                    test: /\.(png|jpg)$/, loader: 'file-loader' 
+                },
+                {
+                    test: /\.(woff|woff2|eot|ttf|svg)$/, 
+                    loader: 'url-loader?limit=100000'
+                },
+                {
+                    test: /\.css/,
+                    include : [
+                        path.resolve(__dirname, 'pages/style/frameworks'),
+                    ],
+                    use :[
+                        {
+                            loader : 'style-loader',
+                        },
+                        {
+                            loader : 'css-loader',
+                        }
+                    ]
+                    
+                }
+            ]
+        }
         //plugins : plugins
     },
     {
@@ -31,8 +55,31 @@ module.exports =
         entry : pagesObj,
         output : {
             path : __dirname + '/public/js/dist/pages',
-            filename : '[name].bundle.js'
+            filename : '[name].bundle.js',
+            publicPath: './public/'
         },
+        module:{
+            rules:[
+                { 
+                    test: /\.(png|jpg)$/, loader: 'file-loader' 
+                },
+                {
+                    test: /\.css/,
+                    include : [
+                        path.resolve(__dirname, 'pages/specific')
+                    ],
+                    use :[
+                        {
+                            loader : 'style-loader',
+                        },
+                        {
+                            loader : 'css-loader',
+                        }
+                    ]
+                    
+                },
+            ],
+        }
         //plugins : plugins
     },
     {

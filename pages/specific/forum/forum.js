@@ -2,7 +2,7 @@ var isLider
 var tamanhoPaginas;
 var atualizar = true;
 const $ = require('jquery')
-const utils = require('./../general/userdata/utils')
+const utils = require('./../../general/userdata/utils')
 $(document).ready(function() {
     if(userdata.alianca != null)
     {

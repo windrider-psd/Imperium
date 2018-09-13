@@ -18,7 +18,7 @@ var total;
  */
 var boxAux;
 const $ = require('jquery')
-const utils = require('./../general/userdata/utils')
+const utils = require('./../../general/userdata/utils')
 let resultadosPorPagina = 15;
 $(document).ready(function() {
 getInbox(1, function(inbox){

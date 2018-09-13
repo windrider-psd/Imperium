@@ -1,6 +1,6 @@
 const $ = require('jquery')
-const utils = require('./../general/userdata/utils')
-let GerenciadorRecursos = require('./../../services/shared/GerenciadorRecursos')
+const utils = require('./../../general/userdata/utils')
+let GerenciadorRecursos = require('./../../../services/shared/GerenciadorRecursos')
 
 let info = utils.GetSetorInfo()
 let planeta = info.planeta

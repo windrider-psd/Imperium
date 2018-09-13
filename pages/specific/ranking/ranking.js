@@ -23,7 +23,7 @@ var tipoAtual;
 const periodoPaginas = 10;
 const isLider = (userdata.alianca != null) ? userdata.session.id == userdata.alianca.lider : false
 const $ = require('jquery')
-const utils = require('./../general/userdata/utils')
+const utils = require('./../../general/userdata/utils')
 let resultadosPorPagina = 20
 /**
  * 

@@ -1,0 +1,131 @@
+#login-header
+{
+  text-align: center;
+  background: url('/images/spgw.png') left no-repeat;
+  background-size: cover;
+  height: 630px;
+  padding-top: 50px;
+}
+#login-card
+{
+  display: inline-block;
+  width: 35%;
+  min-width: 550px;
+  max-width: 670px;
+}
+#login-header  h1
+{
+  font-family: 'Audiowide', cursive;
+  color: #ffffff;
+  text-shadow: 2px 2px #070059;
+}
+#login-content
+{
+  box-shadow: 0px 5px 8px #000000;
+}
+
+#login-content .nav li a
+{
+  color:white;
+  font-family: 'Exo 2', sans-serif;
+  border:none;
+}
+#login-content .nav li.active a
+{
+  background-color: #3D6282;
+  cursor: pointer
+}
+#login-content .nav li:not(.active) a
+{
+  background-color: #041A23;
+  cursor: pointer;
+}
+#login-content .tab-content
+{
+  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#3d6282+0,041a23+100 */
+  text-align: left;
+  color:white;
+  padding: 10px 10px 20px 10px;
+  font-family: 'Exo 2', sans-serif;
+}
+
+
+@media screen and (max-width:570px){
+  #login-card
+  {
+    min-width: 100%;
+  }
+} 
+
+.sobre-section
+{
+  background-color: #041A23;
+  width:100%;
+  position: relative;
+  color:white;
+  text-align: center;
+  padding:120px 0;
+}
+.sobre-section::before
+{
+  position: absolute;
+  top: 0;
+  left: 0;
+  content: "";
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: #374a85;
+  box-shadow: 0px 0px 10px 1px #374a85;
+  z-index: 100;
+}
+
+.sobre-section h2
+{
+  font-weight: bold;
+  color: white;
+  font-size: 32px;
+  text-shadow: 2px 2px #070059;
+  color:#f07b05;
+  font-family: 'Roboto', sans-serif
+}
+
+.sobre-section p
+{
+  font-size: 20px;
+  text-shadow: 2px 2px #070059;
+  font-family: 'Exo 2', sans-serif;
+}
+#sobre-section-cards
+{
+  padding:60px 0; 
+}
+#sobre-section-cards h2
+{
+  color:white;
+  margin-top:10px;
+  font-weight: bold;
+  font-size: 25px;
+  font-family: 'Raleway', 'Arial'
+}
+#sobre-section-cards p
+{
+  font-size: 18px;
+}
+
+#sobre-section-colonizacao
+{
+  background: url('/images/colonize1.jpg') left no-repeat;
+  background-size: cover;
+}
+#sobre-section-aliancas
+{
+  background: url('/images/alianca1.jpg') left no-repeat;
+  background-size: cover;
+}
+#sobre-section-conquiste
+{
+  background: url('/images/login-background.jpg') left no-repeat;
+  background-size: cover;
+}
+
