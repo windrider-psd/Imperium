@@ -628,12 +628,6 @@ const Alianca_Rank = con.define('alianca_ranks', {
         allowNull : false,
         defaultValue : false
     },
-    movimento: //Visualizar movimento e localização de frotas e exércitos
-    {
-        type: sequalize.BOOLEAN,
-        allowNull : false,
-        defaultValue : false
-    },
     ranks_criar: //Criar ranks para a aliança
     {
         type: sequalize.BOOLEAN,

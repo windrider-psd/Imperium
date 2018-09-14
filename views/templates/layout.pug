@@ -10,35 +10,30 @@ html
     meta(name = "author" content = "Christian Lemos")
     link(rel = "icon", href = "/images/logo_pre.png")
     
-    - if(typeof(userdata) !== 'undefined'){
-      script.
-        const userdataString = '!{JSON.stringify(userdata).replace(/[\/\(\)\']/g, "\\$&")}'
-        userdata = JSON.parse(userdataString)  
-        ip = '!{enderecoIP}'   
-        ioPort = '!{ioPort}'
-      script(src="js/dist/bundle.general.userdata.js")
-    -}
+    script.
+      const userdataString = '!{JSON.stringify(userdata).replace(/[\/\(\)\']/g, "\\$&")}'
+      userdata = JSON.parse(userdataString)  
+      ip = '!{enderecoIP}'   
+      ioPort = '!{ioPort}'
+    script(src="js/dist/bundle.general.userdata.js")
     block posHead
     script(src="js/dist/bundle.general.js")
-  body
-    - if(typeof(userdata) !== 'undefined'){
-        include ./../includes/navbar
-        include ./../includes/aside-navbar
-    -}
+  body.imperium-body
+    include ./../includes/navbar
+    include ./../includes/aside-navbar
     main
-      -if(userdata)
-        each setor in userdata.setores
-          ul
-            li
-              a(href="/setor?id=" + setor.setor.id).link-planeta= setor.setor.nome
-                |  [!{setor.setor.posX}, !{setor.setor.posY}]
-              ul
-                each planeta in setor.planetas
-                  if(planeta.colonizado)
-                    li 
-                      a(href = "/recursos?planetaid="+planeta.id)= planeta.nome
-                        |  [!{planeta.posX}, !{planeta.posY}]
-        include ./../includes/recursos
+      each setor in userdata.setores
+        ul
+          li
+            a(href="/setor?id=" + setor.setor.id).link-planeta= setor.setor.nome
+              |  [!{setor.setor.posX}, !{setor.setor.posY}]
+            ul
+              each planeta in setor.planetas
+                if(planeta.colonizado)
+                  li 
+                    a(href = "/recursos?planetaid="+planeta.id)= planeta.nome
+                      |  [!{planeta.posX}, !{planeta.posY}]
+      include ./../includes/recursos
       block content
     script(src="js/dist/pages/recursos.bundle.js")
     block posscripts

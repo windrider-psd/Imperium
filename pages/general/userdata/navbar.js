@@ -1,11 +1,33 @@
 const $ = require('jquery')
 const utils = require('./utils')
+
+
+$(function()
+{
+    let planeta = utils.GetSetorInfo().planeta
+    var path = window.location.pathname;
+    let ativo = $('aside a[href="'+path+'"]').find('li')
+    ativo.addClass('ativo');
+    $(".link-planeta").each(function()
+    {
+        _url = $(this).attr('href');
+        _url += (_url.split('?')[1] ? '&':'?') + 'planetaid=' + planeta.id;
+        $(this).attr('href', _url)
+    })
+});
 $(document).ready(function (){
 
     $("#nav-nick").html(userdata.session.nick)
-    $("#link-ranking span").text("(" + userdata.rank + ")")
-    $("#link-mensagens span").text("(" + userdata.caixaEntrada + ")")
-    $("nav").on('click', "#logout-link", function()
+
+    let textorank = $("#link-ranking span");
+    textorank.text(textorank.text()  + " (" + userdata.rank + ")")
+
+    //$("#link-mensagens span span").text("(" + userdata.caixaEntrada + ")")
+    let textomensagem = $("#link-mensagens span");
+    textomensagem.text(textomensagem.text()  + " (" + userdata.caixaEntrada + ")")
+    
+
+    $("aside").on('click', "#logout-link", function()
     {
         $.ajax({
             url : "usuario/logout",

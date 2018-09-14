@@ -111,7 +111,7 @@ $(document).ready(function (){
                 let ranksString = ''
                 let confString = ''
                 if(ranks !== null){
-                    ranksString = '<h4>Ranks</h4><div class="table-responsive"><table class="table table-striped" id = "tabela-cargos"><thead><tr><th>nome</th><th>Ver Aplicações</th><th>Aceitar Aplicações</th><th>Expulsar</th><th>enviar mensagens circulares</th><th>ver online</th><th>tratados</th><th>Ver frota</th><th>Ver exército</th><th>ver movimento</th><th>Criar ranks</th><th>Atribuir cargos</th><th>Gerênciar fórum</th><th>Editar Página Interna</th><th>Editar Página Interna</th><th>Convidar jogadores</th><th>Excluir Cargo</th></tr></thead><tbody>'
+                    ranksString = '<h4>Ranks</h4><div class="table-responsive"><table class="table table-striped" id = "tabela-cargos"><thead><tr><th>nome</th><th>Ver Aplicações</th><th>Aceitar Aplicações</th><th>Expulsar</th><th>enviar mensagens circulares</th><th>ver online</th><th>ver frotas</th><th>ver exércitos</th><th>Criar ranks</th><th>Atribuir cargos</th><th>Gerênciar fórum</th><th>Editar Página Interna</th><th>Editar Página Externa</th><th>Convidar jogadores</th><th>Excluir Cargo</th></tr></thead><tbody>'
                     for(let i = 0; i < ranks.length; i++)
                     {
                         ranksString += '<tr data-id = "'+ranks[i].id+'"><td><input type "text" value = "'+ranks[i].nome+'" name = "nome"></td>'

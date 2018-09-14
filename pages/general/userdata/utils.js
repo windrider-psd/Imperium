@@ -3,11 +3,6 @@ require('bootstrap-notify')
 require("bootstrap-sass");
 //const notify = require('bootstrap-notify')
 const bootbox = require('bootbox')
-$(function()
-{
-    var path = window.location.pathname;
-    $('nav li a[href="'+path+'"]').parents('li').addClass('active');
-});
 
 function FormatarDate(data, separador)
 {

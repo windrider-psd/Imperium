@@ -109,3 +109,222 @@
   font-weight: bold;
   text-transform: uppercase;
 }
+
+.imperium-body
+{
+  background-image: url('/images/body-back.jpg');
+  background-size:cover;
+}
+
+.imperium-side-menu
+{
+  position: fixed;
+  width: 250px;
+  height: 100%;
+  background-color: #262626;
+  color: white;
+  padding: 69px 0px;
+  transition: all .5s;
+  overflow: hidden;
+  z-index: 20;
+}
+
+.imperium-side-menu
+{
+  position: fixed;
+  width: 250px;
+  height: auto;
+  background-color: #262626;
+  color: white;
+  padding-top:0px;
+  padding-bottom: 0px;
+  margin-left:15px;
+  transition: all .5s;
+  overflow: hidden;
+  z-index: 20;
+  background: rgb(18,48,91); /* Old browsers */
+  background: -moz-linear-gradient(top, rgba(18,48,91,1) 1%, rgba(0,13,43,1) 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(top, rgba(18,48,91,1) 1%,rgba(0,13,43,1) 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom, rgba(18,48,91,1) 1%,rgba(0,13,43,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#12305b', endColorstr='#000d2b',GradientType=0 ); /* IE6-9 */
+  box-shadow: 1px 2px 10px black;
+}
+.imperium-background-side-menu
+{
+  background-size: cover;
+  height: 50px;
+  padding-top:12px;
+}
+
+#imperium-background-side-menu-planeta
+{
+  background-image: url('/images/space1.png');
+}
+
+#imperium-background-side-menu-jogador
+{
+  background-image: url('/images/space2.jpeg');
+}
+
+#imperium-background-side-menu-alianca
+{
+  background-image: url('/images/space4.jpg');
+}
+
+#imperium-background-side-menu-outros
+{
+  background-image: url('/images/space5.jpg');
+}
+
+
+.imperium-background-side-menu h3
+{
+  font-family: 'Raleway', sans-serif;
+  color:#f07b05;
+  text-align: center;
+  margin:0px;
+  text-shadow: 0px 2px 2px black;
+}
+
+.ativo
+{
+  background-color:#080808;
+}
+.imperium-side-menu img
+{
+  width: 35px;
+}
+
+.imperium-side-menu ul
+{
+  list-style: none;
+  padding-left:0px;
+  margin-bottom: 0px;
+}
+
+.imperium-side-menu li 
+{
+  padding: 12px 0px;
+  padding-left: 15px;
+  cursor: pointer;
+  transition: background-color .15s;
+  position:relative;
+}
+
+.imperium-fake-line-after::after
+{
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  content: "";
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: #374a85;
+  box-shadow: 0px 0px 10px 1px #374a85;
+  z-index: 100;
+}
+
+.imperium-fake-line-before::before
+{
+  position: absolute;
+  top: 0;
+  left: 0;
+  content: "";
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: #374a85;
+  box-shadow: 0px 0px 10px 1px #374a85;
+  z-index: 100;
+}
+
+
+
+.imperium-side-menu span
+{
+  position: relative;
+  top:5px;
+  font-size: 22px;
+  left: 15px;
+  color: white !important;
+}
+.imperium-side-menu li:hover:not(.ativo)
+{
+  background-color:#1f1f1f;
+}
+#abrir_menu_div
+{
+  display: none;
+  cursor:pointer;
+}
+
+#abrir_menu_div img
+{
+  width: 20px;
+  margin: auto;
+  display: block;
+}
+
+main
+{
+  margin-left: auto;
+  width: calc(100% - 275px);
+  margin-top: 60px;
+  z-index: 19;
+}
+
+@media screen and (max-width:892px)
+{
+  .imperium-side-menu li
+  {
+      display:flow-root;
+      border-color:transparent;
+      padding-left: 7px;
+      padding-bottom: 18px;
+  }
+  .imperium-side-menu li:hover:not(.ativo)
+  {
+    background-color:#bd4148;
+    border-color:transparent;
+  }
+  .imperium-side-menu ul img 
+  {
+    width: 20px;
+    position: relative;
+    top: 6px;
+  }
+  .imperium-side-menu
+  {
+      width:35px;
+      padding-top: 0px;
+      height: 100%;
+      margin-left:0px;
+  }
+  .imperium-background-side-menu
+  {
+    display:none;
+  }
+  .imperium-side-menu ul span
+  {
+    position: absolute;
+    top: unset;
+    left: 40px;
+  }
+  main
+  {
+      width:calc(100% - 35px);
+      left:35px;
+  }
+  #abrir_menu_div
+  {
+    display:block;
+    padding:15px 0px;
+  }
+  .ativo
+  {
+      background-color:#b93232;
+  }
+    
+}
+
