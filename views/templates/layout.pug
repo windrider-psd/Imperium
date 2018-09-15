@@ -20,6 +20,7 @@ html
     script(src="js/dist/bundle.general.js")
   body.imperium-body
     include ./../includes/navbar
+    include ./../includes/recursos
     include ./../includes/aside-navbar
     main
       each setor in userdata.setores
@@ -33,7 +34,6 @@ html
                   li 
                     a(href = "/recursos?planetaid="+planeta.id)= planeta.nome
                       |  [!{planeta.posX}, !{planeta.posY}]
-      include ./../includes/recursos
       block content
     script(src="js/dist/pages/recursos.bundle.js")
     block posscripts

@@ -12,10 +12,11 @@ function setEdificioMelhoria(JEdificio, tempo, id)
     let btnCancelar = JEdificio.find(".btn-calcelar-melhoria");
     let tempoMelhoria = JEdificio.find(".edificio-tempo-melhoria-depois");
     JEdificio.find(".edificio-tempo-melhoria-antes").hide();
-    btnUpgrade.removeClass("btn-success");
+    /*btnUpgrade.removeClass("btn-success");
     btnUpgrade.addClass("btn-primary");
     btnUpgrade.text("Edificio sendo melhorado");
-    btnUpgrade.prop('disabled', true);
+    btnUpgrade.prop('disabled', true);*/
+    btnUpgrade.addClass('hidden')
     btnCancelar.removeClass('hidden');
     btnCancelar.data('id', id);
     tempoMelhoria.find("span").text(tempo);
@@ -29,10 +30,12 @@ function UndoMelhoria(JEdificio)
     let btnCancelar = JEdificio.find(".btn-calcelar-melhoria");
     let tempoMelhoria = JEdificio.find(".edificio-tempo-melhoria-depois");
     JEdificio.find(".edificio-tempo-melhoria-antes").show();
-    btnUpgrade.removeClass("btn-primary");
+    /*btnUpgrade.removeClass("btn-primary");
     btnUpgrade.addClass("btn-success");
     btnUpgrade.text("Melhorar");
-    btnUpgrade.prop('disabled', false);
+    btnUpgrade.prop('disabled', false);*/
+    //btnCancelar.removeClass('hidden');
+    btnUpgrade.removeClass('hidden');
     btnCancelar.addClass('hidden');
     tempoMelhoria.addClass("hidden"); 
 }
@@ -56,6 +59,8 @@ $(".btn-calcelar-melhoria").on('click', function()
             success : function()
             {
                 utils.GerarNotificacao("Melhoria cancelada com sucesso", 'success');
+                let stringid = GerenciadorRecursos.EdificioIDParaString(id)
+                UndoMelhoria($('.edificio[data-edificio="'+stringid+'"]'))
             },
             error : function(err)
             {
@@ -131,7 +136,7 @@ function GetEdificios()
     $("#edificio-ferro .edificio-nivel").text(planeta.minaFerro);
     $("#edificio-ferro .custo-ferro span").text(custo.ferro);
     $("#edificio-ferro .custo-cristal span").text(custo.cristal);
-    $("#edificio-ferro .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoFerro(planeta.minaFerro + 1, consumo, producaoEnergia, isp) - GerenciadorRecursos.GetProducaoFerro(planeta.minaFerro, consumo, producaoEnergia, isp)) * 6)+ "/minuto");
+    $("#edificio-ferro .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoFerro(planeta.minaFerro + 1, 1, 1, isp) - GerenciadorRecursos.GetProducaoFerro(planeta.minaFerro, consumo, producaoEnergia, isp)) * 6)+ "/minuto");
     $("#edificio-ferro .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
 
 
@@ -140,7 +145,7 @@ function GetEdificios()
     $("#edificio-cristal .edificio-nivel").text(planeta.minaCristal);
     $("#edificio-cristal .custo-ferro span").text(custo.ferro);
     $("#edificio-cristal .custo-cristal span").text(custo.cristal);
-    $("#edificio-cristal .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoCristal(planeta.minaCristal + 1, consumo, producaoEnergia, isp) - GerenciadorRecursos.GetProducaoCristal(planeta.minaCristal, consumo, producaoEnergia, isp)) * 6)+ "/minuto");
+    $("#edificio-cristal .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoCristal(planeta.minaCristal + 1, 1, 1, isp) - GerenciadorRecursos.GetProducaoCristal(planeta.minaCristal, consumo, producaoEnergia, isp)) * 6)+ "/minuto");
     $("#edificio-cristal .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
 
     custo = GerenciadorRecursos.GetCustoUpgradePlantaSolar(planeta.plantaSolar + 1);
@@ -166,7 +171,7 @@ function GetEdificios()
     $("#edificio-titanio .edificio-nivel").text(planeta.minaTitanio);
     $("#edificio-titanio .custo-ferro span").text(custo.ferro);
     $("#edificio-titanio .custo-cristal span").text(custo.cristal);
-    $("#edificio-titanio .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoTitanio(planeta.minaTitanio + 1, consumo, producaoEnergia) - GerenciadorRecursos.GetProducaoTitanio(planeta.minaTitanio, consumo, producaoEnergia)) * 6)+ "/minuto");
+    $("#edificio-titanio .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoTitanio(planeta.minaTitanio + 1, 1, 1) - GerenciadorRecursos.GetProducaoTitanio(planeta.minaTitanio, consumo, producaoEnergia)) * 6)+ "/minuto");
     $("#edificio-titanio .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
 
     custo = GerenciadorRecursos.GetCustoUpgradeFabricaComponente(planeta.fabricaComponente + 1);
@@ -175,7 +180,7 @@ function GetEdificios()
     $("#edificio-fabrica-componente .custo-ferro span").text(custo.ferro);
     $("#edificio-fabrica-componente .custo-cristal span").text(custo.cristal);
     $("#edificio-fabrica-componente .custo-titanio span").text(custo.titanio);
-    $("#edificio-fabrica-componente .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoComponente(planeta.fabricaComponente + 1, consumo, producaoEnergia) - GerenciadorRecursos.GetProducaoComponente(planeta.fabricaComponente, consumo, producaoEnergia)) * 6) + "/minuto");
+    $("#edificio-fabrica-componente .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoComponente(planeta.fabricaComponente + 1, 1, 1) - GerenciadorRecursos.GetProducaoComponente(planeta.fabricaComponente, consumo, producaoEnergia)) * 6) + "/minuto");
     $("#edificio-fabrica-componente .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
 
     
@@ -185,7 +190,8 @@ function GetEdificios()
     $("#edificio-armazem .custo-ferro span").text(custo.ferro);
     $("#edificio-armazem .custo-cristal span").text(custo.cristal);
     $("#edificio-armazem .custo-titanio span").text(custo.titanio);
-    $("#edificio-armazem .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetArmazenamentoArmazem(planeta.armazem + 1) - GerenciadorRecursos.GetArmazenamentoArmazem(planeta.armazem))) + " total de armazemento de recursos");
+    $("#edificio-armazem .custo-componente span").text(custo.componentes);
+    $("#edificio-armazem .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetArmazenamentoArmazem(planeta.armazem + 1) - GerenciadorRecursos.GetArmazenamentoArmazem(planeta.armazem))) + " total de recursos");
     $("#edificio-armazem .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
 
     custo = GerenciadorRecursos.GetCustoUpgradeFazenda(planeta.fazenda + 1);
@@ -193,7 +199,7 @@ function GetEdificios()
     $("#edificio-fazenda .edificio-nivel").text(planeta.fazenda);
     $("#edificio-fazenda .custo-ferro span").text(custo.ferro);
     $("#edificio-fazenda .custo-cristal span").text(custo.cristal);
-    $("#edificio-fazenda .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoComida(planeta.fazenda + 1, consumo, producaoEnergia, isp) - GerenciadorRecursos.GetProducaoComida(planeta.fazenda,consumo, producaoEnergia, isp)) * 6) + "/minuto");
+    $("#edificio-fazenda .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoComida(planeta.fazenda + 1, 1, 1, isp) - GerenciadorRecursos.GetProducaoComida(planeta.fazenda,consumo, producaoEnergia, isp)) * 6) + "/minuto");
     $("#edificio-fazenda .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
 }
 

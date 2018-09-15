@@ -22,7 +22,6 @@ $(document).ready(function (){
     let textorank = $("#link-ranking span");
     textorank.text(textorank.text()  + " (" + userdata.rank + ")")
 
-    //$("#link-mensagens span span").text("(" + userdata.caixaEntrada + ")")
     let textomensagem = $("#link-mensagens span");
     textomensagem.text(textomensagem.text()  + " (" + userdata.caixaEntrada + ")")
     
