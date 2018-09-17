@@ -149,7 +149,7 @@ router.get('/recursos', (req, res) => {
     getUserData(req).then(userdata => render('recursos', res, {userdata : userdata})).catch(() => render('login-cadastro'));
   else 
   {
-    res.status(403).
+    res.status(403)
     render('login-cadastro', res);
   }
     
@@ -172,7 +172,7 @@ router.get('/alianca', (req, res) => {
   }
     
   else 
-    res.status(403).render('login-cadastro');
+    render('login-cadastro');
 });
 
 router.get('/forum', (req, res) => {
@@ -185,7 +185,7 @@ router.get('/forum', (req, res) => {
         else
           req.query.planetaid != null ? res.redirect('alianca?planetaid='+req.query.planetaid) : res.redirect('alianca')
       })
-      .catch(() => res.status(403).render('login-cadastro', res));
+      .catch(() => render('login-cadastro', res));
   }
     
   else 

@@ -1,0 +1,53 @@
+#esqueci-main{
+    background: url(/images/spgw.png) left no-repeat;
+    background-size: cover;
+    padding:50px;
+}
+
+#esqueci-main .container
+{
+    box-shadow: 2px 2px 2px black;
+}
+#esqueci-main label
+{
+    text-align: left;
+}
+
+#esqueci-titulo
+{
+    padding: 15px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+#esqueci-titulo h1
+{
+    margin: 0px;
+    color:white
+}
+
+#esqueci-main .modal-content > div
+{
+    padding-bottom: 10px;
+}
+
+.div-erro
+{
+    text-align: center;
+    width: 100%;
+}
+
+.div-erro img
+{
+    display:inline-block !important;
+    max-width: 85px;
+    min-width: 50px;
+    width:10%;
+    margin-top: 10px;
+}
+
+.texto-erro
+{
+    color:white;
+    text-transform: uppercase;
+    margin-top:10px;
+}
