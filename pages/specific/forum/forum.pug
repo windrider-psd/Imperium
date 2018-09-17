@@ -1,8 +1,7 @@
-extends templates/layout
+extends ../../templates/layout
 block titulo
   | Fórum
 block content     
-  include includes/navbar
   h1.imperium-title Fórum da 
     =userdata.alianca.nome
   .container-fluid
@@ -68,5 +67,4 @@ block content
 
 
 block posscripts
-
   script(src="js/dist/pages/forum.bundle.js")

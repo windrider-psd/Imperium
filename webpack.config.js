@@ -9,15 +9,19 @@ for(let i = 0; i < pagesDir.length; i++)
     dirname = dirname[dirname.length - 2]
     
 
-    let dirJS = glob.sync('./pages/specific/'+dirname+'/*')
-    pagesEntry[dirname] = []
-    for(let j = 0; j < dirJS.length; j++)
+    let dirJS = glob.sync('./pages/specific/'+dirname+'/*.+(css|js)')
+    if(dirJS.length > 0)
     {
-        let pagename = dirJS[j].split('/')
-        pagename = pagename[pagename.length - 1]
-        paganame = pagename.split('.')[0]
-        pagesEntry[dirname].push(dirJS[j])
+        pagesEntry[dirname] = []
+        for(let j = 0; j < dirJS.length; j++)
+        {
+            let pagename = dirJS[j].split('/')
+            pagename = pagename[pagename.length - 1]
+            paganame = pagename.split('.')[0]
+            pagesEntry[dirname].push(dirJS[j])
+        }
     }
+    
     
 }
 let general_entry = glob.sync('./pages/general/*.js')

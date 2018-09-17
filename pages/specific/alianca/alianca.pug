@@ -1,4 +1,4 @@
-extends templates/layout
+extends ../../templates/layout
 block titulo
   | Aliança
 
@@ -56,7 +56,7 @@ block content
                   button.btn.btn-warning.btn-lg.btn-block#btn-sair-alianca Sair da Aliança
       -}
     
-  include includes/enviar-mensagem-privada
+  include ../../templates/enviar-mensagem-privada
 
 block posscripts
   script(src="js/dist/pages/alianca.bundle.js")

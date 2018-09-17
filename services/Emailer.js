@@ -1,6 +1,5 @@
 const nodemailer = require('nodemailer')
 require('dotenv/config')
-
 const transportador =  nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 465,
@@ -9,7 +8,10 @@ const transportador =  nodemailer.createTransport({
     {
         user : process.env.EMAIL_USER,
         pass : process.env.EMAIL_PASSWORD
-    }   
+    },
+    tls:{
+        rejectUnauthorized : false
+    }
 });
 
 
@@ -33,6 +35,7 @@ function EnviarEmail (destino, assunto, conteudo, __callback)
     {
         if(__callback)
             __callback(err, info);   
+        console.log(err)
     });
 }
 

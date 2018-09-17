@@ -19,7 +19,7 @@ module.exports = function CriarApp(sessao)
   browserify.settings.insertGlobals = true
 
   // view engine setup
-  app.set('views', path.join(__dirname, 'views'))
+  app.set('views', path.join(__dirname, 'pages/specific'))
   app.set('view engine', 'pug')
   app.use(helmet())
   app.use(new DDDoS({
@@ -46,10 +46,23 @@ module.exports = function CriarApp(sessao)
   app.use('/comunicacao', comunicacaoRouter)
   app.use('/alianca', aliancaRouter)
   
+  /*app.use((req, res) => {
+    res.imprender = (view, params) =>{
+      glob('./pages/specific/'+view+'/*.pug', (err, pages) => {
+        let pagename = pages[0].split('/')
+        pagename = pagename[pagename.length - 1]
+        paganame = pagename.split('.')[0]
+        res.render(view + '/' + pagename, params)
+      })
+    }
+  })*/
+
+
   // catch 404 and forward to error handler
   app.use(function(req, res, next) {
     next(createError(404));
   })
+
 
   // error handler
   app.use(function(err, req, res, next) {

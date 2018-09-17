@@ -47,7 +47,8 @@ $(document).ready(function (){
         
     }
 
-    $("#link-convites").on('click', function(){
+    $("#link-convites li").on('click', function(){
+        console.log("ola")
         $("#modal-convites").modal('show');
         getConvitesAlianca();
     })

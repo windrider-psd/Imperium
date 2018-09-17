@@ -4,7 +4,26 @@ const models = require('./../model/DBModels')
 const MUtils = require('./../services/DBModelsUtils')
 const ranking = require('./../services/Ranking');
 const Bluebird = require("bluebird");
+const glob = require('glob')
 require('dotenv/config')
+
+/**
+ * 
+ * @param {Response} res 
+ * @param {Object} params
+ */
+function render(view, res, params)
+{
+  glob('./pages/specific/'+view+'/*.pug', (err, pages) => {
+    let pagename = pages[0].split('/')
+    pagename = pagename[pagename.length - 1]
+    paganame = pagename.split('.')[0]
+    res.render(view + '/' + pagename, params)
+  })
+  
+}
+
+
 /**
  * @param {Request} req O objeto de requisição do express
  * @description Retorna um objeto que será usado no front-end
@@ -81,24 +100,22 @@ router.all('*', (req, res, next) =>
 });
 router.get('/', (req, res) => {
   if(req.session.usuario)
-    getUserData(req).then(userdata => res.render('recursos', {userdata : userdata})).catch(() => res.render('login-cadastro'));
+    getUserData(req).then(userdata => render('recursos', res, {userdata : userdata})).catch(() => render('login-cadastro', res));
   else
-    res.render('login-cadastro');
+    render('login-cadastro', res);
 });
 router.get('/opcoes', (req, res) =>
 {
   if(req.session.usuario)
-    getUserData(req).then(userdata => res.render('opcoes', {userdata : userdata})).catch(() => res.status(403).render('login-cadastro'));
+    getUserData(req).then(userdata => render('opcoes', res, {userdata : userdata})).catch(() => render('login-cadastro', res));
   else
-    res.status(403).render('login-cadastro');
+  { 
+    res.status(403)
+    render('login-cadastro', res);
+  }
+    
 });
 
-router.get('/login', (req, res) => {
-  if(req.session.usuario)
-    getUserData(req).then(userdata => res.render('inicial', {userdata : userdata})).catch(() => res.render('login-cadastro'));
-  else
-    res.render('login-cadastro');
-});
 
 router.get('/topico-forum', (req, res, next) => {
   if(req.session.usuario)
@@ -109,48 +126,45 @@ router.get('/topico-forum', (req, res, next) => {
         models.Forum_Topico.findOne({where : {aliancaID : userdata.alianca.id, id : req.query.topicoid}})
           .then(topico =>{
             if(topico)
-              res.render('topico-forum', {userdata : userdata, topico : topico})
+              render('topico-forum', res, {userdata : userdata, topico : topico})
             else
-              res.render('inicial', {userdata : userdata})
+              render('inicial', res, {userdata : userdata})
           })
           .catch(() =>
             next()
           )
       }
       else
-        res.render('inicial', {userdata : userdata})
-    }).catch(() => res.render('login-cadastro'));
+        render('inicial', res, {userdata : userdata})
+    }).catch(() => render('login-cadastro', res));
   }
   else
-    res.render('login-cadastro');
+    render('login-cadastro');
 });
 
-router.get('/cadastrar', (req, res) => res.render('cadastrar'));
 
-router.get('/inicial', (req, res) => {
-  if(req.session.usuario)
-    getUserData(req).then(userdata => res.render('inicial', {userdata : userdata})).catch(() => res.status(403).render('login-cadastro'));
-  else 
-    res.status(403).render('login-cadastro');
-});
 
 router.get('/recursos', (req, res) => {
   if(req.session.usuario)
-    getUserData(req).then(userdata => res.render('recursos', {userdata : userdata})).catch(() => res.status(403).render('login-cadastro'));
+    getUserData(req).then(userdata => render('recursos', res, {userdata : userdata})).catch(() => render('login-cadastro'));
   else 
-    res.status(403).render('login-cadastro');
+  {
+    res.status(403).
+    render('login-cadastro', res);
+  }
+    
 });
 router.get('/alianca', (req, res) => {
   if(req.session.usuario)
   {
     models.Alianca_Aplicacao.findOne({where : {usuarioID : req.session.usuario.id}}).then(aplicacao => {
       if(!aplicacao)
-        getUserData(req).then(userdata => res.render('alianca', {userdata : userdata, aplicacao : false})).catch(() => res.status(403).render('login-cadastro'));
+        getUserData(req).then(userdata => render('alianca', res, {userdata : userdata, aplicacao : false})).catch(() => render('login-cadastro', res));
       else
       {
         models.Alianca.findOne({where : {id: aplicacao.aliancaID}, attributes :['id', 'nome', 'tag']}).then(alianca => {
           aplicacao.dataValues.alianca = alianca;
-          getUserData(req).then(userdata => res.render('alianca', {userdata : userdata, aplicacao : aplicacao.dataValues})).catch(() => res.status(403).render('login-cadastro'));
+          getUserData(req).then(userdata => render('alianca', {userdata : userdata, aplicacao : aplicacao.dataValues})).catch(() => render('login-cadastro', res));
         })
       }
     })
@@ -167,29 +181,29 @@ router.get('/forum', (req, res) => {
     getUserData(req)
       .then(userdata => {
         if(userdata.alianca != null)
-          res.render('forum', {userdata : userdata})
+          render('forum', res, {userdata : userdata})
         else
           req.query.planetaid != null ? res.redirect('alianca?planetaid='+req.query.planetaid) : res.redirect('alianca')
       })
-      .catch(() => res.status(403).render('login-cadastro'));
+      .catch(() => res.status(403).render('login-cadastro', res));
   }
     
   else 
-    res.status(403).render('login-cadastro');
+   render('login-cadastro', res);
 });
 
 router.get('/ranking', (req, res) => {
   if(req.session.usuario)
-    getUserData(req).then(userdata => res.render('ranking', {userdata : userdata, resultadosPorPagina : Number(process.env.RANKING_MAX_RESULTADOS)})).catch(() =>res.status(403).render('login-cadastro'));
+    getUserData(req).then(userdata => render('ranking', res, {userdata : userdata, resultadosPorPagina : Number(process.env.RANKING_MAX_RESULTADOS)})).catch(() =>render('login-cadastro', res));
   else 
-    res.status(403).render('login-cadastro');
+    render('login-cadastro', res);
 });
 
 router.get('/mensagens', (req, res) => {
   if(req.session.usuario)
-    getUserData(req).then(userdata => res.render('mensagens', {userdata : userdata, resultadosPorPagina : Number(process.env.MESSAGE_PAGE_COUNT)})).catch(() => res.status(403).render('login-cadastro'));
+    getUserData(req).then(userdata => render('mensagens', res, {userdata : userdata, resultadosPorPagina : Number(process.env.MESSAGE_PAGE_COUNT)})).catch(() => render('login-cadastro', res));
   else 
-    res.status(403).render('login-cadastro');
+    render('login-cadastro', res);
 });
 
 router.get('/recuperar-senha', (req, res) =>{
@@ -197,13 +211,13 @@ router.get('/recuperar-senha', (req, res) =>{
   let chave = req.query.chave;
 
   if(!uid || !chave)
-    res.render('recuperar-senha', {erro : 1})
+    render('recuperar-senha', res, {erro : 1})
   else
   {
     models.EsqeciSenha.findOne({where : {usuarioID : uid, chave : chave}}).then((encontrado) =>
     {
       if(!encontrado)
-        res.render('recuperar-senha', {erro : 1});
+        render('recuperar-senha', res, {erro : 1});
       else
       {
         let agora = new Date();
@@ -211,9 +225,9 @@ router.get('/recuperar-senha', (req, res) =>{
         let diffMs = (agora - datareq); 
         let diffHrs = Math.floor((diffMs % 86400000) / 3600000); // horas
         if(diffHrs > 72)
-          res.render('recuperar-senha', {erro : 2});
+          render('recuperar-senha', res, {erro : 2});
         else
-          res.render('recuperar-senha', {erro : 0, u : uid, chave : chave});
+          render('recuperar-senha', res, {erro : 0, u : uid, chave : chave});
       }
     });
   }
@@ -223,18 +237,18 @@ router.get("/ativar", (req, res) =>
 {
   let params = req.query;
   if(!(params.u && params.chave))
-    res.status(400).render('ativar', {erro : 1}); //Link inválido
+    render('ativar', res, {erro : 1}); //Link inválido
   else if(req.session.usuario && req.session.usuario.ativo == true)
-    res.status(202).render('ativar', {erro : 2}); // Conta já ativada
+    render('ativar', res, {erro : 2}); // Conta já ativada
   else 
   {
     models.Usuario.findOne({where : {id : params.u}, attributes : ['id', 'ativo', 'chave_ativacao']}).then(function(user){
       if(!user)
-        res.status(400).render('ativar', {erro : 1}); //Link inválido
+        render('ativar', res, {erro : 1}); //Link inválido
       else if(user.ativo == true)
-        res.status(202).render('ativar', {erro : 2}); // Conta já ativada
+       render('ativar', res, {erro : 2}); // Conta já ativada
       else if(user.chave_ativacao != params.chave)
-        res.status(400).render('ativar', {erro : 1}); //Link inválido
+        render('ativar', res, {erro : 1}); //Link inválido
       else
       {
         user.ativo = true;
@@ -242,8 +256,8 @@ router.get("/ativar", (req, res) =>
         {
           if(req.session.usuario)
             req.session.usuario.ativo = true;
-          res.status(200).render('ativar', {erro : 0}); // Sucesso
-        }).catch(() => res.status(500).render('ativar', {erro : 3})) //erro ao ativar
+         render('ativar', res, {erro : 0}); // Sucesso
+        }).catch(() => render('ativar', res, {erro : 3})) //erro ao ativar
       }
     });
   }
@@ -263,14 +277,14 @@ router.get('/paginaExterna', (req, res) => {
         else
         {
           models.Alianca_Aplicacao.findOne({where : {usuarioID : req.session.usuario.id}}).then(aplicacao => {
-            models.Usuario_Participa_Alianca.count({where : {aliancaID : alianca.id}}).then(contagem => getUserData(req).then(userdata => res.render('paginaExterna', {userdata : userdata, alianca : alianca.dataValues, totalMembros : contagem, aplicacao : Boolean(aplicacao)})).catch(() => res.render('login-cadastro')))
+            models.Usuario_Participa_Alianca.count({where : {aliancaID : alianca.id}}).then(contagem => getUserData(req).then(userdata => render('paginaExterna', res, {userdata : userdata, alianca : alianca.dataValues, totalMembros : contagem, aplicacao : Boolean(aplicacao)})).catch(() => render('login-cadastro', res)))
           })
         }
       })
     }
   }
   else
-    res.render('login-cadastro');
+    render('login-cadastro', res);
 })
 
 module.exports = router;

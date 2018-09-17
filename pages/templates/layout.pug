@@ -1,0 +1,48 @@
+doctype html
+html
+  head
+    title  
+      block titulo
+      |  - Imperium
+    meta(charset = "UTF-8")
+    meta(name = "viewport", content = "width=device-width, initial-scale=1")
+    meta(http-equiv = "X-UA-Compatible", content = "IE=edge")
+    meta(name = "author" content = "Christian Lemos")
+    link(rel = "icon", href = "/images/logo_pre.png")
+    -if(typeof(userdata) !== 'undefined')
+      script.
+        const userdataString = '!{JSON.stringify(userdata).replace(/[\/\(\)\']/g, "\\$&")}'
+        userdata = JSON.parse(userdataString)  
+        ip = '!{enderecoIP}'   
+        ioPort = '!{ioPort}'
+      script(src="js/dist/bundle.general.userdata.js")
+    block posHead
+    script(src="js/dist/bundle.general.js")
+  body.imperium-body
+    -if(typeof(userdata) !== 'undefined')
+      include recursos
+      include aside-navbar
+    main
+      block content
+    #modal-convites.modal.fade(role='dialog')
+      .modal-dialog
+          .modal-content
+              .modal-header
+                  button.close(type='button', data-dismiss='modal') ×
+                  h4.modal-title Convites
+              .modal-body(style = 'overflow:scroll')
+                .container-fluid
+                  .row
+                      .col-md-12
+                          .tabbable-panel
+                              .tabbable-line
+                                  ul.nav.nav-tabs
+                                      li.tab-btn
+                                          a(href ="#") Pedidos de amizade
+                                      li.tab-btn#tab-convites
+                                          a(href ="#") Convites para aliança
+                                  .tab-content-convite
+    script(src="js/dist/pages/recursos.bundle.js")
+    block posscripts
+      
+      
