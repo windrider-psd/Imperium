@@ -61,6 +61,15 @@
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3d6282', endColorstr='#0d465d',GradientType=0 ); /* IE6-9 */
 }
 
+.imperium-gradient-background-medium
+{
+  background: #08345a; /* Old browsers */
+  background: -moz-linear-gradient(top, #08345a 0%, #07222d 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(top, #08345a 0%,#07222d 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom, #08345a 0%,#07222d 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#08345a', endColorstr='#07222d',GradientType=0 );
+}
+
 .imperium-gradient-background-heavy
 {
   background: #3d6282; /* Old browsers */

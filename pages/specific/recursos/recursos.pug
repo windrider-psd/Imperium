@@ -6,22 +6,28 @@ block content
         .row
             h1.imperium-title Recursos
             #edificio-ferro.col-md-12.edificio(data-edificio = 'minaFerro')
-                .col-md-2.edificio-img
+                .col-md-2.edificio-img.imperium-gradient-background-medium
                     img(src='/images/mina-ferro.jpg')
-                .col-md-6.edificio-desc
+                    .edificio-img-overlay-master
+                        .edificio-img-overlay-fill
+                        .edificio-img-overlay-text
+                .col-md-6.edificio-desc.imperium-gradient-background-medium
                     .edificio-desc-titulo
                         h4 Mina de ferro
                         span Nível:  
                             span.edificio-nivel
                     div
-                        span Custo para o nível 1:
+                        span Custo de melhoria
                         .imperium-resource-list 
                             div.custo-ferro
                                 .imperium-resource.imperium-resource-iron
-                                span 300
+                                span
                             div.custo-cristal
                                 .imperium-resource.imperium-resource-cristal
-                                span 300
+                                span
+                            div.custo-energia
+                                .imperium-resource.imperium-resource-energy
+                                span 
                         div(style="clear:both")
                             span.edificio-tempo-melhoria-antes Tempo de melhoria: 
                                 span
@@ -37,9 +43,12 @@ block content
                             span
                         button.btn-calcelar-melhoria.btn.btn-warning.btn-sm.hidden.btn-block.imperium-input(style="margin-top:10px") Calcelar Melhoria
             #edificio-cristal.col-md-12.edificio(data-edificio = 'minaCristal')
-                .col-md-2.edificio-img
+                .col-md-2.edificio-img.imperium-gradient-background-medium
                     img(src='/images/mina-cristal.jpg')
-                .col-md-6.edificio-desc
+                    .edificio-img-overlay-master
+                        .edificio-img-overlay-fill
+                        .edificio-img-overlay-text
+                .col-md-6.edificio-desc.imperium-gradient-background-medium
                     .edificio-desc-titulo
                         h4 Mina de Cristal
                         span Nível:  
@@ -49,10 +58,13 @@ block content
                         .imperium-resource-list 
                             div.custo-ferro
                                 .imperium-resource.imperium-resource-iron
-                                span 300
+                                span
                             div.custo-cristal
                                 .imperium-resource.imperium-resource-cristal
-                                span 300
+                                span
+                            div.custo-energia
+                                .imperium-resource.imperium-resource-energy
+                                span 
                         div(style="clear:both")
                             span.edificio-tempo-melhoria-antes Tempo de melhoria: 
                                 span
@@ -68,9 +80,12 @@ block content
                             span
                         button.btn-calcelar-melhoria.btn.btn-warning.btn-sm.hidden.btn-block.imperium-input(style="margin-top:10px") Calcelar Melhoria
             #edificio-titanio.col-md-12.edificio(data-edificio = 'minaTitanio')
-                .col-md-2.edificio-img
+                .col-md-2.edificio-img.imperium-gradient-background-medium
                     img(src='/images/mina-titanio.jpg')
-                .col-md-6.edificio-desc
+                    .edificio-img-overlay-master
+                        .edificio-img-overlay-fill
+                        .edificio-img-overlay-text
+                .col-md-6.edificio-desc.imperium-gradient-background-medium
                     .edificio-desc-titulo
                         h4 Mina de Titânio
                         span Nível:  
@@ -80,10 +95,13 @@ block content
                         .imperium-resource-list 
                             div.custo-ferro
                                 .imperium-resource.imperium-resource-iron
-                                span 300
+                                span
                             div.custo-cristal
                                 .imperium-resource.imperium-resource-cristal
-                                span 300
+                                span
+                            div.custo-energia
+                                .imperium-resource.imperium-resource-energy
+                                span 
                         div(style="clear:both")
                             span.edificio-tempo-melhoria-antes Tempo de melhoria: 
                                 span
@@ -99,9 +117,12 @@ block content
                             span
                         button.btn-calcelar-melhoria.btn.btn-warning.btn-sm.hidden.btn-block.imperium-input(style="margin-top:10px") Calcelar Melhoria
             #edificio-planta-solar.col-md-12.edificio(data-edificio = 'plantaSolar')
-                .col-md-2.edificio-img
+                .col-md-2.edificio-img.imperium-gradient-background-medium
                     img(src='/images/planta-solar.jpg')
-                .col-md-6.edificio-desc
+                    .edificio-img-overlay-master
+                        .edificio-img-overlay-fill
+                        .edificio-img-overlay-text
+                .col-md-6.edificio-desc.imperium-gradient-background-medium
                     .edificio-desc-titulo
                         h4 Planta Solar
                         span Nível:  
@@ -111,10 +132,10 @@ block content
                         .imperium-resource-list 
                             div.custo-ferro
                                 .imperium-resource.imperium-resource-iron
-                                span 300
+                                span
                             div.custo-cristal
                                 .imperium-resource.imperium-resource-cristal
-                                span 300
+                                span
                         div(style="clear:both")
                             span.edificio-tempo-melhoria-antes Tempo de melhoria: 
                                 span
@@ -129,10 +150,13 @@ block content
                         span(style = "display: block").edificio-tempo-melhoria-depois.hidden Tempo de melhoria:
                             span
                         button.btn-calcelar-melhoria.btn.btn-warning.btn-sm.hidden.btn-block.imperium-input(style="margin-top:10px") Calcelar Melhoria
-            #edificio-planta-solar.col-md-12.edificio(data-edificio = 'reatorFusao')
-                .col-md-2.edificio-img
+            #edificio-reator-fusao.col-md-12.edificio(data-edificio = 'reatorFusao')
+                .col-md-2.edificio-img.imperium-gradient-background-medium
                     img(src='/images/reator-fusao.jpg')
-                .col-md-6.edificio-desc
+                    .edificio-img-overlay-master
+                        .edificio-img-overlay-fill
+                        .edificio-img-overlay-text
+                .col-md-6.edificio-desc.imperium-gradient-background-medium
                     .edificio-desc-titulo
                         h4 Reator de fusão
                         span Nível:  
@@ -142,13 +166,13 @@ block content
                         .imperium-resource-list 
                             div.custo-ferro
                                 .imperium-resource.imperium-resource-iron
-                                span 300
+                                span
                             div.custo-cristal
                                 .imperium-resource.imperium-resource-cristal
-                                span 300
+                                span 
                             div.custo-titanio
                                 .imperium-resource.imperium-resource-titanium
-                                span 300
+                                span
                         div(style="clear:both")
                             span.edificio-tempo-melhoria-antes Tempo de melhoria: 
                                 span
@@ -164,9 +188,12 @@ block content
                             span
                         button.btn-calcelar-melhoria.btn.btn-warning.btn-sm.hidden.btn-block.imperium-input(style="margin-top:10px") Calcelar Melhoria
             #edificio-fabrica-componente.col-md-12.edificio(data-edificio = 'fabricaComponente')
-                .col-md-2.edificio-img
+                .col-md-2.edificio-img.imperium-gradient-background-medium
                     img(src='/images/fabrica-componente.jpg')
-                .col-md-6.edificio-desc
+                    .edificio-img-overlay-master
+                        .edificio-img-overlay-fill
+                        .edificio-img-overlay-text
+                .col-md-6.edificio-desc.imperium-gradient-background-medium
                     .edificio-desc-titulo
                         h4 Fábrica de componentes
                         span Nível:  
@@ -176,13 +203,16 @@ block content
                         .imperium-resource-list 
                             div.custo-ferro
                                 .imperium-resource.imperium-resource-iron
-                                span 300
+                                span
                             div.custo-cristal
                                 .imperium-resource.imperium-resource-cristal
-                                span 300
+                                span
                             div.custo-titanio
                                 .imperium-resource.imperium-resource-titanium
-                                span 300
+                                span
+                            div.custo-energia
+                                .imperium-resource.imperium-resource-energy
+                                span 
                         div(style="clear:both")
                             span.edificio-tempo-melhoria-antes Tempo de melhoria: 
                                 span
@@ -198,9 +228,12 @@ block content
                             span
                         button.btn-calcelar-melhoria.btn.btn-warning.btn-sm.hidden.btn-block.imperium-input(style="margin-top:10px") Calcelar Melhoria
             #edificio-fazenda.col-md-12.edificio(data-edificio = 'fazenda')
-                .col-md-2.edificio-img
+                .col-md-2.edificio-img.imperium-gradient-background-medium
                     img(src='/images/fazenda.jpg')
-                .col-md-6.edificio-desc
+                    .edificio-img-overlay-master
+                        .edificio-img-overlay-fill
+                        .edificio-img-overlay-text
+                .col-md-6.edificio-desc.imperium-gradient-background-medium
                     .edificio-desc-titulo
                         h4 Fazenda
                         span Nível:  
@@ -210,10 +243,13 @@ block content
                         .imperium-resource-list 
                             div.custo-ferro
                                 .imperium-resource.imperium-resource-iron
-                                span 300
+                                span
                             div.custo-cristal
                                 .imperium-resource.imperium-resource-cristal
-                                span 300
+                                span
+                            div.custo-energia
+                                .imperium-resource.imperium-resource-energy
+                                span 
                         div(style="clear:both")
                             span.edificio-tempo-melhoria-antes Tempo de melhoria: 
                                 span
@@ -229,9 +265,12 @@ block content
                             span
                         button.btn-calcelar-melhoria.btn.btn-warning.btn-sm.hidden.btn-block.imperium-input(style="margin-top:10px") Calcelar Melhoria
             #edificio-armazem.col-md-12.edificio(data-edificio = 'armazem')
-                .col-md-2.edificio-img
+                .col-md-2.edificio-img.imperium-gradient-background-medium
                     img(src='/images/armazem.jpg')
-                .col-md-6.edificio-desc
+                    .edificio-img-overlay-master
+                        .edificio-img-overlay-fill
+                        .edificio-img-overlay-text
+                .col-md-6.edificio-desc.imperium-gradient-background-medium
                     .edificio-desc-titulo
                         h4 Armazém
                         span Nível:  
@@ -241,16 +280,16 @@ block content
                         .imperium-resource-list 
                             div.custo-ferro
                                 .imperium-resource.imperium-resource-iron
-                                span 300
+                                span
                             div.custo-cristal
                                 .imperium-resource.imperium-resource-cristal
-                                span 300
+                                span
                             div.custo-titanio
                                 .imperium-resource.imperium-resource-titanium
-                                span 300
-                            div.custo-titanio
+                                span
+                            div.custo-componente
                                 .imperium-resource.imperium-resource-component
-                                span 300
+                                span
                         div(style="clear:both")
                             span.edificio-tempo-melhoria-antes Tempo de melhoria: 
                                 span
@@ -268,7 +307,7 @@ block content
            
 
 block posscripts
-    script(src="js/dist/pages/edificios.bundle.js")
+    script(src="js/dist/pages/recursos.bundle.js")
         
 
 

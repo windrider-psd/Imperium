@@ -2,7 +2,7 @@ let $ = require('jquery')
 let utils = require('./../../general/userdata/utils')
 $("#esqueci-form").on('submit', function()
 {
-    var info = FormToAssocArray($(this));
+    var info = utils.FormToAssocArray($(this));
     var btn = $(this).find("btn[type='submit']");
     $.ajax({
     method : 'POST',

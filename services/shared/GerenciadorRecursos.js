@@ -81,7 +81,7 @@ function GetArmazenamentoArmazem(nivelArmazem)
 function GetCustoUpgradeArmazem(nivelArmazem)
 {
     let custo = Math.ceil((250 * Math.pow(1.9, (nivelArmazem - 1))));
-    return {ferro : custo, cristal : custo, titanio : custo, componentes : 0};
+    return {ferro : custo, cristal : custo, titanio : custo, componentes : custo};
 }
 
 

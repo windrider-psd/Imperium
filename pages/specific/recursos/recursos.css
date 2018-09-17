@@ -6,11 +6,7 @@ color:white;
 
 .edificio > div
 {
-  background: #08345a; /* Old browsers */
-  background: -moz-linear-gradient(top, #08345a 0%, #07222d 100%); /* FF3.6-15 */
-  background: -webkit-linear-gradient(top, #08345a 0%,#07222d 100%); /* Chrome10-25,Safari5.1-6 */
-  background: linear-gradient(to bottom, #08345a 0%,#07222d 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#08345a', endColorstr='#07222d',GradientType=0 );
+
   border: 1px solid black;
   box-shadow: 0px 1px 1px black;
   margin-bottom: 10px;
@@ -81,6 +77,49 @@ color:white;
   color: #f07b05;
   font-family: 'Raleway';
   font-weight: bold;
+  font-size: 17px;
+  
+}
+
+.edificio-img-overlay-master
+{
+  position: absolute;
+  top: 10px;
+  bottom: 0;
+  left: 10px;
+  right: 0;
+  height: calc(100% - 20px);
+  width: calc(100% - 20px);
+  pointer-events: none;
+  overflow: hidden;
+  display: none;
+}
+
+.edificio-img-overlay-text
+{
+  color: white;
+  font-size: 20px;
+  position: absolute;
+  top: 50%;
+  left: 0px;
+  text-align: center;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+
+.edificio-img-overlay-fill
+{
+  position: absolute;
+  top: 0px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+
 }
 
 @media screen and (max-width:1000px)
