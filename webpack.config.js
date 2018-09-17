@@ -21,6 +21,12 @@ for(let i = 0; i < pagesDir.length; i++)
     
 }
 let general_entry = glob.sync('./pages/general/*.js')
+let frameworks = glob.sync('./pages/style/frameworks/*.css')
+
+for(let i = 0; i < frameworks.length; i++)
+{
+    general_entry.push(frameworks[i])
+}
 let userdata_entry = glob.sync('./pages/general/userdata/*.js')
 
 module.exports = 

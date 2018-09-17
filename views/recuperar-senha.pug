@@ -2,28 +2,28 @@ extends templates/layout
 block titulo
   | Criar Senha
 block content 
-      .container
-        .row
-          .col-md-12.text-center
-            -if(erro == 0) 
-              form#esqueci-form(onsubmit='return false')
-                input(type='hidden', name='chave', value='' + chave)
-                input(type='hidden', name='id', value='' + u)
-                .form-group
-                  label(for='novasenha') Sua nova senha:
-                  input#novasenha.form-control.form-senha(type='password', name='senha', placeholder='********', required='')
-                .form-group
-                  label(for='confsenha') Confirmação da nova senha:
-                  input#confsenha.form-control(type='password', name='confsenha', placeholder='********', required='')
-                span.form-aviso
-                .row
-                  .col-md-3
-                  .col-md-6.text-center
-                    button#loginFormButton.btn.btn-primary.btn-lg.btn-block(type='submit') Redefinir senha
-            -if(erro == 1)
-              p(style="color:red") Link inválido.
-            -if(erro == 2)
-              p(style="color:red") Este link não é mais válido. Requisite novamente.
+  .container
+    .row
+      .col-md-12.text-center
+        -if(erro == 0) 
+          form#esqueci-form(onsubmit='return false')
+            input(type='hidden', name='chave', value='' + chave)
+            input(type='hidden', name='id', value='' + u)
+            .form-group
+              label(for='novasenha') Sua nova senha:
+              input#novasenha.form-control.form-senha(type='password', name='senha', placeholder='********', required='')
+            .form-group
+              label(for='confsenha') Confirmação da nova senha:
+              input#confsenha.form-control(type='password', name='confsenha', placeholder='********', required='')
+            span.form-aviso
+            .row
+              .col-md-3
+              .col-md-6.text-center
+                button#loginFormButton.btn.btn-primary.btn-lg.btn-block(type='submit') Redefinir senha
+        -if(erro == 1)
+          p(style="color:red") Link inválido.
+        -if(erro == 2)
+          p(style="color:red") Este link não é mais válido. Requisite novamente.
             
 block posscripts
   -if(erro == 0)

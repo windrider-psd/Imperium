@@ -1,5 +1,11 @@
-.container-fluid.imperium-solid-background-heavy
-    .col-md-2
+.container-fluid.imperium-solid-background-heavy.imperium-top-nav
+    .col-md-2(style="padding-top:25px")
+        select#select-planeta
+            each setor in userdata.setores
+                optgroup(label=""+setor.setor.nome + "[" + setor.setor.posX + "," + setor.setor.posY + "]")
+                    each planeta in setor.planetas
+                        if(planeta.colonizado)
+                            option(value=""+planeta.id)= planeta.nome
     .col-md-8
         .imperium-resource-list 
             div#recurso-ferro

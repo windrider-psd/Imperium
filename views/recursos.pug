@@ -2,10 +2,9 @@ extends templates/layout
 block titulo
   | Planeta
 block content  
-    h1#nome-planeta
     .container-fluid
         .row
-            h2 Edificios
+            h1.imperium-title Recursos
             #edificio-ferro.col-md-12.edificio(data-edificio = 'minaFerro')
                 .col-md-2.edificio-img
                     img(src='/images/mina-ferro.jpg')

@@ -2,8 +2,7 @@ extends templates/layout
 block titulo
   | !{topico.nome}
 block content     
-    include includes/navbar
-    h1 !{topico.nome}
+    h1.imperium-title !{topico.nome}
     #mensagens-conteudo
     #paginacao-topico-forum
     .container#conteiner-adicionar-mensagem(style = 'display:none')

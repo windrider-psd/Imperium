@@ -9,7 +9,6 @@ html
     meta(http-equiv = "X-UA-Compatible", content = "IE=edge")
     meta(name = "author" content = "Christian Lemos")
     link(rel = "icon", href = "/images/logo_pre.png")
-    
     script.
       const userdataString = '!{JSON.stringify(userdata).replace(/[\/\(\)\']/g, "\\$&")}'
       userdata = JSON.parse(userdataString)  
@@ -19,21 +18,9 @@ html
     block posHead
     script(src="js/dist/bundle.general.js")
   body.imperium-body
-    include ./../includes/navbar
     include ./../includes/recursos
     include ./../includes/aside-navbar
     main
-      each setor in userdata.setores
-        ul
-          li
-            a(href="/setor?id=" + setor.setor.id).link-planeta= setor.setor.nome
-              |  [!{setor.setor.posX}, !{setor.setor.posY}]
-            ul
-              each planeta in setor.planetas
-                if(planeta.colonizado)
-                  li 
-                    a(href = "/recursos?planetaid="+planeta.id)= planeta.nome
-                      |  [!{planeta.posX}, !{planeta.posY}]
       block content
     script(src="js/dist/pages/recursos.bundle.js")
     block posscripts
