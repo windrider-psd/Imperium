@@ -45,7 +45,7 @@ function GetRecursos(nivelArmazem)
         }, setor.intensidadeSolar);
         $("#recurso-ferro .recurso-atual").text(planeta.recursoFerro);
         $("#recurso-ferro .recurso-producao").text("+" + producao.ferro * 6 + "/minuto");
-        
+        $(".recurso-capacidade").text(totalArmazenamento)
         $("#recurso-cristal .recurso-atual").text(planeta.recursoCristal);
         $("#recurso-cristal .recurso-producao").text("+" + producao.cristal * 6 + "/minuto");
 
@@ -54,6 +54,7 @@ function GetRecursos(nivelArmazem)
 
         $("#recurso-componente .recurso-atual").text(planeta.recursoComponente);
         $("#recurso-componente .recurso-producao").text("+" + producao.componente * 6 + "/minuto");
+        
         $("#recurso-combustivel .recurso-atual").text(planeta.recursoCombustivel);
         $("#recurso-combustivel .recurso-producao").text("+" + producao.combustivel * 6 + "/minuto");
 
@@ -63,6 +64,9 @@ function GetRecursos(nivelArmazem)
         let consumoEnergia = GerenciadorRecursos.GetConsumoTotal(planeta.minaFerro, planeta.minaCristal, planeta.fabricaComponente, planeta.minaTitanio, planeta.fazenda);
         let valorEnergia = producaoEnergia - consumoEnergia;
         let positivo = (valorEnergia >= 0);
+
+        $("#recurso-energia .energia-atual").text(producaoEnergia)
+        $("#recurso-energia .energia-consumo").text(consumoEnergia)
         if(positivo)
         {
             $("#recurso-energia .recurso-atual").text("+" + String(valorEnergia));
