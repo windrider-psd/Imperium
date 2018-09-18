@@ -9,22 +9,22 @@
  * @property {number} alianca.id
  * @property {string} alianca.nome
  * @property {string} alianca.tag
-*/
+ */
 
 /**
  * @typedef RetornoPaginacao
  * @property {Array.<UsuarioRank>} usuarios
  * @property {number} total
  * @property {number} [pagina]
+ * @property {number} resultadosPorPagina
  */
 
-var total;
-var tipoAtual;
-const periodoPaginas = 10;
+let tipoAtual;
 const isLider = (userdata.alianca != null) ? userdata.session.id == userdata.alianca.lider : false
 const $ = require('jquery')
+const pagination = require('pagination')
 const utils = require('./../../general/userdata/utils')
-let resultadosPorPagina = 20
+let paginaAtual
 /**
  * 
  * @param {number} pagina A página que será exibida
@@ -32,205 +32,154 @@ let resultadosPorPagina = 20
  * @param {boolean} [gerarPaginacao=false] 
  */
 
- $(document).ready(function() {
-    CarregarTipo(undefined, 'pontosTotal', true);
-function CarregarTipo(pagina, tipo)
+$(document).ready(function ()
 {
+	CarregarTipo(undefined, 'pontosTotal', true);
 
-    $.ajax({
-        url: 'usuario/getRankings',
-        data : {pagina : pagina, tipo : tipo},
-        method : 'GET',
-        dataType: 'JSON',
-        success : function(/**@type {RetornoPaginacao} */ resultado)
-        {
-            var htmlString = ""
-            var usuarios = resultado.usuarios
-            for(var i = 0; i < usuarios.length; i++)
-            {
-                htmlString += "<tr "
-                if(usuarios[i].id == userdata.session.id)
-                {
-                    htmlString += "class = 'info'";
-                }
+	function CarregarTipo(pagina, tipo)
+	{
 
-                htmlString += "><td>"+usuarios[i].rank+"</td><td>"+usuarios[i].desempenho+"</td><td>"+usuarios[i].nome+"</td>"
-                if(typeof(usuarios[i].alianca) !== 'undefined')
-                {
-                    var link;
-                    if(userdata.alianca != null && userdata.alianca.id == usuarios[i].alianca.id)
-                        link = "alianca"
-                    else
-                        link = "paginaExterna?id="+usuarios[i].alianca.id
-                    htmlString += "<td><a href = '"+link+"' title = '"+usuarios[i].alianca.nome+"'>"+usuarios[i].alianca.tag+"</a></td>"
-                }
-                else
-                    htmlString += "<td></td>"
+		$.ajax(
+		{
+			url: 'usuario/getRankings',
+			data:
+			{
+				pagina: pagina,
+				tipo: tipo
+			},
+			method: 'GET',
+			dataType: 'JSON',
+			success: function ( /**@type {RetornoPaginacao} */ resultado)
+			{
+				var htmlString = ""
+				var usuarios = resultado.usuarios
+				for (var i = 0; i < usuarios.length; i++)
+				{
+					htmlString += "<tr "
+					if (usuarios[i].id == userdata.session.id)
+					{
+						htmlString += "class = 'info'";
+					}
 
-                if(usuarios[i].id != userdata.session.id)
-                {
-                    htmlString += "<td><button data-destinatario = '"+usuarios[i].id+"' data-nome = '"+usuarios[i].nome+"' class = 'btn btn-primary btn-sm btn-enviar-mensagem' title = 'Enviar mensagem'>"
-                        + "<i class = 'fa fa-comment'></i></button>"
-                    if(typeof(usuarios[i].alianca) === 'undefined' && (isLider || (userdata.alianca != null && userdata.alianca.rank != null && userdata.aliaca.rank.convidar == true)))
-                    {
-                        htmlString += "<button data-destinatario = '"+usuarios[i].id+"' data-nome = '"+usuarios[i].nome+"' class = 'btn btn-primary btn-sm btn-enviar-convite' title = 'Enviar convite de aliança'>"
-                            + "<i class = 'fa fa-envelope-square'></i></button>"
-                    }
-                    htmlString += "</td>"
-                }
-                  
-                else
-                    htmlString += "<td></td>"
-                
-                htmlString += "<td>"+usuarios[i].pontos.toFixed(2)+"</td></tr>"
-            }
-            $("#conteudo-ranking").html(htmlString);
-            total = resultado.total;
-            tipoAtual = tipo;
-            if(typeof(pagina) === 'undefined')
-                GerarHTMLPaginacao(resultado.total, resultado.pagina - 1);
-        }
-    })  
-}
+					htmlString += "><td>" + usuarios[i].rank + "</td><td>" + usuarios[i].desempenho + "</td><td>" + usuarios[i].nome + "</td>"
+					if (typeof (usuarios[i].alianca) !== 'undefined')
+					{
+						var link;
+						if (userdata.alianca != null && userdata.alianca.id == usuarios[i].alianca.id)
+							link = "alianca"
+						else
+							link = "paginaExterna?id=" + usuarios[i].alianca.id
+						htmlString += "<td><a href = '" + link + "' title = '" + usuarios[i].alianca.nome + "'>" + usuarios[i].alianca.tag + "</a></td>"
+					}
+					else
+						htmlString += "<td></td>"
 
-function VerificarProximo(paginaAtual, totaldePaginas)
-{
-    if(paginaAtual >= totaldePaginas - 1)
-    {
-        $("#paginacao-proximo").addClass("hidden");
-    }
-    else
-    {
-        $("#paginacao-proximo").removeClass("hidden");
-    }
+					if (usuarios[i].id != userdata.session.id)
+					{
+						htmlString += "<td><button data-destinatario = '" + usuarios[i].id + "' data-nome = '" + usuarios[i].nome + "' class = 'btn btn-primary btn-sm btn-enviar-mensagem' title = 'Enviar mensagem'>" +
+							"<i class = 'fa fa-comment'></i></button>"
+						if (typeof (usuarios[i].alianca) === 'undefined' && (isLider || (userdata.alianca != null && userdata.alianca.rank != null && userdata.aliaca.rank.convidar == true)))
+						{
+							htmlString += "<button data-destinatario = '" + usuarios[i].id + "' data-nome = '" + usuarios[i].nome + "' class = 'btn btn-primary btn-sm btn-enviar-convite' title = 'Enviar convite de aliança'>" +
+								"<i class = 'fa fa-envelope-square'></i></button>"
+						}
+						htmlString += "</td>"
+					}
 
-    if(paginaAtual <= 0)
-    {
-        $("#paginacao-anterior").addClass("hidden");
-    }
-    else
-    {
-        $("#paginacao-anterior").removeClass("hidden");
-    }
-}
+					else
+						htmlString += "<td></td>"
 
-function GerarHTMLPaginacao(totalUsuarios, ativoIndex)
-{
-    if(totalUsuarios > resultadosPorPagina)
-    {
-        var paginacaoString = '<li><a rel="next" id = "paginacao-anterior" onclick="AvancarPagina(-1)" style = "cursor:pointer">Anterior</a></li>';
-        var totalPaginas = Math.ceil(totalUsuarios / resultadosPorPagina);
-        totaldePaginas = totalPaginas;
-        for(var i = 0; i < totalPaginas; i++)
-        {
-            paginacaoString += '<li data-idpagina="'+i+'" class = "c-pointer paginacao_pagina';
-            if(i == ativoIndex)
-            {
-                paginacaoString += ' active';
-            }
-            paginacaoString += '"><a href= "#">'+(i + 1)+'</a></li>'; 
-        }
-        paginacaoString += '<li><a rel="next" id = "paginacao-proximo" onclick="AvancarPagina(1)" style = "cursor:pointer">Próxima</a></li>';
-        paginacaoString += '<form style = "display:inline" id = "form-paginacao-goto" onsubmit="return false" class = "form-inline"><div class="form-group"><input type="number" id = "paginacao_goto" class = "form-control"/></div><button class = "btn btn-primary" type="submit" id="changePage">Ir</button></form>';
-        $(".paginacao").html(paginacaoString);
-        VerificarProximo(ativoIndex, Math.ceil(totalUsuarios / resultadosPorPagina))
-        EsconderPaginacao(ativoIndex + 1, Math.ceil(total / resultadosPorPagina));
-    }
-    
-}
+					htmlString += "<td>" + usuarios[i].pontos.toFixed(2) + "</td></tr>"
+				}
+				$("#conteudo-ranking").html(htmlString);
+				let total = resultado.total
+				let resultadosPorPagina = resultado.resultadosPorPagina
+				tipoAtual = tipo;
+                paginaAtual = resultado.pagina;
 
-$(".paginacao").on('click', ".paginacao_pagina", function()
-{
-    var btnAtual = $(".paginacao_pagina.active");
-    var proximaPagina = $(this).data('idpagina');
-    if(proximaPagina < 0)
-        return;
-    else if(proximaPagina + 1 > total)
-        return;
+				let boostrapPaginator = new pagination.TemplatePaginator(
+				{
+					prelink: '/',
+					current: paginaAtual,
+					rowsPerPage: resultadosPorPagina,
+					totalResult: total,
+					slashSeparator: true,
+					template: function (result)
+					{
+						var i, len;
+						var html = '<div><ul class="pagination">';
+						if (result.pageCount < 2)
+						{
+							html += '</ul></div>';
+							return html;
+						}
+						if (result.previous)
+						{
+							html += '<li><a href="#" class = "paginacao-anterior">Anterior</a></li>';
+						}
+						if (result.range.length)
+						{
+							for (i = 0, len = result.range.length; i < len; i++)
+							{
+								if (result.range[i] === result.current)
+								{
+									html += '<li class="active"><a href="#" data-pagina="' + result.range[i] + '" class = "paginacao-pagina">' + result.range[i] + '</a></li>';
+								}
+								else
+								{
+									html += '<li><a href="#" data-pagina="' + result.range[i] + '" class = "paginacao-pagina">' + result.range[i] + '</a></li>';
+								}
+							}
+						}
+						if (result.next)
+						{
+							html += '<li><a href="#" class="paginacao-proximo">Próximo</a></li>';
+						}
+						html += '</ul></div>';
+						return html;
+					}
+				});
+				$(".paginacao").html(boostrapPaginator.render())
+			}
+		})
+	}
 
-    $(this).addClass("active");
-    btnAtual.removeClass('active');
 
-    CarregarTipo(proximaPagina + 1,tipoAtual, false);
-    VerificarProximo(proximaPagina, Math.ceil(total / resultadosPorPagina))
-    EsconderPaginacao(proximaPagina + 1, Math.ceil(total / resultadosPorPagina));
-});
+	
+    $(".paginacao").on('click', '.paginacao-pagina', function(){
+        let pagina = $(this).data('pagina')
+        CarregarTipo(pagina, tipoAtual)
+    })
+    $(".paginacao").on('click', '.paginacao-anterior', function(){
+        paginaAtual--
+        CarregarTipo(paginaAtual, tipoAtual)
+    })
+    $(".paginacao").on('click', '.paginacao-proximo', function(){
+        paginaAtual++
+        CarregarTipo(paginaAtual, tipoAtual)
+    })
 
-function AvancarPagina(proxima)
-{
-    var btnAtual = $(".paginacao_pagina.active");
-    var paginaAtual = btnAtual.data('idpagina');
-    var proximaPagina = paginaAtual += proxima;
-    if(proximaPagina < 0)
-        return;
-    else if(proximaPagina + 1 > total)
-        return;
+	$(".btn-pontos").on('click', function ()
+	{
+		var atual = $(".btn-pontos.active");
+		if (atual.is($(this)))
+		{
+			return;
+		}
+		atual.removeClass('active');
 
-    $(".paginacao_pagina[data-idpagina='"+proximaPagina+"']").addClass("active");
-    btnAtual.removeClass('active');
+		CarregarTipo(undefined, $(this).data('tipo'), true);
+		$(this).addClass("active");
+	});
 
-    CarregarTipo(proximaPagina + 1,tipoAtual, false);
-    VerificarProximo(proximaPagina, Math.ceil(total / resultadosPorPagina))
-    EsconderPaginacao(proximaPagina + 1, Math.ceil(total / resultadosPorPagina));
-}
 
-/**
- * 
- * @param {number} paginaAtual 
- * @param {number} totaldePaginas 
- * @description Insere os ... entre paginas
- */
-function EsconderPaginacao(paginaAtual, totaldePaginas)
-{
-    $(".paginacao_dots").remove();
-    $(".paginacao_pagina").removeClass("hidden");
-    var j = paginaAtual + periodoPaginas;
-    if(j < totaldePaginas + 1)
-    {
-        $('<li class="disabled paginacao_dots"><a>...</a></li>').insertBefore($(".paginacao_pagina").eq(j));
-       
-    }
-    for(;j < totaldePaginas; j++)
-    {
-        $(".paginacao_pagina").eq(j - 1).addClass("hidden");
-    }
+	$("#conteudo-ranking").on('click', ".btn-enviar-mensagem", function ()
+	{
+		AbrirModalEnviarMensagemPrivada($(this).data('destinatario'), $(this).data('nome'));
+	});
 
-    var j = paginaAtual - periodoPaginas - 1;
-    if(j > 0 )
-    {
-        $('<li class="disabled paginacao_dots"><a>...</a></li>').insertBefore($(".paginacao_pagina").eq(j));
-    }
-    for(;j > 0; j--)
-    {
-        $(".paginacao_pagina").eq(j).addClass("hidden");
-    }
-}
-
-$(".btn-pontos").on('click', function()
-{
-    var atual = $(".btn-pontos.active");
-    if(atual.is($(this)))
-    {
-        return;
-    }
-    atual.removeClass('active');
-    
-    CarregarTipo(undefined, $(this).data('tipo'), true);
-    $(this).addClass("active");
-});
-
-$(".paginacao").on('submit', '#form-paginacao-goto', function()
-{
-    let pagina = Number($("#paginacao_goto").val()).toFixed(0);
-    CarregarTipo(pagina, tipoAtual);
-    GerarHTMLPaginacao(total, pagina - 1);
-});
-
-$("#conteudo-ranking").on('click', ".btn-enviar-mensagem", function() {
-    AbrirModalEnviarMensagemPrivada($(this).data('destinatario'), $(this).data('nome'));
-});
-
-$("#conteudo-ranking").on('click', ".btn-enviar-convite", function() {
-    AbrirModalEnviarConvite($(this).data('destinatario'), $(this).data('nome'));
-});
- })
+	$("#conteudo-ranking").on('click', ".btn-enviar-convite", function ()
+	{
+		AbrirModalEnviarConvite($(this).data('destinatario'), $(this).data('nome'));
+	});
+})

@@ -12,7 +12,6 @@ const Setor = database.Setor;
 const Planeta = database.Planeta;
 const ranking = require('./../services/Ranking')
 require('dotenv/config')
-const rankingResultadosPorPagina = Number(process.env.RANKING_MAX_RESULTADOS);
 
 function getMensagemEsqueci(req, u, chave)
 {
@@ -475,6 +474,7 @@ router.post('/enviar-ativacao', function(req, res)
   }
 });
 
+const rankingResultadosPorPagina = Number(process.env.RANKING_MAX_RESULTADOS);
 router.get('/getRankings', (req, res) => {
 /**
  * @type {{tipo : string, pagina? : number}}
@@ -491,7 +491,7 @@ router.get('/getRankings', (req, res) => {
       ranking.GetRankings((params.pagina - 1)  * rankingResultadosPorPagina, rankingResultadosPorPagina, params.tipo).then((rankUsuarios) =>
       {
         Usuario.count({}).then(contagem => {
-          let retorno = {usuarios: rankUsuarios, total: contagem}
+          let retorno = {usuarios: rankUsuarios, pagina : params.pagina, total: contagem, resultadosPorPagina : rankingResultadosPorPagina}
           res.status(200).json(retorno)
         });
         
@@ -505,7 +505,7 @@ router.get('/getRankings', (req, res) => {
         ranking.GetRankings((pagina - 1)  * rankingResultadosPorPagina, rankingResultadosPorPagina, params.tipo).then((/***@type {Array.<UsuarioRank>} */rankUsuarios) =>
         {
           Usuario.count({}).then((contagem) => {
-            let retorno = {usuarios: rankUsuarios, total: contagem, pagina : pagina}
+            let retorno = {usuarios: rankUsuarios, total: contagem, pagina : pagina, resultadosPorPagina : rankingResultadosPorPagina}
             res.status(200).json(retorno)
           }); 
         });
