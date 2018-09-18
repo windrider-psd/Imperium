@@ -1,8 +1,13 @@
-var isLider
-var tamanhoPaginas;
-var atualizar = true;
 const $ = require('jquery')
 const utils = require('./../../general/userdata/utils')
+let pagination = require('pagination')
+
+
+
+var isLider
+var tamanhoPaginas;
+let paginaAtual;
+
 $(document).ready(function() {
     if(userdata.alianca != null)
     {
@@ -24,6 +29,7 @@ $(document).ready(function() {
             data : {pagina : pagina},
             success : function(resposta)
             {   
+                paginaAtual = pagina;
                 let topicos = resposta.topicos
                 let total = resposta.total
                 tamanhoPaginas = resposta.tamanhoPagina
@@ -41,50 +47,37 @@ $(document).ready(function() {
                 }
                 htmlString += "</tbody>"
                 $("#conteudo-forum").html(htmlString)
-                if(atualizar == true)
-                {
-                    $('#paginacao-forum').pagination({
-                        dataSource: topicos,
-                        locator: 'items',
-                        totalNumber: total,
-                        pageSize: tamanhoPaginas,
-                        autoHidePrevious: true,
-                        autoHideNext: true,
-                        pageNumber : pagina,
-                        
-                        callback: function(data, pagination) {
-                            // template method of yourself
-                            //var html = template(data);
-                       //     console.log(html)
-                          //  $('#paginacao-forum').html(html);
+                let boostrapPaginator = new pagination.TemplatePaginator({
+                    prelink:'/', current: pagina, rowsPerPage: tamanhoPaginas,
+                    totalResult: total, slashSeparator: true,
+                    template: function(result) {
+                        var i, len;
+                        var html = '<div><ul class="pagination">';
+                        if(result.pageCount < 2) {
+                            html += '</ul></div>';
+                            return html;
                         }
-                    })
-                    $('#paginacao-forum').addHook('afterPageOnClick', function(evento, pagina)
-                    {
-                        getTopicos(pagina)
-                    })
-                    $('#paginacao-forum').addHook('afterPreviousOnClick', function(evento, pagina)
-                    {
-                        getTopicos(pagina)
-                    })
-                    $('#paginacao-forum').addHook('afterNextOnClick', function(evento, pagina)
-                    {
-                        getTopicos(pagina)
-                    })
-                    $('#paginacao-forum').addHook('afterGoInputOnEnter', function(evento, pagina)
-                    {
-                        getTopicos(pagina)
-                    })
-                    $('#paginacao-forum').addHook('afterGoButtonOnClick', function(evento, pagina)
-                    {
-                        getTopicos(pagina)
-                    })
-                    $("#conteudo-forum-admin").on('click', '#btn-adicionar-tópico', function()
-                    {
-                        $("#modal-adicionar-topico").modal('show')
-                    })
-                    atualizar = false;
-                }   
+                        prelink = this.preparePreLink(result.prelink);
+                        if(result.previous) {
+                            html += '<li><a href="#" class = "paginacao-anterior">Anterior</a></li>';
+                        }
+                        if(result.range.length) {
+                            for( i = 0, len = result.range.length; i < len; i++) {
+                                if(result.range[i] === result.current) {
+                                    html += '<li class="active"><a href="#" data-pagina="'+result.range[i]+'" class = "paginacao-pagina">' + result.range[i] + '</a></li>';
+                                } else {
+                                    html += '<li><a href="#" data-pagina="'+result.range[i]+'" class = "paginacao-pagina">' + result.range[i] + '</a></li>';
+                                }
+                            }
+                        }
+                        if(result.next) {
+                            html += '<li><a href="#" class="paginacao-proximo">Próximo</a></li>';
+                        }
+                        html += '</ul></div>';
+                        return html;
+                    }
+                });
+                $("#paginacao-forum").html(boostrapPaginator.render())
                
             },
             error : function (err)
@@ -95,7 +88,23 @@ $(document).ready(function() {
 
 
     }
-
+    $("#paginacao-forum").on('click', '.paginacao-pagina', function(){
+        let pagina = $(this).data('pagina')
+        getTopicos(pagina)
+    })
+    $("#paginacao-forum").on('click', '.paginacao-anterior', function(){
+        paginaAtual--
+        getTopicos(paginaAtual)
+    })
+    $("#paginacao-forum").on('click', '.paginacao-proximo', function(){
+        paginaAtual++
+        getTopicos(paginaAtual)
+    })
+    
+    $("#conteudo-forum-admin").on('click', '#btn-adicionar-tópico', function()
+    {
+        $("#modal-adicionar-topico").modal('show')
+    })
     function setViewAdmin()
     {
         let htmlString = '<hr><button class = "btn btn-primary" id = "btn-adicionar-tópico">Adicionar Tópico</button>'
@@ -106,15 +115,14 @@ $(document).ready(function() {
     {
         utils.GerarConfirmacao("Tens certeza que desejas excluir este tópico?", () => {
             let id = $(this).data('id')
-            let linha = $(this).parent().parent();
             $.ajax({
                 url :'alianca/excluir-topico',
                 method : "POST",
                 data : {id : id},
                 success : function()
                 {
-                    linha.remove()
                     utils.GerarNotificacao("Tópico removido com sucesso", 'success')
+                    getTopicos(paginaAtual)
                 },
                 error : function (err)
                 {
@@ -170,6 +178,7 @@ $(document).ready(function() {
             success : function(topicoCriado)
             {
                 utils.GerarNotificacao("Tópico criado com sucesso", 'success')
+                getTopicos(paginaAtual)
             },
             error : function (err)
             {
