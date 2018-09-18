@@ -46,7 +46,10 @@
 {
   background-color: #0d465d;
 }
-
+.imperium-solid-background-medium
+{
+  background-color: #08345a;
+}
 .imperium-solid-background-heavy
 {
   background-color: #041a23;
@@ -77,6 +80,15 @@
   background: -webkit-linear-gradient(top, #3d6282 0%,#041a23 100%); /* Chrome10-25,Safari5.1-6 */
   background: linear-gradient(to bottom, #3d6282 0%,#041a23 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3d6282', endColorstr='#041a23',GradientType=0 ); /* IE6-9 */
+}
+
+.imperium-gradient-background-heavy2
+{
+  background: rgb(40,45,58); /* Old browsers */
+  background: -moz-linear-gradient(top, rgba(40,45,58,1) 0%, rgba(0,13,43,1) 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(top, rgba(40,45,58,1) 0%,rgba(0,13,43,1) 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom, rgba(40,45,58,1) 0%,rgba(0,13,43,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#282d3a', endColorstr='#000d2b',GradientType=0 ); /* IE6-9 */
 }
 
 .imperium-gradient-background-medium2
@@ -179,7 +191,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2d3e49', end
 .imperium-body
 {
   background-image: url('/images/space7.jpg');
-
+  background-position-y: -20px;
 }
 
 
@@ -330,6 +342,7 @@ main
   width: calc(100% - 275px);
   margin-top: 100px;
   z-index: 19;
+  padding:25px 65px;
 }
 
 .imperium-resource
@@ -445,7 +458,8 @@ main
   {
       width:calc(100% - 35px);
       left:35px;
-      padding-top: 60px;
+      padding:0px;
+      padding-top: 100px;
   }
   #abrir_menu_div
   {
