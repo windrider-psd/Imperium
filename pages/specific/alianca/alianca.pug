@@ -14,20 +14,19 @@ block content
       h1#titulo-alianca.imperium-title Aliança
       -if (userdata.alianca == null){
       .row
-        .col-sm-12.col-md-offset-3.col-md-6#sem-alianca
-          h3 Sem aliança
-          hr
-          h4 Criar Aliança
+        .col-md-12#sem-alianca.imperium-gradient-background-medium.opcoes-container
+          .opcoes-container-title.imperium-gradient-background-heavy2
+            h2 Criar Aliança
           form(onsubmit = "return false")#form-criar-alianca
             .form-group
-              label(for="nome") Nome da aliança:
-              input(type="text", name="nome", placeholder = "Digite o nome da aliança que será criada", required).form-control
+              label(for="nome").imperium-label Nome da aliança:
+              input(type="text", name="nome", placeholder = "Digite o nome da aliança que será criada", required).form-control.imperium-input
             .form-group
-              label(for="tag") Tag da aliança:
-              input(type="text", name="tag", placeholder = "Digite o tag da aliança que será criada", required).form-control
+              label(for="tag").imperium-label Tag da aliança:
+              input(type="text", name="tag", placeholder = "Digite o tag da aliança que será criada", required).form-control.imperium-input
             .row
               .col-md-offset-3.col-md-6.text-center
-                  button.btn.btn-primary.btn-lg.btn-block(type='submit') Criar
+                  button.btn.btn-success.btn-lg.btn-block(type='submit').imperium-input Criar
       -if(aplicacao != false){
       .row
         .col-sm-12.col-md-offset-3.col-md-6#sem-alianca
@@ -38,10 +37,10 @@ block content
       -}
       -}else{
       .row
-        .col-md-12#com-alianca
+        .col-md-12#com-alianca.imperium-gradient-background-heavy
           .tabbable-panel
             .tabbable-line
-                ul.nav.nav-tabs
+                ul.nav.nav-tabs.nav-justified
                   li.tab-btn.active#tab-geral
                     a(href ="#") Visão Geral
                   li.tab-btn#tab-administracao

@@ -42,7 +42,7 @@ $(document).ready(function (){
             },
             error : function(err)
             {
-                utils.utils.GerarNotificacao(err.responseText, 'danger')
+                utils.GerarNotificacao(err.responseText, 'danger')
             },
             complete : function()
             {
@@ -66,7 +66,7 @@ $(document).ready(function (){
             },
             error : function(err)
             {
-                utils.utils.GerarNotificacao(err.responseText, 'danger')
+                utils.GerarNotificacao(err.responseText, 'danger')
             },
             complete : function()
             {
@@ -179,7 +179,7 @@ $(document).ready(function (){
             },
             error : function(err)
             {
-                utils.utils.GerarNotificacao(err.responseText, 'danger')
+                utils.GerarNotificacao(err.responseText, 'danger')
             },
         })
     }
@@ -195,7 +195,7 @@ $(document).ready(function (){
                 },
                 error : function(err)
                 {
-                    utils.utils.GerarNotificacao(err.responseText, 'danger')
+                    utils.GerarNotificacao(err.responseText, 'danger')
                 },
             })
         })
@@ -210,11 +210,11 @@ $(document).ready(function (){
             data : params,
             success : function()
             {
-                utils.utils.GerarNotificacao("Alianca renomeada com sucesso", 'success')
+                utils.GerarNotificacao("Alianca renomeada com sucesso", 'success')
             },
             error : function(err)
             {
-                utils.utils.GerarNotificacao(err.responseText, 'danger')
+                utils.GerarNotificacao(err.responseText, 'danger')
             },
         })
     })
@@ -226,11 +226,11 @@ $(document).ready(function (){
             data : {template : template},
             success : function()
             {
-                utils.utils.GerarNotificacao("Template salvo com sucesso.", 'success')
+                utils.GerarNotificacao("Template salvo com sucesso.", 'success')
             },
             error : function(err)
             {
-                utils.utils.GerarNotificacao(err.responseText, 'danger')
+                utils.GerarNotificacao(err.responseText, 'danger')
             },
         })
     })
@@ -244,11 +244,11 @@ $(document).ready(function (){
             data : {bbcode : bbcode},
             success : function()
             {
-                utils.utils.GerarNotificacao("Página externa salva com sucesso", 'success');
+                utils.GerarNotificacao("Página externa salva com sucesso", 'success');
             },
             error : function(err)
             {
-                utils.utils.GerarNotificacao(err.responseText, 'danger')
+                utils.GerarNotificacao(err.responseText, 'danger')
             },
         })
     })
@@ -263,11 +263,11 @@ $(document).ready(function (){
             data : {bbcode : bbcode},
             success : function()
             {
-                utils.utils.GerarNotificacao("Página interna salva com sucesso", 'success');
+                utils.GerarNotificacao("Página interna salva com sucesso", 'success');
             },
             error : function(err)
             {
-                utils.utils.GerarNotificacao(err.responseText, 'danger')
+                utils.GerarNotificacao(err.responseText, 'danger')
             },
         })
     })
@@ -294,11 +294,11 @@ $(document).ready(function (){
                 htmlString += "<td><button type = 'button' class = 'btn btn-danger btn-excluir-cargo'><i class = 'fa fa-times'></i></button></td>"
                 htmlString +="</tr>"
                 div.append(htmlString)
-                utils.utils.GerarNotificacao("Cargo criado", 'success')
+                utils.GerarNotificacao("Cargo criado", 'success')
             },
             error : function(err)
             {
-                utils.utils.GerarNotificacao(err.responseText, 'danger')
+                utils.GerarNotificacao(err.responseText, 'danger')
             },
         })
     })
@@ -377,8 +377,8 @@ $(document).ready(function (){
                 else
                     textoCargo = userdata.alianca.rank.nome
     
-                htmlString += '<div class="table-responsive"><table class="table table-striped" id="tabela-geral-alianca"><tbody> <tr><td>Nome:</td><td class="nome">'+userdata.alianca.nome+'</td></tr><tr><td>TAG:</td><td class="tag">'+userdata.alianca.tag+'</td></tr><tr><td>Membros:</td><td class="membros-contagem">'+userdata.alianca.totalMembros+'</td></tr><tr><td>O seu cargo:</td><td class="cargo">'+textoCargo+'</td></tr></tbody></table></div>'
-                htmlString += '<div class="table-responsive"><table class="table table-striped"><thead><tr><th>Nick</th><th>Cargo</th><th>Rank</th><th>Banido</th><th>Férias</th><th>Online</th><th>Ações</th></tr></thead><tbody>'
+                htmlString += '<div class="table-responsive"><table class="table table-striped imperium-table" id="tabela-geral-alianca"><tbody> <tr><td>Nome:</td><td class="nome">'+userdata.alianca.nome+'</td></tr><tr><td>TAG:</td><td class="tag">'+userdata.alianca.tag+'</td></tr><tr><td>Membros:</td><td class="membros-contagem">'+userdata.alianca.totalMembros+'</td></tr><tr><td>O seu cargo:</td><td class="cargo">'+textoCargo+'</td></tr></tbody></table></div>'
+                htmlString += '<div class="table-responsive"><table class="table table-striped imperium-table"><thead><tr><th>Nick</th><th>Cargo</th><th>Rank</th><th>Banido</th><th>Férias</th><th>Online</th><th>Ações</th></tr></thead><tbody>'
     
                 for(let i = 0; i < resultado.length; i++)
                 {
@@ -391,7 +391,7 @@ $(document).ready(function (){
                     if(typeof(resultado[i].online) === 'undefined')
                         onlineString = "Desconhecido"
                     else if(resultado[i].online)
-                        onlineString = "<span class = 'text-success'><b>Online</b></span>"
+                        onlineString = "<span class = 'text-success'>Online</span>"
                     else
                         onlineString = "<span class = 'text-danger'><b>Offline</b></span>"
                     if(userdata.alianca.lider == resultado[i].usuario.id)
