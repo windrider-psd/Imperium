@@ -57,7 +57,6 @@ $(document).ready(function() {
                             html += '</ul></div>';
                             return html;
                         }
-                        prelink = this.preparePreLink(result.prelink);
                         if(result.previous) {
                             html += '<li><a href="#" class = "paginacao-anterior">Anterior</a></li>';
                         }
