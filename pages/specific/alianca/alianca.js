@@ -114,10 +114,10 @@ observer.Observar('userdata-ready',  function (){
                 let ranksString = ''
                 let confString = ''
                 if(ranks !== null){
-                    ranksString = '<h4>Ranks</h4><div class="table-responsive"><table class="table table-striped" id = "tabela-cargos"><thead><tr><th>nome</th><th>Ver Aplicações</th><th>Aceitar Aplicações</th><th>Expulsar</th><th>enviar mensagens circulares</th><th>ver online</th><th>ver frotas</th><th>ver exércitos</th><th>Criar ranks</th><th>Atribuir cargos</th><th>Gerênciar fórum</th><th>Editar Página Interna</th><th>Editar Página Externa</th><th>Convidar jogadores</th><th>Excluir Cargo</th></tr></thead><tbody>'
+                    ranksString = '<h4>Ranks</h4><div class="table-responsive"><table class="table table-striped imperium-table imperium-table-background" id = "tabela-cargos"><thead><tr><th>nome</th><th>Ver Aplicações</th><th>Aceitar Aplicações</th><th>Expulsar</th><th>enviar mensagens circulares</th><th>ver online</th><th>ver frotas</th><th>ver exércitos</th><th>Criar ranks</th><th>Atribuir cargos</th><th>Gerênciar fórum</th><th>Editar Página Interna</th><th>Editar Página Externa</th><th>Convidar jogadores</th><th>Excluir Cargo</th></tr></thead><tbody>'
                     for(let i = 0; i < ranks.length; i++)
                     {
-                        ranksString += '<tr data-id = "'+ranks[i].id+'"><td><input type "text" value = "'+ranks[i].nome+'" name = "nome"></td>'
+                        ranksString += '<tr data-id = "'+ranks[i].id+'"><td><input type "text" value = "'+ranks[i].nome+'" name = "nome" class = "imperium-input" style = "color:black"></td>'
                         delete ranks[i].id;
                         delete ranks[i].aliancaID;
                         delete ranks[i].nome
@@ -132,7 +132,7 @@ observer.Observar('userdata-ready',  function (){
                         ranksString +="</tr>"
                     }
                 }
-                ranksString += "</tbody></table><button type = 'button' class = 'btn btn-primary salvar-cargos'>Salvar Alterações</button><button type = 'button' class = 'btn btn-success btn-criar-cargo'>Criar Rank</button></div>"
+                ranksString += "</tbody></table><button type = 'button' class = 'btn btn-primary salvar-cargos imperium-input'>Salvar Alterações</button><button type = 'button' class = 'btn btn-success btn-criar-cargo imperium-input'>Criar Rank</button></div>"
                 if(isLider || (userdata.alianca.rank != null && userdata.alianca.rank.paginaInterna))
                 {
                     paginaInternaString = '<h4>Página Interna</h4><textarea class= "pagina-editor" id = "pagina-interna" style = "width:100%; height:230px"></textarea>'
@@ -516,9 +516,32 @@ observer.Observar('userdata-ready',  function (){
     else
     {
         $("#criar-alianca").removeClass("hidden")
+        $.ajax({
+            url : 'alianca/get-aplicacao-alianca',
+            method : 'GET',
+            accepts : "JSON",
+            success : function(aplicacao)
+            {
+                if(aplicacao != null)
+                {
+                    $.ajax({
+                        url : 'alianca/get-aliancadata',
+                        method : 'GET',
+                        data : {id : aplicacao.aliancaID},
+                        accepts : "JSON",
+                        success : function(alianca)
+                        {
+                            
+                            $("#aplicacao-alianca span").text(alianca.nome)
+                            $("#aplicacao-alianca").removeClass('hidden')
+                        }
+                    })
+                }
+            }
+        })
     }
     $("#btn-cancelar-aplicacao").on('click', function(){
-        btn = $(this);
+        let btn = $(this);
         $.ajax({
             url : 'alianca/cancelar-aplicacao',
             method : 'POST',
@@ -529,6 +552,7 @@ observer.Observar('userdata-ready',  function (){
             success : function()
             {
                 utils.GerarNotificacao("Aplicação removida com sucesso", 'success')
+                location.reload(true)
             },
             error : function(err)
             {
@@ -550,7 +574,7 @@ observer.Observar('userdata-ready',  function (){
     
         for(let i = 0; i < aplicacoes.length; i++)
         {
-            htmlString += '<div class = "table-responsive"><table class ="table table-striped"><tbody><tr><td>Nome:</td><td>'+aplicacoes[i].usuario.nick+'</td></tr><tr><td colspan="2">'+aplicacoes[i].texto+'</td></tr></table>'
+            htmlString += '<div class = "table-responsive"><table class ="table table-striped imperium-table"><tbody><tr><td>Nome:</td><td>'+aplicacoes[i].usuario.nick+'</td></tr><tr><td colspan="2">'+aplicacoes[i].texto+'</td></tr></table>'
             if(userdata.alianca.lider == userdata.session.id || userdata.alianca.rank.aceitar_aplicacoes)
                 htmlString += '<button class = "btn btn-success aceitar-btn" data-usuario = "'+aplicacoes[i].usuarioID+'" data-valor = "1">Aceitar</button><button class = "btn btn-danger aceitar-btn" data-usuario = "'+aplicacoes[i].usuarioID+'" data-valor = "0">Rejeitar</button></div><hr>'
         }

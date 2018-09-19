@@ -1,87 +1,43 @@
 extends ../../templates/layout
 block titulo
-  | !{alianca.nome}
-block posHead
-    link(rel="stylesheet", href="stylesheets/xbbcode.css")
-block content     
-    .table-responsive
-        table.table.table-striped#tabela-geral-alianca
-            tbody 
-                tr
-                    td Nome:
-                    td.nome !{alianca.nome}
-                tr
-                    td TAG:
-                    td.tag !{alianca.tag}
-                tr
-                    td Membros:
-                    td.membros-contagem !{totalMembros}
-                tr
-                    td(colspan ="2").hidden#pagina-externa !{alianca.paginaExterna}
-    -if(userdata.alianca == null && aplicacao == false)
-        .row
+block content
+    h1.imperium-title Página Externa da 
+        span
+    .imperium-gradient-background-medium(style="padding-bottom:15px")     
+        .table-responsive
+            table.table.table-striped.imperium-table#tabela-geral-alianca
+                tbody 
+                    tr
+                        td Nome:
+                        td.nome.td-nome
+                    tr
+                        td TAG:
+                        td.tag.td-tag
+                    tr
+                        td Membros:
+                        td.membros-contagem
+                    tr
+                        td(colspan ="2")#pagina-externa
+        .row#row-btn-enviar-aplicacao.hidden
             .col-md-offset-4.col-md-4.text-center
-                button.btn.btn-primary.btn-lg.btn-block#btn-enviar-aplicacao Enviar Aplicação
-        #modal-aplicacao.modal.fade(role='dialog')
-            .modal-dialog
-                .modal-content
-                    .modal-header
-                        button.close(type='button', data-dismiss='modal') ×
-                        h4.modal-title Enviar aplicação
-                    .modal-body
-                        .row
-                            #conteudo-enviar-esqueci.col-md-offset-1.col-md-10.col-sm-12
-                                form(onsubmit='return false')
+                button.btn.btn-primary.btn-lg.btn-block#btn-enviar-aplicacao.imperium-input Enviar Aplicação
+    #modal-aplicacao.modal.fade(role='dialog').imperium-modal
+        .modal-dialog
+            .modal-content
+                .modal-header
+                    button.close(type='button', data-dismiss='modal') ×
+                    h4.modal-title Enviar aplicação
+                .modal-body
+                    .row
+                        #conteudo-enviar-esqueci.col-md-offset-1.col-md-10.col-sm-12
+                            form(onsubmit='return false')
+                                .form-group
                                     .form-group
-                                        .form-group
-                                            label(for='aplicacao') Texto da aplicação: 
-                                            textarea(name='aplicacao', rows = '10', style = "resize: vertical; width:100%")#aplicacao-text.form-control
-                                    .row
-                                        .col-md-12.text-center
-                                            button.btn.btn-primary.btn-lg.btn-block(type='submit') Enviar
+                                        label(for='aplicacao').imperium-label Texto da aplicação: 
+                                        textarea(name='aplicacao', rows = '10', style = "resize: vertical; width:100%")#aplicacao-text.form-control.imperium-input
+                                .row
+                                    .col-md-12.text-center
+                                        button.btn.btn-success.btn-lg.btn-block(type='submit').imperium-input Enviar
     
     
 block posscripts
-
-    script.
-        var resultExterna = XBBCODE.process({
-            text: $("#pagina-externa").text(),
-            removeMisalignedTags: false,
-            addInLineBreaks: false
-        });
-        $("#pagina-externa").html(resultExterna.html)
-        $("#pagina-externa").removeClass("hidden")
-        var aliancaID = !{alianca.id}
-        var aplicacaoTexto = "!{alianca.aplicacao_template}"
-        $("#aplicacao-text").html(aplicacaoTexto.replace(/<br \/>/g, '\n'))
-        $("#btn-enviar-aplicacao").on('click', function()
-        {
-            $("#modal-aplicacao").modal("show");
-        })
-
-        $("#modal-aplicacao form").on('submit', function(){
-            var params = FormToAssocArray($(this))
-            var btn = $(this).find("button")
-            params.alianca = aliancaID
-            $.ajax({
-                url : 'alianca/aplicar-alianca',
-                method : 'POST',
-                data : params,
-                beforeSend : function()
-                {
-                    btn.text("Enviando...")
-                },
-                success : function()
-                {
-                    GerarNotificacao("Aplicação enviada com sucesso", 'success')
-                },
-                error : function(err)
-                {
-                    GerarNotificacao(err.responseText, 'danger')
-                },
-                complete : function()
-                {
-                    btn.text("Enviar")
-                }
-            })
-        })

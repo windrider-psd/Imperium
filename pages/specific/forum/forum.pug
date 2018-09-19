@@ -9,10 +9,10 @@ block content
       .col-md-12
         br
         .table-responsive
-          table.table.table-bordered.imperium-table.imperium-table-background#conteudo-forum
+          table.table.imperium-table.imperium-table-background#conteudo-forum
       #paginacao-forum.pagination
     #conteudo-forum-admin
-  #modal-adicionar-topico.modal.fade(role='dialog')
+  #modal-adicionar-topico.modal.fade(role='dialog').imperium-modal
     .modal-dialog
       .modal-content
         .modal-header
@@ -24,20 +24,20 @@ block content
               .col-md-offset-1.col-md-10.col-sm-12
                   form(onsubmit='return false')#form-adicionar-topico
                       .form-group
-                        label(for="nome") Nome do tópico
-                        input(type="text", name="nome").form-control
+                        label(for="nome").imperium-label Nome do tópico
+                        input(type="text", name="nome").imperium-input.form-control
                       .checkbox
-                        label(for="responder")
-                          input(type="checkbox", name="responder") 
+                        label(for="responder").imperium-label
+                          input(type="checkbox", name="responder")
                           | Apenas o líder e administradores do fórum podem responder
                       .checkbox
-                        label(for="destaque")
+                        label(for="destaque").imperium-label
                           input(type="checkbox", name="destaque") 
                           | Tópico em destaque
                       .row
                           .col-md-offset-3.col-md-6.text-center
-                              button.btn.btn-primary.btn-lg.btn-block(type='submit') Criar
-  #modal-editar-topico.modal.fade(role='dialog')
+                              button.btn.btn-success.btn-lg.btn-block(type='submit').imperium-input  Criar
+  #modal-editar-topico.modal.fade(role='dialog').imperium-modal
     .modal-dialog
       .modal-content
         .modal-header

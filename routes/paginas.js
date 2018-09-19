@@ -80,18 +80,8 @@ router.get('/recursos', (req, res) => {
 router.get('/alianca', (req, res) => {
   if(req.session.usuario)
   {
-    models.Alianca_Aplicacao.findOne({where : {usuarioID : req.session.usuario.id}}).then(aplicacao => {
-      if(!aplicacao)
-        MUtils.GetUserData(req).then(userdata => render('alianca', res, {aplicacao : false})).catch(() => render('login-cadastro', res));
-      else
-      {
-        models.Alianca.findOne({where : {id: aplicacao.aliancaID}, attributes :['id', 'nome', 'tag']}).then(alianca => {
-          aplicacao.dataValues.alianca = alianca;
-          MUtils.GetUserData(req).then(userdata => render('alianca', {aplicacao : aplicacao.dataValues})).catch(() => render('login-cadastro', res));
-        })
-      }
-    })
-    
+      MUtils.GetUserData(req).then(userdata => render('alianca', res)).catch(() => render('login-cadastro', res));
+
   }
     
   else 
@@ -209,5 +199,7 @@ router.get('/paginaExterna', (req, res) => {
   else
     render('login-cadastro', res);
 })
+
+
 
 module.exports = router;

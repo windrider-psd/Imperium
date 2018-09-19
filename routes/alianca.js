@@ -1548,4 +1548,42 @@ router.post('/enviar-mensagem-circular', (req, res) => {
 })
 
 
+router.get('/get-aliancadata', (req, res) => {
+    if(req.session.usuario)
+    {
+      if(!req.query.id)
+        res.status(400).end("Parâmetros inválidos");
+      else
+      {
+        models.Alianca.findOne({where : {id:req.query.id}}).then(alianca => {
+          if(!alianca)
+            res.status(404).end("Aliança não existe");
+          else
+          {
+              models.Usuario_Participa_Alianca.count({where : {aliancaID : alianca.id}}).then(contagem => {
+                alianca.dataValues.totalMembros = contagem
+                delete alianca.dataValues.paginaInterna
+                delete alianca.dataValues.lider
+                delete alianca.dataValues.sucessor
+                res.status(200).json(alianca.dataValues)
+              })
+          }
+        })
+      }
+    }
+    else
+      res.status(403).end("Operação inválida")
+  })
+  
+  router.get('/get-aplicacao-alianca', (req, res) => {
+    if(req.session.usuario)
+    {
+      models.Alianca_Aplicacao.findOne({where : {usuarioID : req.session.usuario.id}}).then(aplicacao => {
+        res.status(200).json(aplicacao)
+      })
+    }
+    else
+      res.status(403).end("Operação inválida")
+  })
+
 module.exports = router;
