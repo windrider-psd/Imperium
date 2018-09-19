@@ -20,20 +20,16 @@
  */
 
 let tipoAtual;
-const isLider = (userdata.alianca != null) ? userdata.session.id == userdata.alianca.lider : false
 const $ = require('jquery')
 const pagination = require('pagination')
 const utils = require('./../../general/userdata/utils')
+const observer = require('./../../general/observer')
 let paginaAtual
-/**
- * 
- * @param {number} pagina A página que será exibida
- * @param {string} tipo O tipo de pontuação 
- * @param {boolean} [gerarPaginacao=false] 
- */
 
-$(document).ready(function ()
+
+observer.Observar('userdata-ready',  function ()
 {
+	const isLider = (userdata.alianca != null) ? userdata.session.id == userdata.alianca.lider : false
 	CarregarTipo(undefined, 'pontosTotal', true);
 
 	function CarregarTipo(pagina, tipo)

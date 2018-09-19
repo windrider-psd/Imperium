@@ -12,6 +12,9 @@ var aliancaRouter = require("./routes/alianca")
 var browserify = require('browserify-middleware')
 var helmet = require('helmet')
 var DDDoS = require('dddos')
+var webpack = require('webpack');
+var webpackConfig = require('./webpack.config');
+var compiler = webpack(webpackConfig);
 module.exports = function CriarApp(sessao)
 {
   var app = express()
@@ -46,16 +49,6 @@ module.exports = function CriarApp(sessao)
   app.use('/comunicacao', comunicacaoRouter)
   app.use('/alianca', aliancaRouter)
   
-  /*app.use((req, res) => {
-    res.imprender = (view, params) =>{
-      glob('./pages/specific/'+view+'/*.pug', (err, pages) => {
-        let pagename = pages[0].split('/')
-        pagename = pagename[pagename.length - 1]
-        paganame = pagename.split('.')[0]
-        res.render(view + '/' + pagename, params)
-      })
-    }
-  })*/
 
 
   // catch 404 and forward to error handler
@@ -75,6 +68,12 @@ module.exports = function CriarApp(sessao)
     res.render('error')
   });
   app.locals.enderecoIP = require('ip').address()
+
+  app.use(require("webpack-dev-middleware")(compiler, {
+    publicPath: __dirname + '/public/dist/', writeToDisk : true
+  }));
+  app.use(require("webpack-hot-middleware")(compiler));
+
   return app
 }
 

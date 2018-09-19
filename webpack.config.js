@@ -1,6 +1,6 @@
 let glob = require('glob')
 let path = require('path')
-
+let webpack = require('webpack')
 let pagesDir = glob.sync('./pages/specific/*/')
 let pagesEntry = {}
 for(let i = 0; i < pagesDir.length; i++)
@@ -20,9 +20,7 @@ for(let i = 0; i < pagesDir.length; i++)
             paganame = pagename.split('.')[0]
             pagesEntry[dirname].push(dirJS[j])
         }
-    }
-    
-    
+    }   
 }
 let general_entry = glob.sync('./pages/general/*.js')
 let frameworks = glob.sync('./pages/style/frameworks/*.css')
@@ -68,7 +66,13 @@ module.exports =
                     
                 }
             ]
-        }
+        },
+        plugins : [
+            new webpack.optimize.OccurrenceOrderPlugin(),
+            new webpack.HotModuleReplacementPlugin(),
+            // Use NoErrorsPlugin for webpack 1.x
+            new webpack.NoEmitOnErrorsPlugin()
+        ]
     },
     {
         mode : 'development',
@@ -106,7 +110,13 @@ module.exports =
                     }
                 }
             ],
-        }
+        },
+        plugins : [
+            new webpack.optimize.OccurrenceOrderPlugin(),
+            new webpack.HotModuleReplacementPlugin(),
+            // Use NoErrorsPlugin for webpack 1.x
+            new webpack.NoEmitOnErrorsPlugin()
+        ]
     },
     {
         mode : 'development',
@@ -115,6 +125,12 @@ module.exports =
             path : __dirname + '/public/js/dist',
             filename : 'bundle.general.userdata.js'
         },
+        plugins : [
+            new webpack.optimize.OccurrenceOrderPlugin(),
+            new webpack.HotModuleReplacementPlugin(),
+            // Use NoErrorsPlugin for webpack 1.x
+            new webpack.NoEmitOnErrorsPlugin()
+        ]
     }
 ]
     

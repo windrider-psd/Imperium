@@ -11,6 +11,9 @@ const Esqueci = database.EsqeciSenha;
 const Setor = database.Setor;
 const Planeta = database.Planeta;
 const ranking = require('./../services/Ranking')
+const Bluebird = require('bluebird')
+const MUtils = require('./../services/DBModelsUtils')
+
 require('dotenv/config')
 
 function getMensagemEsqueci(req, u, chave)
@@ -513,5 +516,16 @@ router.get('/getRankings', (req, res) => {
     }  
   }
 });
+
+
+router.get('/get-userdata', (req, res) => {
+  MUtils.GetUserData(req)
+    .then(userdata => {
+      res.status(200).json(userdata)
+    })
+    .catch(err => {
+      res.status(500).end(err.message)
+    })
+})
 
 module.exports = router;

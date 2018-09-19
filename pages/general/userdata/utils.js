@@ -2,7 +2,6 @@ const $ = require('jquery')
 window.jQuery = $
 require('bootstrap-notify')
 require("bootstrap-sass");
-//const notify = require('bootstrap-notify')
 const bootbox = require('bootbox')
 
 function FormatarDate(data, separador)
@@ -142,6 +141,47 @@ function parse_query_string(query) {
     return query_string;
 }
 
+function GetSetorInfo(){
+    if(typeof(userdata) === 'undefined')
+        return null
+    let info = {};
+    var query = window.location.search.substring(1);
+    let planetaid = this.ParseGET(query).planetaid
+    if(typeof(planetaid) === 'undefined')
+    {
+        for(let i = 0; i < userdata.setores[0].planetas.length; i++)
+        {
+            if(userdata.setores[0].planetas[i].colonizado == true)
+            {
+                setor = userdata.setores[0].setor;
+
+                info.planeta = userdata.setores[0].planetas[i];
+                info.setor = userdata.setores[0].setor;
+
+                return info
+            }
+        }
+    }
+    else
+    {
+        for(let i = 0; i < userdata.setores.length; i++)
+        {
+            let j;
+            for(j = 0; j < userdata.setores[i].planetas.length; j++)
+            {
+                let planetaAtual = userdata.setores[i].planetas[j];
+                if(planetaAtual.id == planetaid)
+                {
+
+                    info.planeta = planetaAtual;
+                    info.setor = userdata.setores[i].setor;
+                    return info
+                }
+            }
+        }
+    }
+    return null
+}
 
 module.exports = {
     FormatarDate : FormatarDate,
@@ -150,44 +190,5 @@ module.exports = {
     GerarNotificacao : GerarNotificacao,
     GerarConfirmacao : GerarConfirmacao,
     ParseGET : parse_query_string,
-    GetSetorInfo : function()
-    {
-        let info = {};
-        var query = window.location.search.substring(1);
-        let planetaid = this.ParseGET(query).planetaid
-        if(typeof(planetaid) === 'undefined')
-        {
-            for(let i = 0; i < userdata.setores[0].planetas.length; i++)
-            {
-                if(userdata.setores[0].planetas[i].colonizado == true)
-                {
-                    setor = userdata.setores[0].setor;
-
-                    info.planeta = userdata.setores[0].planetas[i];
-                    info.setor = userdata.setores[0].setor;
-
-                    return info
-                }
-            }
-        }
-        else
-        {
-            for(let i = 0; i < userdata.setores.length; i++)
-            {
-                let j;
-                for(j = 0; j < userdata.setores[i].planetas.length; j++)
-                {
-                    let planetaAtual = userdata.setores[i].planetas[j];
-                    if(planetaAtual.id == planetaid)
-                    {
-
-                        info.planeta = planetaAtual;
-                        info.setor = userdata.setores[i].setor;
-                        return info
-                    }
-                }
-            }
-        }
-        return null
-    }
+    GetSetorInfo : GetSetorInfo
 }

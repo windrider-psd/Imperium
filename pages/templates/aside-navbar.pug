@@ -43,12 +43,10 @@ aside.imperium-side-menu
             li.imperium-fake-line-before
                 img(src='images/alianca.png', alt='')
                 span Aliança
-        -if(userdata.alianca != null){
-        a(href = '/forum').link-planeta
+        a(href = '/forum').link-planeta.hidden#aside-menu-forum
             li.imperium-fake-line-before
                 img(src='images/alianca.png', alt='')
                 span Fórum da aliança
-        -}
 
     .imperium-background-side-menu#imperium-background-side-menu-outros
         h3 Outros

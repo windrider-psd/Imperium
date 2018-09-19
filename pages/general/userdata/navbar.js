@@ -1,9 +1,12 @@
 const $ = require('jquery')
 const utils = require('./utils')
+const observer = require('./../observer')
 
-
-$(function()
-{
+observer.Observar('userdata-ready',  function (){
+    if(userdata.alianca != null)
+    {
+        $("#aside-menu-forum").removeClass('hidden')
+    }
     let planeta = utils.GetSetorInfo().planeta
     var path = window.location.pathname;
     let ativo = $('aside a[href="'+path+'"]').find('li')
@@ -14,8 +17,6 @@ $(function()
         _url += (_url.split('?')[1] ? '&':'?') + 'planetaid=' + planeta.id;
         $(this).attr('href', _url)
     })
-});
-$(document).ready(function (){
 
     $("#nav-nick").html(userdata.session.nick)
 
@@ -48,7 +49,6 @@ $(document).ready(function (){
     }
 
     $("#link-convites li").on('click', function(){
-        console.log("ola")
         $("#modal-convites").modal('show');
         getConvitesAlianca();
     })

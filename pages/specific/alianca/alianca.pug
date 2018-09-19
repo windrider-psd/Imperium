@@ -4,7 +4,6 @@ block titulo
 
 block posHead
   link(rel="stylesheet", href="js/sceditor/minified/themes/default.min.css")
-  link(rel="stylesheet", href="stylesheets/xbbcode.css")
   script(src = "js/sceditor/minified/sceditor.min.js")
   script(src = "js/sceditor/languages/pt-BR.js")
   script(src = "js/sceditor/minified/formats/bbcode.js")
@@ -12,8 +11,7 @@ block content
   .container-fluid
     .row
       h1#titulo-alianca.imperium-title Aliança
-      -if (userdata.alianca == null){
-      .row
+      .row.hidden#criar-alianca
         .col-md-12#sem-alianca.imperium-gradient-background-medium.opcoes-container
           .opcoes-container-title.imperium-gradient-background-heavy2
             h2 Criar Aliança
@@ -27,17 +25,14 @@ block content
             .row
               .col-md-offset-3.col-md-6.text-center
                   button.btn.btn-success.btn-lg.btn-block(type='submit').imperium-input Criar
-      -if(aplicacao != false){
-      .row
-        .col-sm-12.col-md-offset-3.col-md-6#sem-alianca
+      .row.hidden#aplicacao-alianca
+        .col-sm-12.col-md-offset-3.col-md-6
           h3.text-center Aplicação enviada para 
-            =aplicacao.alianca.nome
+            |aplicacao.alianca.nome
           .col-md-offset-3.col-md-6.text-center
               button.btn.btn-danger.btn-lg.btn-block(type='button')#btn-cancelar-aplicacao Cancelar Aplicação
-      -}
-      -}else{
-      .row
-        .col-md-12#com-alianca.imperium-gradient-background-heavy
+      .row.hidden#com-alianca
+        .col-md-12.imperium-gradient-background-heavy
           .tabbable-panel
             .tabbable-line
                 ul.nav.nav-tabs.nav-justified
@@ -53,7 +48,6 @@ block content
           .row
               .col-md-offset-4.col-md-4.text-center
                   button.btn.btn-warning.btn-lg.btn-block#btn-sair-alianca Sair da Aliança
-      -}
     
   include ../../templates/enviar-mensagem-privada
 

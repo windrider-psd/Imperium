@@ -1,5 +1,5 @@
 const $ = require('jquery')
-const utils = require('./utils')
+const utils = require('./userdata/utils')
 
 $(document).ready(function() {
 

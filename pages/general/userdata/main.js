@@ -1,9 +1,31 @@
 const $ = require('jquery')
 const utils = require('./utils')
-require('select2')
-let planeta = utils.GetSetorInfo().planeta
-$(document).ready(function()
+const observer = require('./../observer')
+let planeta
+
+
+$(document).ready(function(){
+    $.ajax({
+        url : 'usuario/get-userdata',
+        method : 'get',
+        success : function(userdata)
+        {
+            window.userdata = userdata
+            observer.Trigger('userdata-ready')
+        },
+    
+        error : function(err)
+        {
+            utils.GerarNotificacao("Falha ao conseguir os dados de usuário: " + err.responseText, 'danger')
+        }
+        
+    })
+})
+
+
+observer.Observar('userdata-ready', function()
 {
+    planeta = utils.GetSetorInfo().planeta
     if(planeta)
         $("#nome-planeta").text(planeta.nome);
     else
@@ -11,7 +33,7 @@ $(document).ready(function()
 
     
     $("#select-planeta option[value='"+planeta.id+"']").attr('selected', true)
-    $('#select-planeta').select2({width : '100%'});
+
     $('#select-planeta').on('change', function()
     {
         let val = $(this).val();

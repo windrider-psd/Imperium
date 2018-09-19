@@ -1,6 +1,6 @@
 const models = require('./../model/DBModels')
 const BlueBird = require('bluebird')
-
+const ranking = require('./Ranking')
 /**
  * @param {number} planetaID 
  * @description Extrai as construções de um planeta
@@ -164,10 +164,68 @@ function GetCountCaixaDeEntrada(usuarioid)
     })
 }
 
+/**
+ * @param {Request} req O objeto de requisição do express
+ * @description Retorna um objeto que será usado no front-end
+ * @returns {BlueBird.<{session : Object, sessionID : number, setores : Object, alianca : null|Object, caixaEntrada : number}>}
+ */
+function getUserData(req)
+{
+  return new BlueBird((resolve, reject) =>
+  {
+    if(req.session.usuario)
+    {
+        models.Setor.findAll({where : {usuarioID : req.session.usuario.id}}).then(sets =>
+        {    
+            getSetoresInfo(sets).then(resultado =>
+            {
+                let setores = resultado 
+                ranking.GetRankingUsuario(req.session.usuario.id).then(rankusuario => {
+                    GetCountCaixaDeEntrada(req.session.usuario.id).then(contagemEntrada => 
+                      models.Usuario_Participa_Alianca.findOne({where:{usuarioID: req.session.usuario.id}}).then(participa => {
+                        if(participa){
+                          models.Alianca.findOne({where: {id : participa.aliancaID}}).then(alianca =>{
+                            models.Usuario_Participa_Alianca.count({where : {aliancaID : alianca.id}}).then(contagem => {
+                              alianca.dataValues.totalMembros = contagem;
+                              if(participa.rank !== null)
+                              {
+                                models.Alianca_Rank.findOne({where : {id : participa.rank}}).then(rank =>
+                                {
+                                  alianca.dataValues.rank = rank;
+                                  resolve({session : req.session.usuario, rank : rankusuario, sessionID: req.sessionID, alianca : alianca, setores : setores, caixaEntrada : contagemEntrada})
+                                })
+                              }
+                              else
+                              {
+                                alianca.dataValues.rank = null
+                                resolve({session : req.session.usuario, rank : rankusuario, sessionID: req.sessionID, alianca : alianca, setores : setores, caixaEntrada : contagemEntrada})
+                              }
+                            })
+                            
+                          })
+                        }
+                        else
+                          resolve({session : req.session.usuario, rank : rankusuario, sessionID: req.sessionID, alianca : null, setores : setores, caixaEntrada : contagemEntrada})
+                      })
+                      
+                    )
+                  }).catch(err => reject(err));
+            })
+        }); 
+
+
+      
+    }
+    else
+      reject("Requisição não possui sessão de usuário");
+  })
+}
+
 module.exports = 
 {
     GetConstrucoesPlaneta : GetConstrucoesPlaneta,
     getSetoresInfo : getSetoresInfo,
     GetUsuarioPlaneta : GetUsuarioPlaneta,
-    GetCountCaixaDeEntrada : GetCountCaixaDeEntrada
+    GetCountCaixaDeEntrada : GetCountCaixaDeEntrada,
+    GetUserData : getUserData
 }

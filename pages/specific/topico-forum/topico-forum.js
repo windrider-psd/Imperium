@@ -4,7 +4,8 @@ var atualizar = true
 var editor;
 const $ = require('jquery')
 const utils = require('./../../general/userdata/utils')
-$(document).ready(function() {
+const observer = require('./../../general/observer')
+observer.Observar('userdata-ready', function() {
     if(userdata.alianca != null)
         isLider = userdata.session.id == userdata.alianca.lider
     else 

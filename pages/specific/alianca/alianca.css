@@ -43,7 +43,7 @@
     cursor: pointer;
 }
 
-#com-alianca
+#com-alianca > div
 {
     padding:0px;
     color:white !important;

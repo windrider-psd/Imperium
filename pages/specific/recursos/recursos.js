@@ -1,8 +1,12 @@
 const $ = require('jquery')
 const utils = require('./../../general/userdata/utils')
 const GerenciadorRecursos = require('./../../../services/shared/GerenciadorRecursos')
-let setorinfo = utils.GetSetorInfo();
-let planeta = setorinfo.planeta
+let setorinfo;
+let planeta;
+const observer = require('./../../general/observer')
+observer.Observar('userdata-ready',  function (){
+setorinfo = utils.GetSetorInfo();
+planeta = setorinfo.planeta
 let setor = setorinfo.setor
 let posSolObj = {x : setor.solPosX, y : setor.solPosX}
 let posPlanetaObj = {x : planeta.posX, y : planeta.posY}
@@ -296,8 +300,9 @@ function GetConstrucoes()
 
 GetEdificios()
 GetConstrucoes()
+})
 
-$(document).ready(function() 
+observer.Observar('socket-ready', function()
 {
     socket.on('edificio-melhoria-completa', function(data)
     {
@@ -349,7 +354,6 @@ $(document).ready(function()
     });
 
     socket.on('edificio-melhorando', function(construcao){
-        console.log(construcao)
         if(construcao.planetaID == planeta.id)
         {
             let stringEdificio = GerenciadorRecursos.EdificioIDParaString(construcao.edificioID);

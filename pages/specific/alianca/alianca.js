@@ -23,8 +23,11 @@
 
 const $ = require('jquery')
 const utils = require('./../../general/userdata/utils')
+const BBCodeParser = require('bbcode-parser')
+const observer = require('./../../general/observer')
+let parser = new BBCodeParser(BBCodeParser.defaultTags());
 var isLider;
-$(document).ready(function (){
+observer.Observar('userdata-ready',  function (){
     $("#form-criar-alianca").on('submit', function(){
         let params = utils.FormToAssocArray($(this));
         let btn = $(this).find("button");
@@ -423,11 +426,12 @@ $(document).ready(function (){
                 let htmlInterna = '';
                 if(userdata.alianca.paginaInterna != null)
                 {
-                    htmlInterna = XBBCODE.process({
+                    /*htmlInterna = XBBCODE.process({
                         text: userdata.alianca.paginaInterna,
                         removeMisalignedTags: false,
                         addInLineBreaks: false
-                    }).html;
+                    }).html;*/
+                    htmlInterna = parser.parseString(userdata.alianca.paginaInterna);
                 }
                 
                 htmlString += "<h4>Página Interna</h4><div>"+htmlInterna+"</div>"
@@ -503,13 +507,16 @@ $(document).ready(function (){
         AbrirModalEnviarMensagemPrivada($(this).data('destinatario'), $(this).data('nome'));
     });
     
-    $(document).ready(function() {
-        if(userdata.alianca != null)
-        {
-            isLider = userdata.session.id == userdata.alianca.lider
-            setViewGeral()
-        }
-    })
+    if(userdata.alianca != null)
+    {
+        isLider = userdata.session.id == userdata.alianca.lider
+        $("#com-alianca").removeClass('hidden')
+        setViewGeral()
+    }
+    else
+    {
+        $("#criar-alianca").removeClass("hidden")
+    }
     $("#btn-cancelar-aplicacao").on('click', function(){
         btn = $(this);
         $.ajax({

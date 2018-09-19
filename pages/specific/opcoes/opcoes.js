@@ -1,7 +1,9 @@
 const $ = require('jquery')
 let utils = require('./../../general/userdata/utils')
-$(document).ready(function()
+const observer = require('./../../general/observer')
+observer.Observar('userdata-ready',  function()
 {
+    (userdata.session.ativo == false) ? $(".conta-n-ativa").removeClass('hidden') : $(".conta-ativa").removeClass('hidden')
     $("#email-atual").val(userdata.session.email);
     $("#nick-atual").val(userdata.session.nick);
     $("#btn-enviar-ativo").on('click', function()

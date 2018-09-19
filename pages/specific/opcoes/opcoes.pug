@@ -47,15 +47,13 @@ block content
         .col-md-12.col-sm-12.imperium-solid-background-medium.opcoes-container 
           .opcoes-container-title.imperium-gradient-background-heavy2
             h2 Conta ativada:
-              - if(userdata.session.ativo == true)
-                  b.text-success  Sim
-              - else {
-                  b.text-danger  Não
-          p Você não têm acesso a todos os recursos do jogo enquanto a sua conta não é ativada.
-          .row.text-center
-              .col-md-6.col-md-offset-3
-                button(type = "button").btn.btn-primary.btn-block#btn-enviar-ativo Reenviar email de ativação
-          -}
+                  b.text-success.conta-ativa.hidden Sim
+                  b.text-danger.conta-n-ativa.hidden Não
+          .conta-n-ativa.hidden
+            p Você não têm acesso a todos os recursos do jogo enquanto a sua conta não é ativada.
+            .row.text-center
+                .col-md-6.col-md-offset-3
+                  button(type = "button").btn.btn-primary.btn-block#btn-enviar-ativo Reenviar email de ativação
           
 block posscripts
 
