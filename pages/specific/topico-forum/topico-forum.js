@@ -5,7 +5,10 @@ var editor;
 const $ = require('jquery')
 const utils = require('./../../general/userdata/utils')
 const observer = require('./../../general/observer')
+let pagination = require('pagination')
+let paginaAtual;
 observer.Observar('userdata-ready', function() {
+    let qs = utils.ParseGET(window.location.search.substring(1))
     if(userdata.alianca != null)
         isLider = userdata.session.id == userdata.alianca.lider
     else 
@@ -40,46 +43,38 @@ observer.Observar('userdata-ready', function() {
                 }
                 $("#mensagens-conteudo").html(htmlString)
 
-                if(atualizar == true)
-                {
-                    $('#paginacao-topico-forum').pagination({
-                        dataSource: mensagens,
-                        locator: 'items',
-                        totalNumber: total,
-                        pageSize: tamanhoPaginas,
-                        autoHidePrevious: true,
-                        autoHideNext: true,
-                        pageNumber : pagina,
-                        
-                        callback: function(data, pagination) {
-                            // template method of yourself
-                            //var html = template(data);
-                       //     console.log(html)
-                          //  $('#paginacao-topico-forum').html(html);
+
+                let boostrapPaginator = new pagination.TemplatePaginator({
+                    prelink:'/', current: pagina, rowsPerPage: tamanhoPaginas,
+                    totalResult: total, slashSeparator: true,
+                    template: function(result) {
+                        var i, len;
+                        var html = '<div><ul class="pagination">';
+                        if(result.pageCount < 2) {
+                            html += '</ul></div>';
+                            return html;
                         }
-                    })
-                    $('#paginacao-topico-forum').addHook('afterPageOnClick', function(evento, pagina)
-                    {
-                        getMensagens(pagina)
-                    })
-                    $('#paginacao-topico-forum').addHook('afterPreviousOnClick', function(evento, pagina)
-                    {
-                        getMensagens(pagina)
-                    })
-                    $('#paginacao-topico-forum').addHook('afterNextOnClick', function(evento, pagina)
-                    {
-                        getMensagens(pagina)
-                    })
-                    $('#paginacao-topico-forum').addHook('afterGoInputOnEnter', function(evento, pagina)
-                    {
-                        getMensagens(pagina)
-                    })
-                    $('#paginacao-topico-forum').addHook('afterGoButtonOnClick', function(evento, pagina)
-                    {
-                        getMensagens(pagina)
-                    })
-                    atualizar = false;
-                }   
+                        if(result.previous) {
+                            html += '<li><a href="#" class = "paginacao-anterior">Anterior</a></li>';
+                        }
+                        if(result.range.length) {
+                            for( i = 0, len = result.range.length; i < len; i++) {
+                                if(result.range[i] === result.current) {
+                                    html += '<li class="active"><a href="#" data-pagina="'+result.range[i]+'" class = "paginacao-pagina">' + result.range[i] + '</a></li>';
+                                } else {
+                                    html += '<li><a href="#" data-pagina="'+result.range[i]+'" class = "paginacao-pagina">' + result.range[i] + '</a></li>';
+                                }
+                            }
+                        }
+                        if(result.next) {
+                            html += '<li><a href="#" class="paginacao-proximo">Próximo</a></li>';
+                        }
+                        html += '</ul></div>';
+                        return html;
+                    }
+                });
+                $("#paginacao-topico-forum").html(boostrapPaginator.render())
+                paginaAtual = pagina;
             },
             error : function(err)
             {
@@ -87,7 +82,18 @@ observer.Observar('userdata-ready', function() {
             }
         })
     }
-
+    $("#paginacao-topico-forum").on('click', '.paginacao-pagina', function(){
+        let pagina = $(this).data('pagina')
+        getMensagens(pagina)
+    })
+    $("#paginacao-topico-forum").on('click', '.paginacao-anterior', function(){
+        paginaAtual--
+        getMensagens(paginaAtual)
+    })
+    $("#paginacao-topico-forum").on('click', '.paginacao-proximo', function(){
+        paginaAtual++
+        getMensagens(paginaAtual)
+    })
     $("#mensagens-conteudo").on('click', '.btn-excluir-mensagem', function()
     {
         utils.GerarConfirmacao("Tens certeza que desejas apagar esta mensagem?", () => {
@@ -122,6 +128,7 @@ observer.Observar('userdata-ready', function() {
             success : function()
             {
                 utils.GerarNotificacao("Mensagen postada com sucesso", 'success')
+                getMensagens(paginaAtual)
             },
             error : function(err)
             {

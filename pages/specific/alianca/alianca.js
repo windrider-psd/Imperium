@@ -25,6 +25,7 @@ const $ = require('jquery')
 const utils = require('./../../general/userdata/utils')
 const BBCodeParser = require('bbcode-parser')
 const observer = require('./../../general/observer')
+require('select2')
 let parser = new BBCodeParser(BBCodeParser.defaultTags());
 var isLider;
 observer.Observar('userdata-ready',  function (){
@@ -114,7 +115,7 @@ observer.Observar('userdata-ready',  function (){
                 let ranksString = ''
                 let confString = ''
                 if(ranks !== null){
-                    ranksString = '<h4>Ranks</h4><div class="table-responsive"><table class="table table-striped imperium-table imperium-table-background" id = "tabela-cargos"><thead><tr><th>nome</th><th>Ver Aplicações</th><th>Aceitar Aplicações</th><th>Expulsar</th><th>enviar mensagens circulares</th><th>ver online</th><th>ver frotas</th><th>ver exércitos</th><th>Criar ranks</th><th>Atribuir cargos</th><th>Gerênciar fórum</th><th>Editar Página Interna</th><th>Editar Página Externa</th><th>Convidar jogadores</th><th>Excluir Cargo</th></tr></thead><tbody>'
+                    ranksString = '<h4>Ranks</h4><div class="table-responsive"><table class="table table-striped table-bordered imperium-table imperium-table-background" id = "tabela-cargos"><thead><tr><th>nome</th><th>Ver Aplicações</th><th>Aceitar Aplicações</th><th>Expulsar</th><th>enviar mensagens circulares</th><th>ver online</th><th>ver frotas</th><th>ver exércitos</th><th>Criar ranks</th><th>Atribuir cargos</th><th>Gerênciar fórum</th><th>Editar Página Interna</th><th>Editar Página Externa</th><th>Convidar jogadores</th><th>Excluir Cargo</th></tr></thead><tbody>'
                     for(let i = 0; i < ranks.length; i++)
                     {
                         ranksString += '<tr data-id = "'+ranks[i].id+'"><td><input type "text" value = "'+ranks[i].nome+'" name = "nome" class = "imperium-input" style = "color:black"></td>'
@@ -167,6 +168,9 @@ observer.Observar('userdata-ready',  function (){
                 }
 
                 $("#tab-content-alianca").html(ranksString + paginaInternaString + paginaExternaString + confString)
+
+
+                $("#select-sucessor").select2();
                 CriarPaginaEditors();
                 if($("#pagina-interna")[0] != null)
                 {
@@ -283,7 +287,7 @@ observer.Observar('userdata-ready',  function (){
             method : 'POST',
             success : function(criado)
             {
-                let htmlString = '<tr data-id = "'+criado.id+'"><td><input type "text" value = "'+criado.nome+'" name = "nome"></td>'
+                let htmlString = '<tr data-id = "'+criado.id+'"><td><input type "text" value = "'+criado.nome+'" name = "nome" class = "imperium-input"></td>'
                 delete criado.id
                 delete criado.aliancaID
                 delete criado.nome
@@ -426,15 +430,11 @@ observer.Observar('userdata-ready',  function (){
                 let htmlInterna = '';
                 if(userdata.alianca.paginaInterna != null)
                 {
-                    /*htmlInterna = XBBCODE.process({
-                        text: userdata.alianca.paginaInterna,
-                        removeMisalignedTags: false,
-                        addInLineBreaks: false
-                    }).html;*/
                     htmlInterna = parser.parseString(userdata.alianca.paginaInterna);
                 }
                 
-                htmlString += "<h4>Página Interna</h4><div>"+htmlInterna+"</div>"
+                htmlString += "<h4>Página Interna</h4><div>"+htmlInterna
+                htmlString += '<div class="row"><div class="col-md-offset-4 col-md-4 text-center"> <button class="btn btn-warning btn-lg btn-block" id="btn-sair-alianca">Sair da Aliança</button></div></div></div>'
                 $("#tab-content-alianca").html(htmlString);
     
     

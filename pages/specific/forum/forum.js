@@ -2,9 +2,6 @@ const $ = require('jquery')
 const utils = require('./../../general/userdata/utils')
 const observer = require('./../../general/observer')
 let pagination = require('pagination')
-
-
-
 var isLider
 var tamanhoPaginas;
 let paginaAtual;

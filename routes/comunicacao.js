@@ -130,7 +130,7 @@ router.get('/getInbox', (req, res) => {
               }
             }
           }
-          res.status(200).json({mensagens : mensagens, total : total})
+          res.status(200).json({mensagens : mensagens, total : total, resultadosPorPagina : Number(process.env.MESSAGE_PAGE_COUNT)})
         })
     })
   }
@@ -193,7 +193,7 @@ router.get('/getOutbox', (req, res) => {
               }
             }
           }
-          res.status(200).json({mensagens : mensagens, total : total})
+          res.status(200).json({mensagens : mensagens, total : total, resultadosPorPagina : Number(process.env.MESSAGE_PAGE_COUNT)})
         })
     })
   }

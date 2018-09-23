@@ -25,7 +25,7 @@ const pagination = require('pagination')
 const utils = require('./../../general/userdata/utils')
 const observer = require('./../../general/observer')
 let paginaAtual
-
+let mensagens = require('./../../general/modal-mensagens')
 
 observer.Observar('userdata-ready',  function ()
 {
@@ -57,7 +57,7 @@ observer.Observar('userdata-ready',  function ()
 						htmlString += "class = 'info'";
 					}
 
-					htmlString += "><td>" + usuarios[i].rank + "</td><td>" + usuarios[i].desempenho + "</td><td>" + usuarios[i].nome + "</td>"
+					htmlString += "><td>" + usuarios[i].rank + "</td><td>" + usuarios[i].nome + "</td>"
 					if (typeof (usuarios[i].alianca) !== 'undefined')
 					{
 						var link;
@@ -92,7 +92,6 @@ observer.Observar('userdata-ready',  function ()
 				let resultadosPorPagina = resultado.resultadosPorPagina
 				tipoAtual = tipo;
                 paginaAtual = resultado.pagina;
-
 				let boostrapPaginator = new pagination.TemplatePaginator(
 				{
 					prelink: '/',
@@ -171,11 +170,11 @@ observer.Observar('userdata-ready',  function ()
 
 	$("#conteudo-ranking").on('click', ".btn-enviar-mensagem", function ()
 	{
-		AbrirModalEnviarMensagemPrivada($(this).data('destinatario'), $(this).data('nome'));
+		mensagens.AbrirModalEnviarMensagemPrivada($(this).data('destinatario'), $(this).data('nome'));
 	});
 
 	$("#conteudo-ranking").on('click', ".btn-enviar-convite", function ()
 	{
-		AbrirModalEnviarConvite($(this).data('destinatario'), $(this).data('nome'));
+		mensagens.AbrirModalEnviarConvite($(this).data('destinatario'), $(this).data('nome'));
 	});
 })

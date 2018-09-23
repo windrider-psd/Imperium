@@ -49,3 +49,8 @@
     color:white !important;
 }
 
+#tabela-cargos tbody
+{
+    text-align: center;
+}
+

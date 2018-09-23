@@ -21,6 +21,10 @@ a {
   border-top-left-radius: 15px;
   border-bottom-right-radius: 5px;
 }
+input.imperium-input
+{
+  color:black;
+}
 
 .imperium-label
 {
@@ -214,7 +218,8 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2d3e49', end
 {
   position: fixed;
   width: 250px;
-  height: auto;
+  height: 80%;
+  overflow-y: scroll;
   background-color: #262626;
   color: white;
   padding-top:0px;
@@ -466,6 +471,29 @@ main
 
 .text-success {
   color: #49e692 !important;
+}
+
+
+.imperium-nav-tabs .tab-btn.active a {
+  background-color: #3D6282 !important;
+  cursor: pointer;
+}
+.imperium-nav-tabs .tab-btn a {
+  color: white !important;
+  font-family: 'Exo 2', sans-serif;
+  border: none !important;
+  border-radius: 0px !important;
+  
+}
+
+.imperium-nav-tabs .tab-btn:not(.active) a {
+  background-color: #041A23;
+  cursor: pointer;
+}
+
+.c-pointer
+{
+  cursor: pointer;
 }
 
 @media screen and (max-width:892px)
