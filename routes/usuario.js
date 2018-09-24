@@ -529,7 +529,7 @@ router.get('/get-userdata', (req, res) => {
 })
 
 
-router.post('/validar-esqueci-senha', (req, res)=> {
+router.post('/validar-ativar-conta', (req, res)=> {
 
   let params = req.body;
   if(!(params.u && params.chave))
@@ -558,5 +558,34 @@ router.post('/validar-esqueci-senha', (req, res)=> {
     });
   }
 })
+
+
+router.post('/validar-recuperar-senha', (req, res) =>{
+  let uid = req.body.u;
+  let chave = req.body.chave;
+
+  if(!uid || !chave)
+    res.status(400).json({erro : 1, conteudo : 'Link inválido'})
+  else
+  {
+    models.EsqeciSenha.findOne({where : {usuarioID : uid, chave : chave}}).then((encontrado) =>
+    {
+      if(!encontrado)
+        res.status(400).json({erro : 1, conteudo : 'Link inválido'})
+      else
+      {
+        let agora = new Date();
+        let datareq = new Date(encontrado.dataValues.data_hora);
+        let diffMs = (agora - datareq); 
+        let diffHrs = Math.floor((diffMs % 86400000) / 3600000); // horas
+        if(diffHrs > 72)
+          res.status(400).json({erro : 2, conteudo : 'Link expirou'})
+        else
+          res.status(200).end("Link válido")
+      }
+    });
+  }
+});
+
 
 module.exports = router;

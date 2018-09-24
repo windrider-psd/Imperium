@@ -120,30 +120,7 @@ router.get('/mensagens', (req, res) => {
 });
 
 router.get('/recuperar-senha', (req, res) =>{
-  let uid = req.query.u;
-  let chave = req.query.chave;
-
-  if(!uid || !chave)
-    render('recuperar-senha', res, {erro : 1})
-  else
-  {
-    models.EsqeciSenha.findOne({where : {usuarioID : uid, chave : chave}}).then((encontrado) =>
-    {
-      if(!encontrado)
-        render('recuperar-senha', res, {erro : 1});
-      else
-      {
-        let agora = new Date();
-        let datareq = new Date(encontrado.dataValues.data_hora);
-        let diffMs = (agora - datareq); 
-        let diffHrs = Math.floor((diffMs % 86400000) / 3600000); // horas
-        if(diffHrs > 72)
-          render('recuperar-senha', res, {erro : 2});
-        else
-          render('recuperar-senha', res, {erro : 0, u : uid, chave : chave});
-      }
-    });
-  }
+  render('recuperar-senha', res)
 });
 
 router.get("/ativar", (req, res) =>

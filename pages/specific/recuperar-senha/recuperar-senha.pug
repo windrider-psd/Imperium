@@ -13,12 +13,14 @@ html
       .container.imperium-modal
         .row.modal-content
           .col-md-12
-            -if(erro == 0)
-              div#esqueci-titulo 
-                h1 Redefinir Senha
+            div#esqueci-titulo 
+              h1 Redefinir Senha
+            .div-ativando
+              h2.text-center Validando link...
+            .div-sucesso.hidden
               form#esqueci-form(onsubmit='return false')
-                input(type='hidden', name='chave', value='' + chave)
-                input(type='hidden', name='id', value='' + u)
+                input(type='hidden', name='chave', value='' id = "esqueci-form-chave")
+                input(type='hidden', name='id', value='', id = "esqueci-form-id")
                 .form-group
                   label(for='novasenha').imperium-label Sua nova senha:
                   input#novasenha.form-control.form-senha(type='password', name='senha', placeholder='********', required='').imperium-input
@@ -30,16 +32,9 @@ html
                   .col-md-3
                   .col-md-6.text-center
                     button#loginFormButton.btn.btn-success.btn-lg.btn-block(type='submit').imperium-input Redefinir senha
-            -else if(erro == 1)
-              .div-erro
-                img(src="/images/warning.png", alt="Erro").img-responsive
-                p.texto-erro Link inválido.
-            -else if(erro == 2)
-              .div-erro
-                img(src="/images/warning.png", alt="Erro").img-responsive
-                p.texto-erro Este link não é mais válido. Requisite novamente.
-      script.
-        erro = !{erro}
+            .div-erro.hidden
+              img(src="/images/warning.png", alt="Erro").img-responsive
+              p.texto-erro 
       script(src="js/dist/pages/recuperar-senha.bundle.js")
             
       

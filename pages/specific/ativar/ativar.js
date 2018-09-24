@@ -6,7 +6,7 @@ $(document).ready(function(){
     $.ajax({
         method : 'POST',
         data : params,
-        url : 'usuario/validar-esqueci-senha',
+        url : 'usuario/validar-ativar-conta',
         success : function()
         {
             $(".div-sucesso").removeClass('hidden')
