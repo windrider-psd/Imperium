@@ -5,13 +5,13 @@ const bcrypt = require('bcrypt');
 const sanitizer = require('sanitizer')
 const emailer = require('./../services/Emailer')
 const random = require('./../services/Aleatorio')
+const models = database
 const conexao = database.Con;
 const Usuario = database.Usuario;
 const Esqueci = database.EsqeciSenha;
 const Setor = database.Setor;
 const Planeta = database.Planeta;
 const ranking = require('./../services/Ranking')
-const Bluebird = require('bluebird')
 const MUtils = require('./../services/DBModelsUtils')
 
 require('dotenv/config')
@@ -526,6 +526,37 @@ router.get('/get-userdata', (req, res) => {
     .catch(err => {
       res.status(500).end(err.message)
     })
+})
+
+
+router.post('/validar-esqueci-senha', (req, res)=> {
+
+  let params = req.body;
+  if(!(params.u && params.chave))
+    res.status(400).json({erro : 1, conteudo : 'Link inválido'}); //Link inválido
+  else if(req.session.usuario && req.session.usuario.ativo == true)
+    res.status(400).json({erro : 2, conteudo : 'Conta já ativada'}); // Conta já ativada
+  else 
+  {
+    models.Usuario.findOne({where : {id : params.u}, attributes : ['id', 'ativo', 'chave_ativacao']}).then(function(user){
+      if(!user)
+        res.status(400).json({erro : 1, conteudo : 'Link inválido'}); //Link inválido
+      else if(user.ativo == true)
+        res.status(400).json({erro : 2, conteudo : 'Conta já ativada'}); // Conta já ativada
+      else if(user.chave_ativacao != params.chave)
+        res.status(400).json({erro : 1, conteudo : 'Link inválido'}); //Link inválido
+      else
+      {
+        user.ativo = true;
+        user.save().then(() =>
+        {
+          if(req.session.usuario)
+            req.session.usuario.ativo = true;
+          res.status(200).end('Conta ativada com sucesso'); // Sucesso
+        }).catch((err) => res.status(500).json({erro : 3, conteudo : err.message})) //erro ao ativar
+      }
+    });
+  }
 })
 
 module.exports = router;

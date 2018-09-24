@@ -120,6 +120,8 @@ function GerarConfirmacao(mensagem, __callback)
 }
 
 function parse_query_string(query) {
+    if(typeof(query) == 'undefined')
+        var query = window.location.search.substring(1)
     var vars = query.split("&");
     var query_string = {};
     for (var i = 0; i < vars.length; i++) {

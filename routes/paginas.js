@@ -148,32 +148,7 @@ router.get('/recuperar-senha', (req, res) =>{
 
 router.get("/ativar", (req, res) =>
 {
-  let params = req.query;
-  if(!(params.u && params.chave))
-    render('ativar', res, {erro : 1}); //Link inválido
-  else if(req.session.usuario && req.session.usuario.ativo == true)
-    render('ativar', res, {erro : 2}); // Conta já ativada
-  else 
-  {
-    models.Usuario.findOne({where : {id : params.u}, attributes : ['id', 'ativo', 'chave_ativacao']}).then(function(user){
-      if(!user)
-        render('ativar', res, {erro : 1}); //Link inválido
-      else if(user.ativo == true)
-       render('ativar', res, {erro : 2}); // Conta já ativada
-      else if(user.chave_ativacao != params.chave)
-        render('ativar', res, {erro : 1}); //Link inválido
-      else
-      {
-        user.ativo = true;
-        user.save().then(() =>
-        {
-          if(req.session.usuario)
-            req.session.usuario.ativo = true;
-         render('ativar', res, {erro : 0}); // Sucesso
-        }).catch(() => render('ativar', res, {erro : 3})) //erro ao ativar
-      }
-    });
-  }
+  render('ativar', res)
 });
 
 

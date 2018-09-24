@@ -18,7 +18,7 @@ observer.Observar('userdata-ready',  function()
         },
         success : function()
         {
-          utils.GerarNotificacao("Mensagem enviada para " + uEmail + ".", "success");
+          utils.GerarNotificacao("Mensagem enviada para " + userdata.session.email + ".", "success");
         },
         error : function(mensagem)
         {

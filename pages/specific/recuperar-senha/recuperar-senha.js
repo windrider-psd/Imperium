@@ -19,7 +19,7 @@ $("#esqueci-form").on('submit', function()
     },
     error : function(erro)
     {
-        GerarNotificacao(erro.responseText, "danger");
+        utils.GerarNotificacao(erro.responseText, "danger");
     },
     complete : function()
     {

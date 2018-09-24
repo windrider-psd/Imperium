@@ -51,6 +51,7 @@ observer.Observar('userdata-ready',  function ()
 				var usuarios = resultado.usuarios
 				for (var i = 0; i < usuarios.length; i++)
 				{
+					
 					htmlString += "<tr "
 					if (usuarios[i].id == userdata.session.id)
 					{
@@ -152,7 +153,8 @@ observer.Observar('userdata-ready',  function ()
     $(".paginacao").on('click', '.paginacao-proximo', function(){
         paginaAtual++
         CarregarTipo(paginaAtual, tipoAtual)
-    })
+	})
+	
 
 	$(".btn-pontos").on('click', function ()
 	{
@@ -178,3 +180,5 @@ observer.Observar('userdata-ready',  function ()
 		mensagens.AbrirModalEnviarConvite($(this).data('destinatario'), $(this).data('nome'));
 	});
 })
+
+$("main").addClass('imperium-scrollbar')
