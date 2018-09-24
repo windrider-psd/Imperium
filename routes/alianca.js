@@ -1082,7 +1082,7 @@ router.get('/get-mensagens-topico', (req, res) => {
 
                                     Promise.all(promesas)
                                         .then(() => 
-                                            res.status(200).json({mensagens : mensagens, total : totalMensagens, tamanhoPagina : tamanhoPaginaMensagemTopico})
+                                            res.status(200).json({mensagens : mensagens, total : totalMensagens, tamanhoPagina : tamanhoPaginaMensagemTopico, nome : topico.nome})
                                         )
                                         .catch(err => 
                                             res.status(500).end(err.message)

@@ -2,23 +2,16 @@ var express = require('express');
 var router = express.Router();
 const models = require('./../model/DBModels')
 const MUtils = require('./../services/DBModelsUtils')
-const glob = require('glob')
+const path = require('path')
 require('dotenv/config')
-
 /**
  * 
  * @param {Response} res 
  * @param {Object} params
  */
-function render(view, res, params)
+function render(view, res)
 {
-  glob('./pages/specific/'+view+'/*.pug', (err, pages) => {
-    let pagename = pages[0].split('/')
-    pagename = pagename[pagename.length - 1]
-    paganame = pagename.split('.')[0]
-    res.render(view + '/' + pagename, params)
-  })
-  
+  res.sendFile(path.resolve('public/dist/'+view+'.html')); 
 }
 
 router.get('/', (req, res) => {
