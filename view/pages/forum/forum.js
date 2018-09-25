@@ -106,7 +106,7 @@ observer.Observar('userdata-ready',  function() {
     })
     function setViewAdmin()
     {
-        let htmlString = '<hr><button class = "btn btn-primary" id = "btn-adicionar-tópico">Adicionar Tópico</button>'
+        let htmlString = '<hr><button class = "btn btn-primary imperium-input" id = "btn-adicionar-tópico">Adicionar Tópico</button>'
         $('#conteudo-forum-admin').html(htmlString)
     }
 

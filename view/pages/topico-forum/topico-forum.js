@@ -16,7 +16,7 @@ observer.Observar('userdata-ready', function() {
 
     editor = isLider || (userdata.alianca != null && userdata.alianca.rank != null && userdata.alianca.rank.gerenciar_forum)
     if(editor)
-        $("#conteiner-adicionar-mensagem").css('display', 'initial')
+        $("#conteiner-adicionar-mensagem").css('display', 'block')
     getMensagens(1)
     function getMensagens (pagina)
     {
@@ -35,14 +35,16 @@ observer.Observar('userdata-ready', function() {
                 let htmlString = ''
                 for(let i = 0; i < mensagens.length; i++)
                 {
-                    htmlString += '<div class = "topico-forum-mensagem-container" data-id ="'+mensagens[i].id+'"><h4><b>'+mensagens[i].usuario.nick+'</b></h4>'
-                    htmlString += '<p>'+mensagens[i].conteudo.replace(/(?:\r\n|\r|\n)/g, '<br />')+'</p>'
+                    htmlString += '<div class = "topico-forum-mensagem-container imperium-gradient-background-medium" data-id ="'+mensagens[i].id+'"><h2><b>'+mensagens[i].usuario.nick+'</b></h2>'
+                    htmlString += '<div class = "topico-forum-mensagem-container-conteudo"><p>'+mensagens[i].conteudo.replace(/(?:\r\n|\r|\n)/g, '<br />')+'</p></div>'
                     if(editor || mensagens[i].usuario.id == userdata.session.id)
                     {
-                        htmlString += '<button type = "button" class = "btn btn-primary btn-sm btn-editar-mensagem">Editar Mensagem</button>'
-                        htmlString += '<button type = "button" class = "btn btn-danger btn-sm btn-excluir-mensagem">Excluir Mensagem</button>'
+                        htmlString += '<div class = "topico-forum-mensagem-container-crud">'
+                        htmlString += '<button type = "button" class = "btn btn-primary btn-sm btn-editar-mensagem imperium-input">Editar Mensagem</button>'
+                        htmlString += '<button type = "button" class = "btn btn-danger btn-sm btn-excluir-mensagem imperium-input">Excluir Mensagem</button>'
+                        htmlString += '</div>'
                     }
-                    htmlString += '<hr></div>'
+                    htmlString += '</div>'
                 }
                 $("#mensagens-conteudo").html(htmlString)
 
@@ -146,9 +148,9 @@ observer.Observar('userdata-ready', function() {
 
         let id = container.data('id')
         let conteudo = container.find('p').html()
-
+        let conteudoFormated = conteudo.replace(/<br>/g, '\n')
         $("#form-editar-mensagem-topico-id").val(id)
-        $("#form-editar-mensagem-topico-conteudo").val(conteudo)
+        $("#form-editar-mensagem-topico-conteudo").val(conteudoFormated)
         $("#modal-editar-mensagem-topico").modal('show')
     })
 
