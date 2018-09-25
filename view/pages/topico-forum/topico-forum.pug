@@ -1,0 +1,33 @@
+extends ../../templates/layout
+block titulo
+  | 
+block content     
+    h1.imperium-title 
+    #mensagens-conteudo
+    #paginacao-topico-forum
+    .container-fluid#conteiner-adicionar-mensagem(style = 'display:none').imperium-gradient-background-medium
+      .row
+        .col-md-12
+          h2 Postar Mensagem
+          form(onsubmit='return false')#form-inserir-mensagem-forum
+            .form-group
+              textarea(name='conteudo', placeholder='Digite sua mensagem...', rows='5' style = "resize:vertical", required).form-control.imperium-input
+            button.btn.btn-success(type='submit').imperium-input Postar mensagem
+    #modal-editar-mensagem-topico.modal.fade(role='dialog').imperium-modal
+      .modal-dialog
+        .modal-content
+          .modal-header
+            button.close(type='button', data-dismiss='modal') ×
+            h4.modal-title Editar mensagem
+          .modal-body
+            .container-fluid
+              .row
+                form(onsubmit='return false')#form-editar-mensagem-topico
+                  input(type="hidden", name="id" val ="").imperium-input#form-editar-mensagem-topico-id
+                  textarea(name='conteudo', placeholder='Digite sua mensagem...', rows='5' style = "resize:vertical", required).imperium-input.form-control#form-editar-mensagem-topico-conteudo
+                  br
+                  .row
+                    .col-md-offset-3.col-md-6.text-center
+                      button.btn.btn-primary.btn-block.btn-lg(type='submit').imperium-input Editar mensagem
+
+block posscripts

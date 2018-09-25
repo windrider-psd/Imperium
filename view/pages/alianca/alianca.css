@@ -1,0 +1,56 @@
+.opcoes-container{
+    padding: 0px;
+    color: white;
+    box-shadow: 0px 0px 1px #3661b2;
+    margin-bottom:25px;
+}
+
+.opcoes-container form, p{
+    padding: 10px;
+}
+
+.opcoes-container p
+{
+    text-align: center;
+}
+
+.opcoes-container-title
+{
+    padding:5px 10px;
+}
+
+.opcoes-container-title h2
+{
+    margin: 0px;
+    color: #f07b05;
+    font-family: 'exo 2';
+}
+
+.tab-btn.active a {
+    background-color: #3D6282 !important;
+    cursor: pointer;
+}
+.tab-btn a {
+    color: white !important;
+    font-family: 'Exo 2', sans-serif;
+    border: none !important;
+    border-radius: 0px !important;
+    
+}
+
+#com-alianca .tab-btn:not(.active) a {
+    background-color: #041A23;
+    cursor: pointer;
+}
+
+#com-alianca > div
+{
+    padding:0px;
+    color:white !important;
+}
+
+#tabela-cargos tbody
+{
+    text-align: center;
+}
+

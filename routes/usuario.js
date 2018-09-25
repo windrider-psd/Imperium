@@ -3,16 +3,18 @@ var router = express.Router();
 const database = require('./../model/DBModels')
 const bcrypt = require('bcrypt');
 const sanitizer = require('sanitizer')
-const emailer = require('./../model/Emailer')
-const random = require('./../model/Aleatorio')
+const emailer = require('./../services/Emailer')
+const random = require('./../services/Aleatorio')
+const models = database
 const conexao = database.Con;
 const Usuario = database.Usuario;
 const Esqueci = database.EsqeciSenha;
 const Setor = database.Setor;
 const Planeta = database.Planeta;
-const ranking = require('./../model/Ranking')
+const ranking = require('./../services/Ranking')
+const MUtils = require('./../services/DBModelsUtils')
+
 require('dotenv/config')
-const rankingResultadosPorPagina = Number(process.env.RANKING_MAX_RESULTADOS);
 
 function getMensagemEsqueci(req, u, chave)
 {
@@ -40,7 +42,7 @@ function EnviarEmailAtivacao(req, id, chave, email)
   let mensagem = "<html><head></head><body><p>Você recebeu essa mensagem porque você criou uma conta no jogo Imperium.</p>"
   + "<p>Para ativar sua senha, clique no link abaixo</p>"
   +  "<a href = "+link+">"+link+"</a><br /><p>Caso esteja enfrentando alguma dificuldade, contacte o suporte</p><p>Se esta mensagem não para você, por favor, ignore esta mensagem</p></body></html>";
-  emailer.enviarEmail(email, "Imperium - Ativar Conta", mensagem, (err, info) =>
+  emailer.EnviarEmail(email, "Imperium - Ativar Conta", mensagem, (err, info) =>
   {
     if(err) console.log(err)
     console.log(info);
@@ -73,7 +75,7 @@ router.post('/cadastrar', function(req, res) {
         res.status(400).end("O nick precisa conter pelo menos 4 caracteres");
         return;
       }
-      if(!emailer.validarEmail(params.email))
+      if(!emailer.ValidarEmail(params.email))
       {
         res.status(400).end("O email digitado não é valido");
         return;
@@ -201,7 +203,7 @@ router.post('/criaresqueci', (req, res) =>
     res.status(403).end("Requisição inválida");
   else if(!params.email)
     res.status(400).end("Parâmetros inválidos");
-  else if(!emailer.validarEmail(params.email))
+  else if(!emailer.ValidarEmail(params.email))
     res.status(400).end("Email inválido");
   else
   {
@@ -219,7 +221,7 @@ router.post('/criaresqueci', (req, res) =>
           {
               let mensagem = getMensagemEsqueci(req, valores.id, criado.dataValues.chave);
     
-              emailer.enviarEmail(valores.email, "Imperium - Recuperação de senha", mensagem, (err) =>
+              emailer.EnviarEmail(valores.email, "Imperium - Recuperação de senha", mensagem, (err) =>
               {
                 if(err)
                 {
@@ -243,7 +245,7 @@ router.post('/reenviaresqueci', (req, res) =>
     res.status(403).end("Requisição inválida");
   else if(!params.email)
     res.status(400).end("Parâmetros inválidos");
-  else if(!emailer.validarEmail(params.email))
+  else if(!emailer.ValidarEmail(params.email))
     res.status(400).end("Email inválido");
   else
   {
@@ -256,7 +258,7 @@ router.post('/reenviaresqueci', (req, res) =>
           if(encontrado)
           {
               let mensagem = getMensagemEsqueci(req, user.dataValues.id, encontrado.dataValues.chave);
-              emailer.enviarEmail(user.dataValues.email, "Imperium - Recuperação de senha", mensagem, (err) =>
+              emailer.EnviarEmail(user.dataValues.email, "Imperium - Recuperação de senha", mensagem, (err) =>
               {
                 if(err)
                 {
@@ -368,7 +370,7 @@ router.post('/alterar-email', function(req, res)
       res.status(200).end("Email alterado com sucesso");
       
       let mensagem = getMensagemTrocaEmail()
-      emailer.enviarEmail(params.email.toLowerCase(), "Imperium - Troca de email", mensagem)
+      emailer.EnviarEmail(params.email.toLowerCase(), "Imperium - Troca de email", mensagem)
       req.session.usuario.email == params.email
     }).catch(conexao.ValidationError, (err) =>
     {
@@ -422,7 +424,7 @@ router.post('/alterar-senha', function(req, res)
                 user.senha = hash
                 user.save().then(() =>
                 {
-                  emailer.enviarEmail(req.session.usuario.email, "Imperium - Troca de senha", getMensagemTrocaSenha())
+                  emailer.EnviarEmail(req.session.usuario.email, "Imperium - Troca de senha", getMensagemTrocaSenha())
                   res.status(200).end("Senha alterada com sucesso")
                 }).catch(() => res.status(500).end("Erro ao alterar a senha."))
               }
@@ -475,6 +477,7 @@ router.post('/enviar-ativacao', function(req, res)
   }
 });
 
+const rankingResultadosPorPagina = Number(process.env.RANKING_MAX_RESULTADOS);
 router.get('/getRankings', (req, res) => {
 /**
  * @type {{tipo : string, pagina? : number}}
@@ -491,7 +494,7 @@ router.get('/getRankings', (req, res) => {
       ranking.GetRankings((params.pagina - 1)  * rankingResultadosPorPagina, rankingResultadosPorPagina, params.tipo).then((rankUsuarios) =>
       {
         Usuario.count({}).then(contagem => {
-          let retorno = {usuarios: rankUsuarios, total: contagem}
+          let retorno = {usuarios: rankUsuarios, pagina : params.pagina, total: contagem, resultadosPorPagina : rankingResultadosPorPagina}
           res.status(200).json(retorno)
         });
         
@@ -505,7 +508,7 @@ router.get('/getRankings', (req, res) => {
         ranking.GetRankings((pagina - 1)  * rankingResultadosPorPagina, rankingResultadosPorPagina, params.tipo).then((/***@type {Array.<UsuarioRank>} */rankUsuarios) =>
         {
           Usuario.count({}).then((contagem) => {
-            let retorno = {usuarios: rankUsuarios, total: contagem, pagina : pagina}
+            let retorno = {usuarios: rankUsuarios, total: contagem, pagina : pagina, resultadosPorPagina : rankingResultadosPorPagina}
             res.status(200).json(retorno)
           }); 
         });
@@ -513,5 +516,79 @@ router.get('/getRankings', (req, res) => {
     }  
   }
 });
+
+
+router.get('/get-userdata', (req, res) => {
+  MUtils.GetUserData(req)
+    .then(userdata => {
+      userdata['WebServer'] = {}
+      userdata['WebServer']['ip'] = req.app.locals.enderecoIP
+      userdata['WebServer']['IOPort'] = req.app.locals.ioPort
+      res.status(200).json(userdata)
+    })
+    .catch(err => {
+      res.status(500).end(err.message)
+    })
+})
+
+
+router.post('/validar-ativar-conta', (req, res)=> {
+
+  let params = req.body;
+  if(!(params.u && params.chave))
+    res.status(400).json({erro : 1, conteudo : 'Link inválido'}); //Link inválido
+  else if(req.session.usuario && req.session.usuario.ativo == true)
+    res.status(400).json({erro : 2, conteudo : 'Conta já ativada'}); // Conta já ativada
+  else 
+  {
+    models.Usuario.findOne({where : {id : params.u}, attributes : ['id', 'ativo', 'chave_ativacao']}).then(function(user){
+      if(!user)
+        res.status(400).json({erro : 1, conteudo : 'Link inválido'}); //Link inválido
+      else if(user.ativo == true)
+        res.status(400).json({erro : 2, conteudo : 'Conta já ativada'}); // Conta já ativada
+      else if(user.chave_ativacao != params.chave)
+        res.status(400).json({erro : 1, conteudo : 'Link inválido'}); //Link inválido
+      else
+      {
+        user.ativo = true;
+        user.save().then(() =>
+        {
+          if(req.session.usuario)
+            req.session.usuario.ativo = true;
+          res.status(200).end('Conta ativada com sucesso'); // Sucesso
+        }).catch((err) => res.status(500).json({erro : 3, conteudo : err.message})) //erro ao ativar
+      }
+    });
+  }
+})
+
+
+router.post('/validar-recuperar-senha', (req, res) =>{
+  let uid = req.body.u;
+  let chave = req.body.chave;
+
+  if(!uid || !chave)
+    res.status(400).json({erro : 1, conteudo : 'Link inválido'})
+  else
+  {
+    models.EsqeciSenha.findOne({where : {usuarioID : uid, chave : chave}}).then((encontrado) =>
+    {
+      if(!encontrado)
+        res.status(400).json({erro : 1, conteudo : 'Link inválido'})
+      else
+      {
+        let agora = new Date();
+        let datareq = new Date(encontrado.dataValues.data_hora);
+        let diffMs = (agora - datareq); 
+        let diffHrs = Math.floor((diffMs % 86400000) / 3600000); // horas
+        if(diffHrs > 72)
+          res.status(400).json({erro : 2, conteudo : 'Link expirou'})
+        else
+          res.status(200).end("Link válido")
+      }
+    });
+  }
+});
+
 
 module.exports = router;

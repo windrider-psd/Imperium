@@ -1,1 +1,6 @@
 node_modules/
+
+!public/dist/
+public/dist/*
+!public/dist/images/
+!public/dist/js/

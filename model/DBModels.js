@@ -219,19 +219,13 @@ const Planeta = con.define('Planeta',
         allowNull : false,
         defaultValue : 0,
     },
-    recursoEletronica :
+    recursoComponente :
     {
         type : sequalize.INTEGER,
         allowNull : false,
         defaultValue : 0,
     },
-    recursoUranio :
-    {
-        type : sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0,
-    },
-    recursoCombustivel :
+    recursoTitanio :
     {
         type : sequalize.INTEGER,
         allowNull : false,
@@ -255,19 +249,13 @@ const Planeta = con.define('Planeta',
         allowNull : false,
         defaultValue : 0
     },
-    fabricaEletronica :
+    fabricaComponente :
     {
         type : sequalize.INTEGER,
         allowNull : false,
         defaultValue : 0
     },
-    minaUranio :
-    {
-        type : sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0
-    },
-    sintetizadorCombustivel :
+    minaTitanio :
     {
         type : sequalize.INTEGER,
         allowNull : false,
@@ -292,6 +280,12 @@ const Planeta = con.define('Planeta',
         defaultValue : 0
     },
     armazem : 
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0
+    },
+    fabricaRobos :
     {
         type : sequalize.INTEGER,
         allowNull : false,
@@ -629,12 +623,6 @@ const Alianca_Rank = con.define('alianca_ranks', {
         defaultValue : false,
     },
     exercito: //Visualizar exércitos da aliança
-    {
-        type: sequalize.BOOLEAN,
-        allowNull : false,
-        defaultValue : false
-    },
-    movimento: //Visualizar movimento e localização de frotas e exércitos
     {
         type: sequalize.BOOLEAN,
         allowNull : false,
@@ -979,11 +967,11 @@ module.exports = {
     Alianca_Mensagem_Circular_Visualizada : Alianca_Mensagem_Circular_Visualizada,
     isReady : function(){return ready;}};
 
-con.authenticate().then(function()
+con.authenticate().then(() =>
 {
     console.log("Conexao Criada");
     ready = true;
-}).catch(function(err)
+}).catch((err) =>
 {
     console.log(err.parent);
 });

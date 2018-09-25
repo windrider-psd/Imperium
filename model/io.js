@@ -72,6 +72,7 @@ function CriarSocket(express_app, porta, sessaomiddleware, armazenadorSessao)
     servidor.use(sessaosocket(sessaomiddleware, {autoSave : true}));
     redisStore = armazenadorSessao;
     SetUpServidor();
+    console.log(ip.address())
     return servidor;
 }
 

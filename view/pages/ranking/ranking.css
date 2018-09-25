@@ -1,0 +1,11 @@
+.imperium-table tr.info td
+{
+    background-color: #35126d !important;
+}
+main
+{
+    padding: 0px !important;
+    overflow-x: scroll;
+}
+
+

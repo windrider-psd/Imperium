@@ -1,0 +1,39 @@
+doctype html
+html(lang="pt-br")
+  head
+    title Redefinir Senha
+    meta(charset = "UTF-8")
+    meta(name = "viewport", content = "width=device-width, initial-scale=1")
+    meta(http-equiv = "X-UA-Compatible", content = "IE=edge")
+    meta(name = "author" content = "Christian Lemos")
+    link(rel = "icon", href = "/images/logo_pre.png")
+  body
+    section#esqueci-main
+      .container.imperium-modal
+        .row.modal-content
+          .col-md-12
+            div#esqueci-titulo 
+              h1 Redefinir Senha
+            .div-ativando
+              h2.text-center Validando link...
+            .div-sucesso.hidden
+              form#esqueci-form(onsubmit='return false')
+                input(type='hidden', name='chave', value='' id = "esqueci-form-chave")
+                input(type='hidden', name='id', value='', id = "esqueci-form-id")
+                .form-group
+                  label(for='novasenha').imperium-label Sua nova senha:
+                  input#novasenha.form-control.form-senha(type='password', name='senha', placeholder='********', required='').imperium-input
+                .form-group
+                  label(for='confsenha').imperium-label Confirmação da nova senha:
+                  input#confsenha.form-control(type='password', name='confsenha', placeholder='********', required='').imperium-input
+                span.form-aviso
+                .row
+                  .col-md-3
+                  .col-md-6.text-center
+                    button#loginFormButton.btn.btn-success.btn-lg.btn-block(type='submit').imperium-input Redefinir senha
+            .div-erro.hidden
+              img(src="/images/warning.png", alt="Erro").img-responsive
+              p.texto-erro 
+            
+      
+      

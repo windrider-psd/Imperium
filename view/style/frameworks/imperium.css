@@ -1,0 +1,637 @@
+@import url('https://fonts.googleapis.com/css?family=Audiowide|Exo+2|Raleway|Roboto:900');
+
+h1{
+  font-size: 31px;
+  line-height: 40px;
+  font-weight: 600;
+  }
+h2{
+  font-size: 21px;
+  line-height: 32px;
+  font-weight: 400;
+}
+
+a {
+  color: #00B7FF;
+}
+
+.imperium-input
+{
+  border-radius: 0px;
+  border-top-left-radius: 15px;
+  border-bottom-right-radius: 5px;
+}
+input.imperium-input
+{
+  color:black;
+}
+
+.imperium-label
+{
+  text-shadow: -1px 2px #00000091;;
+  color:white;
+}
+
+.imperium-color-light
+{
+  color:#00B7FF;
+}
+.imperium-color-heavy
+{
+  color : #3d6282
+}
+
+.imperium-color-warning
+{
+  color:#f07b05;
+}
+
+.imperium-link
+{
+  cursor:pointer;
+}
+
+.imperium-link:hover
+{
+    text-decoration: underline;
+}
+
+.imperium-solid-background-superlight
+{
+  background-color: #3d6282;
+}
+
+.imperium-solid-background-light
+{
+  background-color: #0d465d;
+}
+.imperium-solid-background-medium
+{
+  background-color: #08345a;
+}
+.imperium-solid-background-heavy
+{
+  background-color: #041a23;
+}
+
+.imperium-gradient-background-light
+{
+  background: #3d6282; /* Old browsers */
+  background: -moz-linear-gradient(top, #3d6282 0%, #0d465d 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(top, #3d6282 0%,#0d465d 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom, #3d6282 0%,#0d465d 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3d6282', endColorstr='#0d465d',GradientType=0 ); /* IE6-9 */
+}
+
+.imperium-gradient-background-medium
+{
+  background: #08345a; /* Old browsers */
+  background: -moz-linear-gradient(top, #08345a 0%, #07222d 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(top, #08345a 0%,#07222d 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom, #08345a 0%,#07222d 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#08345a', endColorstr='#07222d',GradientType=0 );
+}
+
+.imperium-gradient-background-heavy
+{
+  background: #3d6282; /* Old browsers */
+  background: -moz-linear-gradient(top, #3d6282 0%, #041a23 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(top, #3d6282 0%,#041a23 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom, #3d6282 0%,#041a23 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3d6282', endColorstr='#041a23',GradientType=0 ); /* IE6-9 */
+}
+
+.imperium-gradient-background-heavy2
+{
+  background: rgb(40,45,58); /* Old browsers */
+  background: -moz-linear-gradient(top, rgba(40,45,58,1) 0%, rgba(0,13,43,1) 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(top, rgba(40,45,58,1) 0%,rgba(0,13,43,1) 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom, rgba(40,45,58,1) 0%,rgba(0,13,43,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#282d3a', endColorstr='#000d2b',GradientType=0 ); /* IE6-9 */
+}
+
+.imperium-gradient-background-medium2
+{
+  background: rgb(45,62,73); /* Old browsers */
+background: -moz-linear-gradient(top, rgba(45,62,73,1) 0%, rgba(28,40,45,1) 100%); /* FF3.6-15 */
+background: -webkit-linear-gradient(top, rgba(45,62,73,1) 0%,rgba(28,40,45,1) 100%); /* Chrome10-25,Safari5.1-6 */
+background: linear-gradient(to bottom, rgba(45,62,73,1) 0%,rgba(28,40,45,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2d3e49', endColorstr='#1c282d',GradientType=0 ); /* IE6-9 */
+}
+
+.imperium-modal .modal-content
+{
+  font-family: 'Exo 2', sans-serif;
+  color:white;
+  background: #3d6282; /* Old browsers */
+  background: -moz-linear-gradient(top, #3d6282 0%, #0d465d 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(top, #3d6282 0%,#0d465d 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom, #3d6282 0%,#0d465d 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3d6282', endColorstr='#0d465d',GradientType=0 ); /* IE6-9 */
+}
+
+.imperium-modal .modal-body::-webkit-scrollbar-track
+{
+  box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	background-color: transparent
+}
+
+.imperium-modal .modal-body::-webkit-scrollbar
+{
+  width: 6px;
+  height: 8px;
+	background-color: transparent
+}
+
+.imperium-modal .modal-body::-webkit-scrollbar-thumb
+{
+	background-color: #f07b05;
+}
+
+.imperium-resource-tooltip
+{
+  visibility: hidden;
+  width: max-content;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 20;
+  left: -100%;
+  border: 1px solid #415866;
+  background: rgb(45,62,73); /* Old browsers */
+  background: -moz-linear-gradient(top, rgba(45,62,73,1) 0%, rgba(28,40,45,1) 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(top, rgba(45,62,73,1) 0%,rgba(28,40,45,1) 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom, rgba(45,62,73,1) 0%,rgba(28,40,45,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2d3e49', endColorstr='#1c282d',GradientType=0 ); /* IE6-9 */
+  padding: 5px;
+}
+
+.imperium-resource:hover + .imperium-resource-tooltip
+{
+  visibility: visible;
+}
+
+
+.imperium-resource-tooltip-title
+{
+  border-bottom: 1px solid #758c9b;
+  color: orange;
+  font-family: 'Raleway';
+}
+
+.imperium-resource-tooltip-desc
+{
+  text-align: left;
+  color: #6F9FC8;
+  font-family: 'Exo 2';
+}
+
+
+
+.imperium-modal .close
+{
+  color:red;
+  font-family: sans-serif
+}
+
+.imperium-modal .modal-title
+{
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.bootbox .modal-content
+{
+    font-family: 'Exo 2', sans-serif;
+    color:white;
+    background: #3d6282; /* Old browsers */
+    background: -moz-linear-gradient(top, #3d6282 0%, #0d465d 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top, #3d6282 0%,#0d465d 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom, #3d6282 0%,#0d465d 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3d6282', endColorstr='#0d465d',GradientType=0 ); /* IE6-9 */
+}
+
+.bootbox .close
+{
+  color:red;
+  font-family: sans-serif
+}
+
+.bootbox .modal-title
+{
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.imperium-body
+{
+  background-image: url('/images/space7.jpg');
+  background-position-y: -20px;
+}
+
+
+.imperium-side-menu
+{
+  position: fixed;
+  width: 250px;
+  height: 80%;
+  overflow-y: scroll;
+  background-color: #262626;
+  color: white;
+  padding-top:0px;
+  padding-bottom: 0px;
+  margin-left:15px;
+  transition: all .5s;
+  z-index: 20;
+  background: rgb(18,48,91); /* Old browsers */
+  /*background: -moz-linear-gradient(top, rgba(18,48,91,1) 1%, rgba(0,13,43,1) 100%);
+  background: -webkit-linear-gradient(top, rgba(18,48,91,1) 1%,rgba(0,13,43,1) 100%); 
+  background: linear-gradient(to bottom, rgba(18,48,91,1) 1%,rgba(0,13,43,1) 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#12305b', endColorstr='#000d2b',GradientType=0 ); */
+  box-shadow: 1px 4px 17px #7231b8;
+}
+.imperium-background-side-menu
+{
+  background-size: cover;
+  height: 50px;
+  padding-top:12px;
+}
+
+.imperium-resource-time
+{
+  background-image: url('/images/time.png')
+}
+
+#imperium-background-side-menu-planeta
+{
+  background-image: url('/images/space1.png');
+}
+
+#imperium-background-side-menu-jogador
+{
+  background-image: url('/images/space2.jpeg');
+}
+
+#imperium-background-side-menu-alianca
+{
+  background-image: url('/images/space4.jpg');
+}
+
+#imperium-background-side-menu-outros
+{
+  background-image: url('/images/space5.jpg');
+}
+
+
+.imperium-background-side-menu h3
+{
+  font-family: 'Raleway', sans-serif;
+  color:#f07b05;
+  text-align: center;
+  margin:0px;
+  text-shadow: 0px 2px 2px black;
+}
+
+.ativo
+{
+  background-color:#080808;
+}
+.imperium-side-menu img
+{
+  width: 22px;
+}
+
+.imperium-side-menu ul
+{
+  list-style: none;
+  padding-left:0px;
+  margin-bottom: 0px;
+}
+
+.imperium-side-menu li 
+{
+  padding: 12px 0px;
+  padding-left: 15px;
+  cursor: pointer;
+  transition: background-color .15s;
+  position:relative;
+}
+
+.imperium-fake-line-after::after
+{
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  content: "";
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: #374a85;
+  box-shadow: 0px 0px 10px 1px #374a85;
+  z-index: 100;
+}
+
+.imperium-fake-line-before::before
+{
+  position: absolute;
+  top: 0;
+  left: 0;
+  content: "";
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: #374a85;
+  box-shadow: 0px 0px 10px 1px #374a85;
+  z-index: 100;
+}
+
+
+
+.imperium-side-menu span
+{
+  position: relative;
+  top:2px;
+  font-size: 18px;
+  left: 15px;
+  color: white !important;
+}
+.imperium-side-menu li:hover:not(.ativo)
+{
+  background-color:#1f1f1f;
+}
+#abrir_menu_div
+{
+  display: none;
+  cursor:pointer;
+}
+
+#abrir_menu_div img
+{
+  width: 20px;
+  margin: auto;
+  display: block;
+}
+
+body
+{
+  cursor : url('/images/cursor1.png'), auto !important;
+}
+
+main
+{
+  margin-left: auto;
+  width: calc(100% - 275px);
+  margin-top: 100px;
+  z-index: 19;
+  padding:25px 65px;
+}
+
+.imperium-resource
+{
+  border:2px solid black;
+  box-shadow: 2px 2px 2px black;
+  background-size:cover;
+  height: 50px;
+  border-radius: 10px
+}
+
+.imperium-resource-iron
+{
+  background-image:url('/images/metal.png')
+}
+
+.imperium-resource-cristal
+{
+  background-image:url('/images/cristal.png')
+}
+.imperium-resource-titanium
+{
+  background-image:url('/images/titanium.jpg')
+}
+
+.imperium-resource-component
+{
+  background-image:url('/images/component.jpg')
+}
+
+.imperium-resource-food
+{
+  background-image:url('/images/food.jpg')
+}
+
+.imperium-resource-energy
+{
+  background-image:url('/images/energy.png')
+}
+.imperium-resource-list
+{
+  list-style: none;
+  color: white;
+  text-align: center;
+  display: block;
+}
+
+.imperium-resource-list > div
+{
+  width: 50px;
+  margin: 10px 20px;
+  float: left;
+  position: relative;
+}
+
+.imperium-top-nav
+{
+  position: fixed;
+  top:0px;
+  left:0px;
+  width: 100%;
+  z-index:1;
+}
+
+.imperium-title
+{
+  color: #f07b05;
+  font-family: 'Raleway';
+  font-weight: bold;
+  margin: 20px 5px;
+}
+
+.imperium-table > tbody > tr
+{
+  background-color: #253a4c;
+}
+
+.imperium-table > tbody > tr:nth-of-type(odd)
+{
+  background-color: #3d6282;
+}
+.imperium-table
+{
+  color:white;
+  font-family: 'exo 2';
+}
+.imperium-table.imperium-table-background
+{
+  background: #3d6282; /* Old browsers */
+  background: -moz-linear-gradient(top, #3d6282 0%, #041a23 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(top, #3d6282 0%,#041a23 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom, #3d6282 0%,#041a23 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3d6282', endColorstr='#041a23',GradientType=0 ); /* IE6-9 */
+}
+
+.imperium-table > tbody > tr > td
+{
+  border-top: 1px solid #5f4381;
+}
+
+.imperium-table > thead > tr > th
+{
+  border-bottom: 2px solid #395fc9;
+  font-weight: normal;
+}
+
+.text-success {
+  color: #49e692 !important;
+}
+
+
+.imperium-nav-tabs .tab-btn.active a {
+  background-color: #3D6282 !important;
+  cursor: pointer;
+  cursor : url('/images/cursor1.png'), auto !important;
+}
+.imperium-nav-tabs .tab-btn a {
+  color: white !important;
+  font-family: 'Exo 2', sans-serif;
+  border: none !important;
+  border-radius: 0px !important;
+  
+}
+
+.imperium-nav-tabs .tab-btn:not(.active) a {
+  background-color: #041A23;
+  cursor: pointer;
+}
+
+.c-pointer
+{
+  cursor: pointer;
+}
+
+.imperium-scrollbar::-webkit-scrollbar-track
+{
+  box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	background-color: transparent
+}
+
+.imperium-scrollbar::-webkit-scrollbar
+{
+  width: 6px;
+  height: 8px;
+	background-color: transparent
+}
+
+textarea.imperium-input
+{
+  resize: vertical
+}
+
+textarea.imperium-input::-webkit-scrollbar-thumb
+{
+	background-color: #f07b05;
+}
+
+textarea.imperium-input::-webkit-scrollbar-track
+{
+  box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	background-color: transparent
+}
+
+textarea.imperium-input::-webkit-scrollbar
+{
+  width: 6px;
+  height: 8px;
+	background-color: transparent
+}
+
+textarea.imperium-input::-webkit-scrollbar-thumb
+{
+	background-color: #f07b05;
+}
+
+.tab-btn.active a
+{
+  cursor : url('/images/cursor1.png'), auto !important;
+}
+
+@media screen and (max-width:892px)
+{
+  .imperium-side-menu li
+  {
+      display:flow-root;
+      border-color:transparent;
+      padding-left: 7px;
+      padding-bottom: 18px;
+  }
+  .imperium-side-menu li:hover:not(.ativo)
+  {
+    background-color:#bd4148;
+    border-color:transparent;
+  }
+  .imperium-side-menu ul img 
+  {
+    width: 20px;
+    position: relative;
+    top: 6px;
+  }
+  .imperium-side-menu
+  {
+      width:35px;
+      padding-top: 0px;
+      height: 100%;
+      margin-left:0px;
+      top:0px;
+      overflow: scroll;
+  }
+  .imperium-background-side-menu
+  {
+    display:none;
+  }
+  .imperium-side-menu ul span
+  {
+    position: absolute;
+    top: unset;
+    left: 40px;
+  }
+  main
+  {
+      width:calc(100% - 35px);
+      left:35px;
+      padding:0px;
+      padding-top: 100px;
+  }
+  #abrir_menu_div
+  {
+    display:block;
+    padding:15px 0px;
+  }
+  .ativo
+  {
+      background-color:#b93232;
+  }
+  .imperium-top-nav .imperium-resource
+  {
+    height: 35px;
+  }
+   
+  .imperium-top-nav .imperium-resource-list > div
+  {
+    width: 35px;
+  }
+}
+

@@ -1,8 +1,8 @@
 var express = require('express');
 var router = express.Router();
 const models = require('./../model/DBModels')
-const GR = require('./../model/GerenciadorRecursos')
-const croner = require('./../model/Croner');
+const GR = require('./../services/shared/GerenciadorRecursos')
+const croner = require('./../services/Croner');
 const io = require('./../model/io')
 
 router.post('/melhorar', function(req, res)
@@ -57,7 +57,7 @@ router.post('/melhorar', function(req, res)
                                 res.status(400).end("Você não tem recursos necessários");
                             else
                             {
-                                let tempo = GR.GetTempoConstrucao(custo.ferro, custo.cristal, custo.uranio)
+                                let tempo = GR.GetTempoConstrucao(custo.ferro, custo.cristal, custo.componentes, custo.titanio, planeta.fabricaRobos)
                                 croner.AdicionarConstrucao(planeta.id, GR.GetEdificioID(coluna), tempo, (err, construcao) =>
                                 {
                                     if(err)
