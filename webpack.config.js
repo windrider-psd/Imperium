@@ -71,6 +71,7 @@ for (let i = 0; i < pages.length; i++) {
 								},
 								{
 									loader: 'css-loader',
+									options: { importLoaders: 1 }
 								},
 								{
 									loader: 'postcss-loader'
@@ -125,6 +126,17 @@ masterExportst.push({
 		path: __dirname + '/public/dist',
 		filename: 'bundle.general.userdata.js',
 		publicPath: './'
+	},
+	module: {
+		rules: [
+			{
+				test: /\.js/,
+				loader: 'babel-loader',
+				query: {
+					presets: ['es2015']
+				}
+			},
+		]
 	},
 	plugins: [
 		new webpack.optimize.OccurrenceOrderPlugin(),

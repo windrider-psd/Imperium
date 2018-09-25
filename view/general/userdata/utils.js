@@ -147,7 +147,7 @@ function GetSetorInfo(){
     if(typeof(userdata) === 'undefined')
         return null
     let info = {};
-    var query = window.location.search.substring(1);
+    let query = window.location.search.substring(1);
     let planetaid = this.ParseGET(query).planetaid
     if(typeof(planetaid) === 'undefined')
     {
@@ -155,7 +155,7 @@ function GetSetorInfo(){
         {
             if(userdata.setores[0].planetas[i].colonizado == true)
             {
-                setor = userdata.setores[0].setor;
+                let setor = userdata.setores[0].setor;
 
                 info.planeta = userdata.setores[0].planetas[i];
                 info.setor = userdata.setores[0].setor;

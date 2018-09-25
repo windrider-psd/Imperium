@@ -13,7 +13,7 @@ observer.Observar('userdata-ready',  function (){
     ativo.addClass('ativo');
     $(".link-planeta").each(function()
     {
-        _url = $(this).attr('href');
+        let _url = $(this).attr('href');
         _url += (_url.split('?')[1] ? '&':'?') + 'planetaid=' + planeta.id;
         $(this).attr('href', _url)
     })

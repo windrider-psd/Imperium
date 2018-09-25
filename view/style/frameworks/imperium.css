@@ -274,6 +274,13 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2d3e49', end
 {
   background-image: url('/images/space2.jpeg');
 }
+#imperium-background-side-menu-mapa
+{
+  background-image: url('/images/space4.jpg');
+  background-position-x: -60px;
+  background-position-y: 50px;
+}
+  
 
 #imperium-background-side-menu-alianca
 {
@@ -535,6 +542,11 @@ main
 	background-color: transparent
 }
 
+.imperium-scrollbar::-webkit-scrollbar-thumb
+{
+	background-color: #f07b05;
+}
+
 textarea.imperium-input
 {
   resize: vertical
@@ -559,10 +571,6 @@ textarea.imperium-input::-webkit-scrollbar
 	background-color: transparent
 }
 
-textarea.imperium-input::-webkit-scrollbar-thumb
-{
-	background-color: #f07b05;
-}
 
 .tab-btn.active a
 {
@@ -596,7 +604,7 @@ textarea.imperium-input::-webkit-scrollbar-thumb
       height: 100%;
       margin-left:0px;
       top:0px;
-      overflow: scroll;
+      overflow-x: hidden;
   }
   .imperium-background-side-menu
   {
