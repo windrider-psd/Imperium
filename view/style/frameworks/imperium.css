@@ -375,6 +375,11 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2d3e49', end
   display: block;
 }
 
+body
+{
+  cursor : url('/images/cursor1.png'), auto !important;
+}
+
 main
 {
   margin-left: auto;
@@ -496,6 +501,7 @@ main
 .imperium-nav-tabs .tab-btn.active a {
   background-color: #3D6282 !important;
   cursor: pointer;
+  cursor : url('/images/cursor1.png'), auto !important;
 }
 .imperium-nav-tabs .tab-btn a {
   color: white !important;
@@ -532,6 +538,11 @@ main
 .imperium-scrollbar::-webkit-scrollbar-thumb
 {
 	background-color: #f07b05;
+}
+
+.tab-btn.active a
+{
+  cursor : url('/images/cursor1.png'), auto !important;
 }
 
 @media screen and (max-width:892px)
