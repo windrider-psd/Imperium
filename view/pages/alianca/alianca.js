@@ -397,7 +397,7 @@ observer.Observar('userdata-ready',  function (){
     
                     if(typeof(resultado[i].online) === 'undefined')
                         onlineString = "Desconhecido"
-                    else if(resultado[i].online)
+                    else if(resultado[i].online || resultado[i].usuario.id == userdata.session.id)
                         onlineString = "<span class = 'text-success'>Online</span>"
                     else
                         onlineString = "<span class = 'text-danger'><b>Offline</b></span>"

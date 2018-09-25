@@ -14,7 +14,6 @@ for (let i = 0; i < generic_entry.length; i++) {
 	general_entry.push(generic_entry[i])
 }
 
-//console.log(pagesEntry)
 let pages = glob.sync('./view/pages/*/')
 let masterExportst = [];
 debugger
