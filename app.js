@@ -15,6 +15,8 @@ var DDDoS = require('dddos')
 var webpack = require('webpack');
 var webpackConfig = require('./webpack.config');
 var compiler = webpack(webpackConfig);
+require('dotenv')
+
 module.exports = function CriarApp(sessao)
 {
   var app = express()
@@ -63,11 +65,18 @@ module.exports = function CriarApp(sessao)
     res.json(err)
   });
   app.locals.enderecoIP = require('ip').address()
+  console.log(process.env.mode)
+  if(process.env.mode == 'development')
+  {
+    app.use(require("webpack-dev-middleware")(compiler, {
+      publicPath: __dirname + '/dist/', writeToDisk : true
+    }));
+  
+    app.use(require("webpack-hot-middleware")(compiler));
+  }
+  
 
-  app.use(require("webpack-dev-middleware")(compiler, {
-    publicPath: __dirname + '/dist/', writeToDisk : true
-  }));
-  app.use(require("webpack-hot-middleware")(compiler));
+  
 
   return app
 }
