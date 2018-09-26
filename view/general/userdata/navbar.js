@@ -64,10 +64,10 @@ observer.Observar('userdata-ready',  function (){
                 @type {Array.<{aliancaID : number, aliancaNome : string, aliancaTag : string, mensagem : string}>}
                 */
                 convites
-                htmlString = ""
+                let htmlString = ""
                 for(var i = 0; i <  convites.length; i++)
                 {
-                    var mensagemString = convites[i].mensagem.replace(/\n\s*\n/g, '\n').replace(/\n/g, '<br />');
+                    let  mensagemString = convites[i].mensagem.replace(/\n\s*\n/g, '\n').replace(/\n/g, '<br />');
                     htmlString += '<div class = "table-responsive"><table class = "table table-striped"><tbody>'
                         + '<tr><th>Aliança: </th><td>'+convites[i].aliancaNome+'</td></tr>'
                        // + '<tr><th colspan = "2">Mensagem: </th></tr>'

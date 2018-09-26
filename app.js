@@ -22,7 +22,7 @@ module.exports = function CriarApp(sessao)
   browserify.settings.insertGlobals = true
 
   // view engine setup
-  app.set('views', path.join(__dirname, 'public/dist'))
+  app.set('views', path.join(__dirname, 'dist'))
   app.set('view engine', 'pug')
   app.use(helmet())
   app.use(new DDDoS({
@@ -33,7 +33,7 @@ module.exports = function CriarApp(sessao)
   app.use(express.json())
   app.use(express.urlencoded({ extended: false }))
   app.use(cookieParser())
-  app.use(express.static(path.join(__dirname, 'public/dist')))
+  app.use(express.static(path.join(__dirname, 'dist')))
   app.use(bodyParser.json())
   app.use(bodyParser.urlencoded({ extended: true }))
   
@@ -65,7 +65,7 @@ module.exports = function CriarApp(sessao)
   app.locals.enderecoIP = require('ip').address()
 
   app.use(require("webpack-dev-middleware")(compiler, {
-    publicPath: __dirname + '/public/dist/', writeToDisk : true
+    publicPath: __dirname + '/dist/', writeToDisk : true
   }));
   app.use(require("webpack-hot-middleware")(compiler));
 

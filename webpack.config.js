@@ -51,7 +51,7 @@ for (let i = 0; i < pages.length; i++) {
 				mode: 'development',
 				entry: orderEntry,
 				output: {
-					path: __dirname + '/public/dist',
+					path: __dirname + '/dist',
 					filename: dirname + '.js',
 					publicPath: './'
 				},
@@ -106,7 +106,8 @@ for (let i = 0; i < pages.length; i++) {
 
 					new HtmlWebpackPlugin({
 						template: view,
-						filename: dirname + ".html"
+						filename: dirname + ".html",
+						inject : 'head'
 					}),
 				]
 			}
@@ -123,7 +124,7 @@ masterExportst.push({
 	mode: 'development',
 	entry: userdata_entry,
 	output: {
-		path: __dirname + '/public/dist',
+		path: __dirname + '/dist',
 		filename: 'bundle.general.userdata.js',
 		publicPath: './'
 	},

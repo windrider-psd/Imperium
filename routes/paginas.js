@@ -11,7 +11,7 @@ require('dotenv/config')
  */
 function render(view, res)
 {
-  res.sendFile(path.resolve('public/dist/'+view+'.html')); 
+  res.sendFile(path.resolve('dist/'+view+'.html')); 
 }
 
 router.get('/', (req, res) => {

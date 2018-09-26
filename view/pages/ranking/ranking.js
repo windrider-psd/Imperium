@@ -180,5 +180,6 @@ observer.Observar('userdata-ready',  function ()
 		mensagens.AbrirModalEnviarConvite($(this).data('destinatario'), $(this).data('nome'));
 	});
 })
-
-$("main").addClass('imperium-scrollbar')
+$(document).ready(function(){
+	$("main").addClass('imperium-scrollbar')
+})
