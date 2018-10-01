@@ -159,8 +159,9 @@ class DBBuilder {
                         )
                 })
                 models.MensagemPrivada.sync({force : force})
+                models.MensagemSistema.sync({force : force})
                 models.EsqeciSenha.sync({force : force})
-                
+
                 models.Admin.sync({force : force}).then(() =>
                 {
                     bcrypt.hash(process.env.GAME_DEFAULT_ADMIN_PASSWORD, 10, (err, hash) =>
@@ -174,11 +175,25 @@ class DBBuilder {
                             }
                             models.Setor.sync({force: force}).then(() =>
                             {
+                                
+                                models.Conquista.sync({force : force}).then(() => {
+
+                                })
+                                
                                 models.Planeta.sync({force : force}).then(() =>
                                 {
+                                    models.Operacao_Militar.sync({force : force}).then(() => {
+                                        models.RelatorioEspionagem.sync({force : force}).then(() => {
+                                            models.Frota.sync({force : force})
+                                        models.RecursosPlanetarios.sync({force : force})
+                                        models.Pesquisas.sync({force : force})
+                                        models.Edificios.sync({force : force})
+                                        })
+                                        
+                                    })
+                                    
                                     models.Asteroide.sync({force : force}).then(() =>
                                     {
-
                                         models.Construcao.sync({force : force}).then(() =>
                                         {
                                             if(callback)

@@ -111,6 +111,12 @@ const Usuario = con.define('Usuario', {
         type: sequalize.STRING,
         allowNull : false,
     },
+    creditos :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0,
+    },
     pontosPesquisa :
     {
         type: sequalize.DOUBLE,
@@ -128,7 +134,19 @@ const Usuario = con.define('Usuario', {
         type: sequalize.DOUBLE,
         allowNull : false,
         defaultValue : 0
-    } 
+    },
+    pontosHonra:
+    {
+        type: sequalize.DOUBLE,
+        allowNull : false,
+        defaultValue : 0
+    },
+    governo:
+    {
+        type: sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0
+    },
 });
 
 const Admin = con.define("admin", {
@@ -206,90 +224,6 @@ const Planeta = con.define('Planeta',
         type:sequalize.BOOLEAN,
         allowNull : false,
         defaultValue : false
-    },
-    recursoFerro :
-    {
-        type : sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0,
-    },
-    recursoCristal :
-    {
-        type : sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0,
-    },
-    recursoComponente :
-    {
-        type : sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0,
-    },
-    recursoTitanio :
-    {
-        type : sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0,
-    },
-    recursoComida :
-    {
-        type : sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0,
-    },
-    minaFerro :
-    {
-        type :  sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0
-    },
-    minaCristal :
-    {
-        type : sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0
-    },
-    fabricaComponente :
-    {
-        type : sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0
-    },
-    minaTitanio :
-    {
-        type : sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0
-    },
-    fazenda :
-    {
-        type : sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0
-    },
-    plantaSolar :
-    {
-        type : sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0
-    },
-    reatorFusao : 
-    {
-        type : sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0
-    },
-    armazem : 
-    {
-        type : sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0
-    },
-    fabricaRobos :
-    {
-        type : sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0
     }
     
 }, {timestamps : false})
@@ -342,7 +276,7 @@ const Setor = con.define('Setor',
     {
         type: sequalize.INTEGER,
         allowNull : true,
-    }
+    },
 }, {timestamps : false});
 
 const Asteroide = con.define("Asteroide", {
@@ -885,6 +819,12 @@ const Alianca_Mensagem_Circular = con.define("mensagem-circular",{
 }, {timestamps : false});
 
 const Alianca_Mensagem_Circular_Visualizada = con.define("mensagem-circular-visualizada", {
+    id:
+    {
+        type: sequalize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
     usuarioID:
     {
         type: sequalize.INTEGER,
@@ -895,7 +835,6 @@ const Alianca_Mensagem_Circular_Visualizada = con.define("mensagem-circular-visu
             key : 'id',
         },
         onDelete : "CASCADE",
-        primaryKey : true
     },
     mensagemID : {
         type: sequalize.INTEGER,
@@ -905,7 +844,6 @@ const Alianca_Mensagem_Circular_Visualizada = con.define("mensagem-circular-visu
             model : Alianca_Mensagem_Circular,
             key : 'id',
         },
-        primaryKey : true,
         onDelete : "CASCADE",
     },
     visualizada :{
@@ -920,6 +858,472 @@ const Alianca_Mensagem_Circular_Visualizada = con.define("mensagem-circular-visu
     }
 }, {timestamps : false})
 
+
+const Operacao_Militar = con.define('operacao_militar', {
+    id:
+    {
+        type: sequalize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    usuarioID:
+    {
+        type: sequalize.INTEGER,
+        allowNull : false,
+        references :
+        {
+            model : Usuario,
+            key : 'id',
+        },
+        onDelete : "CASCADE",
+        unique : true,
+        primaryKey : true,
+    },
+    codigo :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+    },
+    origem :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        references :
+        {
+            model : Setor,
+            key : 'id',
+        },
+        onDelete : "CASCADE"
+    },
+    destino :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        references :
+        {
+            model : Setor,
+            key : 'id',
+        },
+        onDelete : "CASCADE"
+    },
+    atual: {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        references :
+        {
+            model : Setor,
+            key : 'id',
+        },
+        onDelete : "CASCADE"
+    },
+    
+}, {timestamps : false})
+
+
+const Conquista = con.define('conquista', {
+    usuarioID:
+    {
+        type: sequalize.INTEGER,
+        allowNull : false,
+        references :
+        {
+            model : Usuario,
+            key : 'id',
+        },
+        onDelete : "CASCADE",
+        primaryKey : true,
+    },
+    setorID :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        references :
+        {
+            model : Setor,
+            key : 'id',
+        },
+        onDelete : "CASCADE",
+        primaryKey : true
+    },
+    inicio :
+    {
+        type : sequalize.DATE,
+        allowNull : false,
+        defaultValue : sequalize.NOW
+    },
+    duracao : 
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+    }
+
+}, {timestamps : false})
+
+const RelatorioEspionagem = con.define('relatorio_espionagem', {
+    id:
+    {
+        type: sequalize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    usuarioID:
+    {
+        type: sequalize.INTEGER,
+        allowNull : false,
+        references :
+        {
+            model : Usuario,
+            key : 'id',
+        },
+        onDelete : "CASCADE",
+    },
+    criacao :
+    {
+        type : sequalize.DATE,
+        defaultValue : sequalize.NOW,
+        allowNull : false
+    } 
+})
+
+const Frota = con.define('frota', {
+    usuarioID:
+    {
+        type: sequalize.INTEGER,
+        allowNull : true,
+        references :
+        {
+            model : Usuario,
+            key : 'id',
+        },
+        onDelete : "CASCADE",
+    },
+    planetaID :
+    {
+        type : sequalize.INTEGER,
+        allowNull : true,
+        references :
+        {
+            model : Planeta,
+            key : 'id',
+        },
+        onDelete : "CASCADE"
+    },
+    operacaoID : 
+    {
+        type : sequalize.INTEGER,
+        allowNull : true,
+        references :
+        {
+            model : Operacao_Militar,
+            key : 'id',
+        },
+        onDelete : "CASCADE"
+    },
+    relatorioID : {
+        type : sequalize.INTEGER,
+        allowNull : true,
+        references :
+        {
+            model : RelatorioEspionagem,
+            key : 'id',
+        },
+        onDelete : "CASCADE"
+    },
+    caca :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0
+    },
+    fragata :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0
+    },
+    encouracado :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0
+    },
+    sonda :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0
+    },
+    cargueiro :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0
+    }
+}, {timestamps : false})
+
+
+const RecursosPlanetarios = con.define('recursos_planetarios', {
+    planetaID :
+    {
+        type : sequalize.INTEGER,
+        allowNull : true,
+        references :
+        {
+            model : Planeta,
+            key : 'id',
+        },
+        onDelete : "CASCADE"
+    },
+    operacaoID : 
+    {
+        type : sequalize.INTEGER,
+        allowNull : true,
+        references :
+        {
+            model : Operacao_Militar,
+            key : 'id',
+        },
+        onDelete : "CASCADE"
+    },
+    relatorioID : {
+        type : sequalize.INTEGER,
+        allowNull : true,
+        references :
+        {
+            model : RelatorioEspionagem,
+            key : 'id',
+        },
+        onDelete : "CASCADE"
+    },
+    civil :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0,
+    },
+    recursoFerro :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0,
+    },
+    recursoCristal :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0,
+    },
+    recursoComponente :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0,
+    },
+    recursoTitanio :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0,
+    },
+    recursoComida :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0,
+    },
+}, {timestamps : false})
+
+const pesquisas = con.define('pesquisas', {
+    usuarioID :
+    {
+        type : sequalize.INTEGER,
+        allowNull : true,
+        references :
+        {
+            model : Usuario,
+            key : 'id',
+        },
+        onDelete : "CASCADE"
+    },
+    relatorioID : {
+        type : sequalize.INTEGER,
+        allowNull : true,
+        references :
+        {
+            model : RelatorioEspionagem,
+            key : 'id',
+        },
+        onDelete : "CASCADE"
+    },
+    tecnologiaEspionagem :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0,
+    },
+    tecnologiaLogistica :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0,
+    },
+    tecnologiaArmas :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0,
+    },
+    tecnologiaEscudo :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0,
+    },
+    tecnologiaArmadura :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0,
+    },
+    tecnologiaMotores :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0,
+    },
+    tecnologiaEnergia :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0,
+    }
+}, {timestamps : false})
+
+
+const Edificios = con.define('edificios', {
+    planetaID :
+    {
+        type : sequalize.INTEGER,
+        allowNull : true,
+        references :
+        {
+            model : Planeta,
+            key : 'id',
+        },
+        onDelete : "CASCADE"
+    },
+    relatorioID : {
+        type : sequalize.INTEGER,
+        allowNull : true,
+        references :
+        {
+            model : RelatorioEspionagem,
+            key : 'id',
+        },
+        onDelete : "CASCADE"
+    },
+    minaFerro :
+    {
+        type :  sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0
+    },
+    minaCristal :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0
+    },
+    fabricaComponente :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0
+    },
+    minaTitanio :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0
+    },
+    fazenda :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0
+    },
+    plantaSolar :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0
+    },
+    reatorFusao : 
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0
+    },
+    armazem : 
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0
+    },
+    fabricaRobos :
+    {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 0
+    }
+}, {timestamps : false})
+
+const MensagemSistema = con.define('mensagem_sistema', {
+    usuarioID:
+    {
+        type: sequalize.INTEGER,
+        allowNull : false,
+        references :
+        {
+            model : Usuario,
+            key : 'id',
+        },
+        onDelete : "CASCADE",
+        unique : true,
+        primaryKey : true,
+    },
+    assunto : 
+    {
+        type : sequalize.STRING,
+        allowNull : false,
+        defaultValue : "Sem assunto",
+        validate:
+        {
+            len : [0, Number(process.env.MESSAGE_SUBJECT_MAX_LENGTH)]
+        }
+    },
+    mensagem :
+    {
+        type: sequalize.TEXT,
+        allowNull : false,
+        validate:
+        {
+            len : [0,Number(process.env.MESSAGE_CONTENT_MAX_LENGTH)]
+        }
+    },
+    visualizada:
+    {
+        type: sequalize.BOOLEAN,
+        defaultValue : false,
+        allowNull :false
+    },
+    criacao :
+    {
+        type : sequalize.DATE,
+        defaultValue : sequalize.NOW,
+        allowNull : false
+    } 
+}, {timestamps : false})
 
 Usuario.hasOne(EsqueciSenha, {foreignKey : {name : "usuarioID", allowNull : false, primaryKey : true}, onDelete : "CASCADE"})
 EsqueciSenha.removeAttribute('id');
@@ -965,7 +1369,16 @@ module.exports = {
     Forum_Topico : Forum_Topico,
     Alianca_Mensagem_Circular : Alianca_Mensagem_Circular,
     Alianca_Mensagem_Circular_Visualizada : Alianca_Mensagem_Circular_Visualizada,
-    isReady : function(){return ready;}};
+    Operacao_Militar : Operacao_Militar,
+    Conquista : Conquista,
+    MensagemSistema : MensagemSistema,
+    Frota : Frota,
+    RecursosPlanetarios : RecursosPlanetarios,
+    RelatorioEspionagem : RelatorioEspionagem,
+    Pesquisas : pesquisas,
+    Edificios  : Edificios,
+    isReady : function(){return ready;}
+};
 
 con.authenticate().then(() =>
 {
