@@ -1326,7 +1326,9 @@ const MensagemSistema = con.define('mensagem_sistema', {
 }, {timestamps : false})
 
 Usuario.hasOne(EsqueciSenha, {foreignKey : {name : "usuarioID", allowNull : false, primaryKey : true}, onDelete : "CASCADE"})
-EsqueciSenha.removeAttribute('id');
+EsqueciSenha.removeAttribute('id')
+Edificios.removeAttribute('id')
+RecursosPlanetarios.removeAttribute('id')
 Setor.hasMany(Planeta, {foreignKey : {name : "setorID", allowNull : false}, onDelete : "CASCADE"})
 Setor.hasMany(Asteroide, {foreignKey : {name : "setorID", allowNull : false}, onDelete : "CASCADE"})
 Usuario.hasMany(Setor, {foreignKey : {name : "usuarioID", allowNull : true}, onDelete: "SET NULL"})

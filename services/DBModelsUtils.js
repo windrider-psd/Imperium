@@ -21,7 +21,7 @@ function GetConstrucoesPlaneta(planetaID, callback)
 
 function GetConstPlaneta(planetaID)
 {
-    return new BlueBird((resolve, reject) => {
+    return new BlueBird((resolve) => {
         let resultado = new Array();
         models.Construcao.findAll({where : {planetaID : planetaID}}).then((construcoes) =>
         {
@@ -40,6 +40,7 @@ function EncontrarPlanetasSetor(setorID)
 
         models.Planeta.findAll({where : {setorID : setorID}}).then((planetas) =>
         {
+            
             let promessaAll = new Array();
             for(let i = 0; i < planetas.length; i++)
             {
@@ -66,7 +67,62 @@ function EncontrarPlanetasSetor(setorID)
                     }
                 }
 
-                resolve({setor : setorID, planetas : planetas});
+
+                let promessasRecursos = [];
+                for(let i = 0; i < planetas.length; i++)
+                {
+                    
+                    promessasRecursos.push(
+                        new BlueBird((resolve) => {
+                            let planeta = planetas[i]
+                            models.RecursosPlanetarios.findOne({where : {planetaID : planeta.id}})
+                                .then(recursos => {
+                                    if(recursos)
+                                    {
+                                        delete recursos.dataValues['operacaoID']
+                                        delete recursos.dataValues['relatorioID']
+                                        for(recurso in recursos.dataValues)
+                                        {
+                                            planeta[recurso] = recursos.dataValues[recurso]
+                                        }                                  
+                                    }
+                                    resolve()
+                                    
+                                })
+                        })    
+                    )
+                }
+                BlueBird.all(promessasRecursos)
+                    .then(() => {
+
+                        let promessasEdificios = []
+                        for(let i = 0; i < planetas.length; i++)
+                        {
+                            promessasEdificios.push(
+                                new BlueBird((resolve) => {
+                                    let planeta = planetas[i]
+                                    models.Edificios.findOne({where : {planetaID : planeta.id}})
+                                        .then(edificios => {
+                                            if(edificios)
+                                            {
+                                                delete edificios.dataValues['id']
+                                                delete edificios.dataValues['relatorioID']
+                                                for(edificio in edificios.dataValues)
+                                                {
+                                                    planeta[edificio] = edificios.dataValues[edificio]
+                                                }
+                                            }
+                                            resolve()
+                                            
+                                        })
+                                })    
+                            )
+                        }
+                        BlueBird.all(promessasEdificios)
+                            .then(() => {
+                                resolve({setor : setorID, planetas : planetas});
+                            })  
+                    })                
             });
         }).catch((err) =>
         {
@@ -86,7 +142,6 @@ function getSetoresInfo(setores)
     {
         setores[i] = setores[i].dataValues;
     }
-
     return new BlueBird((resolve, reject) =>
     {    
         let retorno = new Array();
@@ -95,7 +150,6 @@ function getSetoresInfo(setores)
         {
             promesasSetores.push(EncontrarPlanetasSetor(setores[i].id));
         }
-
         BlueBird.all(promesasSetores).then((resultado) => 
         {
             for(let i = 0; i < setores.length; i++)
@@ -107,7 +161,6 @@ function getSetoresInfo(setores)
                         retorno.push({setor : setores[i], planetas : resultado[j].planetas});
                         break;
                     }
-                    
                 }
             }
            
@@ -200,21 +253,16 @@ function getUserData(req)
                                 alianca.dataValues.rank = null
                                 resolve({session : req.session.usuario, rank : rankusuario, sessionID: req.sessionID, alianca : alianca, setores : setores, caixaEntrada : contagemEntrada})
                               }
-                            })
-                            
+                            })    
                           })
                         }
                         else
                           resolve({session : req.session.usuario, rank : rankusuario, sessionID: req.sessionID, alianca : null, setores : setores, caixaEntrada : contagemEntrada})
-                      })
-                      
+                      })          
                     )
                   }).catch(err => reject(err));
             })
         }); 
-
-
-      
     }
     else
       reject("Requisição não possui sessão de usuário");

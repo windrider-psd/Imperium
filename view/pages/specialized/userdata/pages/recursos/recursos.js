@@ -35,8 +35,8 @@ function UndoMelhoria(JEdificio) {
     let btnCancelar = JEdificio.find(".btn-calcelar-melhoria");
     let tempoMelhoria = JEdificio.find(".edificio-tempo-melhoria-depois");
     JEdificio.find(".edificio-tempo-melhoria-antes").show();
-    let overlaymaster = JEdificio.find("edificio-img-overlay-master")
-    overlaymaster.find("edificio-img-overlay-fill").css('top', '0px')
+    let overlaymaster = JEdificio.find(".edificio-img-overlay-master")
+    overlaymaster.find(".edificio-img-overlay-fill").css('top', '0px')
     overlaymaster.css('display', 'none');
     btnUpgrade.removeClass('hidden');
     btnCancelar.addClass('hidden');
@@ -176,8 +176,8 @@ observer.Observar('userdata-ready',  () => {
 				},
 				success: function () {
 					utils.GerarNotificacao("Melhoria cancelada com sucesso", 'success');
-					let stringid = GerenciadorRecursos.EdificioIDParaString(id)
-					UndoMelhoria($('.edificio[data-edificio="' + stringid + '"]'))
+					//let stringid = GerenciadorRecursos.EdificioIDParaString(id)
+					//UndoMelhoria($('.edificio[data-edificio="' + stringid + '"]'))
 				},
 				error: function (err) {
 					utils.GerarNotificacao(err.responseText, 'danger');
@@ -209,7 +209,7 @@ observer.Observar('userdata-ready',  () => {
 			},
 			success: function (resposta) {
 				utils.GerarNotificacao("Edificio sendo melhorado", 'success');
-				setEdificioMelhoria(divEdificio, resposta.duracao, resposta.edificioID);
+				//setEdificioMelhoria(divEdificio, resposta.duracao, resposta.edificioID);
 
 				let esta = false
 				for (let i = 0; i < planeta.construcoes.length; i++) {
@@ -223,11 +223,7 @@ observer.Observar('userdata-ready',  () => {
 				if (!esta)
 					planeta.construcoes.push(resposta)
 
-				let custo = GerenciadorRecursos.GetCustoEdificioPorId(edificio, planeta[edificio] + 1)
-
-				$("#recurso-ferro .recurso-atual").text($("#recurso-ferro .recurso-atual").text() - custo.ferro);
-				$("#recurso-cristal .recurso-atual").text($("#recurso-cristal .recurso-atual").text() - custo.cristal);
-				$("#recurso-titanio .recurso-atual").text($("#recurso-titanio .recurso-atual").text() - custo.titanio);
+				
 
 			},
 			error: function (err) {
@@ -293,15 +289,13 @@ observer.Observar('socket-ready', () => {
 		UndoMelhoria(JEdificio);
 		planeta[stringEdificio] = planeta[stringEdificio] + 1;
 		JEdificio.find(".edificio-nivel").text(planeta[stringEdificio]);
-		let custo = GerenciadorRecursos.GetCustoEdificioPorId(data.edificioID, planeta[stringEdificio] + 1);
-		let tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.titanio);
+		let custo = GerenciadorRecursos.GetCustoEdificioPorId(data.edificioID, planeta[stringEdificio]);
+		//let tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.titanio);
 
 		JEdificio.find(".custo-ferro span").html("<span>" + custo.ferro + "</span>");
 		JEdificio.find(".custo-cristal span").html("<span>" + custo.cristal + "</span>");
-		JEdificio.find(".custo-titanio span").html("<span>" + custo.titanio + "</span>");
-
-		JEdificio.find(".edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoFerro(planeta[stringEdificio] + 1) - GerenciadorRecursos.GetProducaoFerro(planeta[stringEdificio])) * 6) + "/minuto");
-		JEdificio.find(".edificio-tempo-melhoria-antes span").text(tempoMelhoria);
+        JEdificio.find(".custo-titanio span").html("<span>" + custo.titanio + "</span>");
+        
 		for (let i = 0; i < planeta.construcoes.length; i++) {
 			if (planeta.construcoes[i].edificioID == data.edificioID) {
 				planeta.construcoes.splice(i, 1)
@@ -313,16 +307,14 @@ observer.Observar('socket-ready', () => {
 	socket.on('cancelar-melhoria', (data) => {
 		if (data.planetaID == planeta.id) {
 			let stringEdificio = GerenciadorRecursos.EdificioIDParaString(data.edificioID);
-			let JEdificio = $(".edificio[data-edificio='" + stringEdificio + "']");
-			//let custo = GerenciadorRecursos.GetCustoEdificioPorId(data.edificioID);
-
+            let JEdificio = $(".edificio[data-edificio='" + stringEdificio + "']");
+            
 			for (let i = 0; i < planeta.construcoes.length; i++) {
 				if (planeta.construcoes[i].edificioID == data.edificioID) {
 					planeta.construcoes.splice(i, 1)
 					break
 				}
-			}
-
+            }
 			UndoMelhoria(JEdificio);
 		}
 

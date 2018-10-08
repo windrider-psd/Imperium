@@ -546,7 +546,7 @@ function GetConsumoFazenda (nivelFazenda)
     function GetIntensidadeSolarPlaneta (posSol, posPlaneta, intensidadeSol)
     {
         let distancia = Math.sqrt( 
-            Math.pow(posSol.x - posPlaneta.x, 2) + Math.ceil(posSol.y - posPlaneta.y, 2)
+            Math.pow(posSol.x - posPlaneta.x, 2) + Math.pow(posSol.y - posPlaneta.y, 2)
         )
         return intensidadeSol - ( 9 * distancia);
     }

@@ -95,12 +95,20 @@ router.post('/cadastrar', function(req, res) {
             {
               Planeta.findAll({where : {setorID : setorInicial.id}, transaction: transacao}).then((planetas) =>{
                 let planetaInicial = planetas[random.GerarIntAleatorio(planetas.length - 1, 0)]
-                Planeta.update({colonizado : true, recursoFerro : 500, recursoCristal : 300, recursoEletronica : 200, recursoUranio: 100, recursoComida : 500 }, {where : {id : planetaInicial.id}, transaction: transacao}).then(() =>
+                Planeta.update({colonizado : true }, {where : {id : planetaInicial.id}, transaction: transacao}).then(() =>
                 {
-                  transacao.commit()
-                  req.session.usuario = data.dataValues
-                  res.status(200).end("Conta Cadastrada com sucesso")
-                  EnviarEmailAtivacao(req, data.id, data.chave_ativacao, data.email)
+                  models.RecursosPlanetarios.create({planetaID : planetaInicial.id, recursoFerro : 500, recursoCristal : 300, recursoEletronica : 200, recursoUranio: 100, recursoComida : 500}, {transaction : transacao})
+                    .then(() => {
+
+                      models.Edificios.create({planetaID : planetaInicial.id}, {transaction : transacao})
+                        .then(() => {
+                          transacao.commit().then(() => {
+                            req.session.usuario = data.dataValues
+                            res.status(200).end("Conta Cadastrada com sucesso")
+                            EnviarEmailAtivacao(req, data.id, data.chave_ativacao, data.email)
+                          })
+                        }) 
+                    })
                 }).catch(() =>
                 {
                   transacao.rollback();
