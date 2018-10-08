@@ -4,6 +4,7 @@ const GR = require('./shared/GerenciadorRecursos');
 const io = require('./../model/io');
 const MUtils = require('./DBModelsUtils')
 const ranking = require('./Ranking')
+const Bluebird = require('bluebird')
 /**
  * @type {Array.<{planetaID : number, edificioID : number, timeout : NodeJS.Timer}>}
  * @description Array que armazena as construções para serem executadas (timeout)
@@ -29,49 +30,67 @@ var adicionarRecurso = cron.schedule('*/10 * * * * *', function()
                         {
                             planetas.forEach((planeta) =>
                             {
-                                let producao = GR.GetProducaoTotal({
-                                    fabricaComponente : planeta.fabricaComponente,
-                                    fazenda : planeta.fazenda,
-                                    minaCristal : planeta.minaCristal,
-                                    minaFerro : planeta.minaFerro,
-                                    minaTitanio : planeta.minaTitanio,
-                                }, planeta.plantaSolar, planeta.reatorFusao, {
-                                    x: setor.solPosX,
-                                    y : setor.solPosY
-                                }, {
-                                    x : planeta.posX,
-                                    y : planeta.posY
-                                }, setor.intensidadeSolar);
-
-                                let capacidade = GR.GetTotalArmazenamentoRecursos(planeta.armazem);
-                                
-
-                                let soma = producao.ferro + planeta.recursoFerro;
-                                let updateFerro = (soma < capacidade) ? soma : capacidade; 
-
-                                soma = producao.cristal + planeta.recursoCristal;
-                                let updateCristal = (soma < capacidade) ? soma : capacidade; 
-                                
-                                soma = producao.componente + planeta.recursoComponente;
-                                let updateComponentes = (soma < capacidade) ? soma : capacidade; 
-
-                                soma = producao.comida + planeta.recursoComida;
-                                let updateComida = (soma < capacidade) ? soma : capacidade; 
-                                
-                                soma = producao.titanio + planeta.recursoTitanio;
-                                let updateTitanio = (soma < capacidade) ? soma : capacidade; 
-
-                                
-                                let update = {
-                                    recursoFerro : updateFerro, 
-                                    recursoCristal : updateCristal,
-                                    recursoTitanio : updateTitanio, 
-                                    recursoComida : updateComida,
-                                    recursoComponente : updateComponentes
-                                }
-
-                                models.Planeta.update(update, {where : {id : planeta.id}});
-                                io.EmitirParaSessao(usuario.id, 'recurso-planeta' + planeta.id, update);
+                                let promessas = []
+                                promessas.push(
+                                    new Bluebird((resolve) => {
+                                        models.RecursosPlanetarios.findOne({where : {planetaID : planeta.id}})
+                                            .then(recursos => resolve(recursos.dataValues))
+                                    })
+                                )
+                                promessas.push(
+                                    new Bluebird((resolve) => {
+                                        models.Edificios.findOne({where : {planetaID : planeta.id}})
+                                            .then(edificios => resolve(edificios.dataValues))
+                                    })
+                                )
+                                Bluebird.all(promessas)
+                                    .then((retorno) => {
+                                        let recursos = retorno[0]
+                                        let edificios = retorno[1]
+                                        let producao = GR.GetProducaoTotal({
+                                            fabricaComponente : edificios.fabricaComponente,
+                                            fazenda : edificios.fazenda,
+                                            minaCristal : edificios.minaCristal,
+                                            minaFerro : edificios.minaFerro,
+                                            minaTitanio : edificios.minaTitanio,
+                                        }, edificios.plantaSolar, edificios.reatorFusao, {
+                                            x: setor.solPosX,
+                                            y : setor.solPosY
+                                        }, {
+                                            x : planeta.posX,
+                                            y : planeta.posY
+                                        }, setor.intensidadeSolar);
+        
+                                        let capacidade = GR.GetTotalArmazenamentoRecursos(edificios.armazem);
+                                        
+        
+                                        let soma = producao.ferro + recursos.recursoFerro;
+                                        let updateFerro = (soma < capacidade) ? soma : capacidade; 
+        
+                                        soma = producao.cristal + recursos.recursoCristal;
+                                        let updateCristal = (soma < capacidade) ? soma : capacidade; 
+                                        
+                                        soma = producao.componente + recursos.recursoComponente;
+                                        let updateComponentes = (soma < capacidade) ? soma : capacidade; 
+        
+                                        soma = producao.comida + recursos.recursoComida;
+                                        let updateComida = (soma < capacidade) ? soma : capacidade; 
+                                        
+                                        soma = producao.titanio + recursos.recursoTitanio;
+                                        let updateTitanio = (soma < capacidade) ? soma : capacidade; 
+        
+                                        
+                                        let update = {
+                                            recursoFerro : updateFerro, 
+                                            recursoCristal : updateCristal,
+                                            recursoTitanio : updateTitanio, 
+                                            recursoComida : updateComida,
+                                            recursoComponente : updateComponentes
+                                        }
+        
+                                        models.RecursosPlanetarios.update(update, {where : {planetaID : planeta.id}});
+                                        io.EmitirParaSessao(usuario.id, 'recurso-planeta' + planeta.id, update);
+                                    })
                             });
                         })  
                     }) 
@@ -92,22 +111,20 @@ function CriarConstrucaoTimer(edificioID, planetaID, duracao)
     return setTimeout(() => 
     {
         models.Planeta.findOne({where : {id : planetaID}}).then((planeta) =>{
-
+            
             let edificio = GR.EdificioIDParaString(edificioID); 
-            planeta[edificio] = planeta[edificio] + 1;
-            planeta.save().then(() => {
-                models.Planeta.findOne({where : {id : planetaID}}).then((planeta) => {
-                    MUtils.GetUsuarioPlaneta(planeta).then((usuario) =>
-                    {
-                        let custo = GR.GetCustoEdificioPorId(edificioID, planeta[edificio]);
-                        ranking.AdicionarPontos(usuario, custo, ranking.TipoPontos.pontosEconomia);
-                        io.EmitirParaSessao(usuario.id, 'edificio-melhoria-completa', {planetaID : planetaID, edificioID : edificioID});
+            models.Edificios.findOne({where : {planetaID : planetaID}})
+                .then((edi) => {
+                    edi[edificio] = edi[edificio] + 1
+                    edi.save().then(() => {
+                        MUtils.GetUsuarioPlaneta(planeta).then((usuario) =>
+                        {
+                            let custo = GR.GetCustoEdificioPorId(edificioID, edi[edificio]);
+                            ranking.AdicionarPontos(usuario, custo, ranking.TipoPontos.pontosEconomia);
+                            io.EmitirParaSessao(usuario.id, 'edificio-melhoria-completa', {planetaID : planetaID, edificioID : edificioID});
+                        });
                     });
-                });
-            });
-            
-            
-            
+                })  
         });
         RemoverConstrucao(planetaID, edificioID);
     }, duracao * 1000);

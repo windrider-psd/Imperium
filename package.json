@@ -9,8 +9,7 @@
   },
   "nodemonConfig": {
     "ignore": [
-      "public/*",
-      "public/dist/*",
+      "dist/*",
       "view/*"
     ]
   },
@@ -59,6 +58,7 @@
     "babel-loader": "^7.1.5",
     "babel-preset-es2015": "^6.24.1",
     "css-loader": "^1.0.0",
+    "cssnano": "^4.1.3",
     "file-loader": "^2.0.0",
     "glob": "^7.1.3",
     "html-loader": "^0.5.5",
@@ -67,6 +67,7 @@
     "postcss-loader": "^3.0.0",
     "pug-html-loader": "^1.1.5",
     "style-loader": "^0.23.0",
+    "uglifyjs-webpack-plugin": "^2.0.1",
     "url-loader": "^1.1.1",
     "webpack": "^4.17.3",
     "webpack-cli": "^3.1.0",

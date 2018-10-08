@@ -1,28 +1,31 @@
-var createError = require('http-errors')
-var express = require('express')
-var path = require('path')
-var bodyParser = require('body-parser')
-var cookieParser = require('cookie-parser')
-var logger = require('morgan')
-var paginaRouter = require('./routes/paginas')
-var usuarioRouter = require('./routes/usuario')
-var edificiosRouter = require("./routes/edificio")
-var comunicacaoRouter = require('./routes/comunicacao')
-var aliancaRouter = require("./routes/alianca")
-var browserify = require('browserify-middleware')
-var helmet = require('helmet')
-var DDDoS = require('dddos')
-var webpack = require('webpack');
-var webpackConfig = require('./webpack.config');
-var compiler = webpack(webpackConfig);
+let createError = require('http-errors')
+let express = require('express')
+let path = require('path')
+let bodyParser = require('body-parser')
+let cookieParser = require('cookie-parser')
+let logger = require('morgan')
+let paginaRouter = require('./routes/paginas')
+let usuarioRouter = require('./routes/usuario')
+let edificiosRouter = require("./routes/edificio")
+let comunicacaoRouter = require('./routes/comunicacao')
+let aliancaRouter = require("./routes/alianca")
+let browserify = require('browserify-middleware')
+let helmet = require('helmet')
+let DDDoS = require('dddos')
+let webpack = require('webpack');
+let webpackConfig = require('./webpack.config');
+let compiler = webpack(webpackConfig);
+let yargs = require('yargs').argv
+require('dotenv')
+
 module.exports = function CriarApp(sessao)
 {
-  var app = express()
+  let app = express()
   browserify.settings.minify = true
   browserify.settings.insertGlobals = true
 
   // view engine setup
-  app.set('views', path.join(__dirname, 'public/dist'))
+  app.set('views', path.join(__dirname, 'dist'))
   app.set('view engine', 'pug')
   app.use(helmet())
   app.use(new DDDoS({
@@ -33,7 +36,7 @@ module.exports = function CriarApp(sessao)
   app.use(express.json())
   app.use(express.urlencoded({ extended: false }))
   app.use(cookieParser())
-  app.use(express.static(path.join(__dirname, 'public/dist')))
+  app.use(express.static(path.join(__dirname, 'dist')))
   app.use(bodyParser.json())
   app.use(bodyParser.urlencoded({ extended: true }))
   
@@ -63,11 +66,18 @@ module.exports = function CriarApp(sessao)
     res.json(err)
   });
   app.locals.enderecoIP = require('ip').address()
+  console.log(process.env.mode)
+  if(process.env.mode == 'development' && !yargs.nowebpack)
+  {
+    app.use(require("webpack-dev-middleware")(compiler, {
+      publicPath: __dirname + '/dist/', writeToDisk : true
+    }));
+  
+    app.use(require("webpack-hot-middleware")(compiler));
+  }
+  
 
-  app.use(require("webpack-dev-middleware")(compiler, {
-    publicPath: __dirname + '/public/dist/', writeToDisk : true
-  }));
-  app.use(require("webpack-hot-middleware")(compiler));
+  
 
   return app
 }
