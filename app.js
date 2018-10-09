@@ -9,7 +9,7 @@ let usuarioRouter = require('./routes/usuario')
 let edificiosRouter = require("./routes/edificio")
 let comunicacaoRouter = require('./routes/comunicacao')
 let aliancaRouter = require("./routes/alianca")
-let browserify = require('browserify-middleware')
+let mapaRouter = require("./routes/mapa")
 let helmet = require('helmet')
 let DDDoS = require('dddos')
 let webpack = require('webpack');
@@ -21,8 +21,6 @@ require('dotenv')
 module.exports = function CriarApp(sessao)
 {
   let app = express()
-  browserify.settings.minify = true
-  browserify.settings.insertGlobals = true
 
   // view engine setup
   app.set('views', path.join(__dirname, 'dist'))
@@ -46,6 +44,7 @@ module.exports = function CriarApp(sessao)
   app.use('/edificio', edificiosRouter)
   app.use('/comunicacao', comunicacaoRouter)
   app.use('/alianca', aliancaRouter)
+  app.use('/mapa', mapaRouter)
   
 
 

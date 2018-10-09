@@ -185,7 +185,7 @@ const EsqueciSenha = con.define('esqueci_senha',
 }, {timestamps : false, },);
 
 
-const Planeta = con.define('Planeta', 
+const Planeta = con.define('planeta', 
 {
     id : 
     {
@@ -229,7 +229,7 @@ const Planeta = con.define('Planeta',
 }, {timestamps : false})
 
 
-const Setor = con.define('Setor',
+const Setor = con.define('setor',
 {
     id:
     {

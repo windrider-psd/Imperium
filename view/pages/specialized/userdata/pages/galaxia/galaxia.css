@@ -1,0 +1,49 @@
+.mapa-container
+{
+    width: 100%;
+    height: 900px;
+    overflow: scroll
+}
+
+.mapa-setor
+{
+    transition: 0.75s all;
+}
+
+.mapa-setor-jogador
+{
+    fill: #3b58ff;
+}
+.mapa-setor-jogador:hover
+{
+    fill: #2d4cda;
+}
+
+.mapa-setor-alianca
+{
+    fill: #52ff3b;
+}
+.mapa-setor-alianca:hover
+{
+    fill: #3fd42c;
+}
+
+
+.mapa-setor-outro
+{
+    fill: #ff0000;
+}
+.mapa-setor-outro:hover
+{
+    fill: #9d0909;
+}
+
+.mapa-setor-sem
+{
+    fill: #686868;
+}
+
+.mapa-setor-sem:hover
+{
+    fill: #3d3d3d;
+}

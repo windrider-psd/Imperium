@@ -16,14 +16,14 @@ function render(view, res)
 
 router.get('/', (req, res) => {
   if(req.session.usuario)
-    MUtils.GetUserData(req).then(userdata => render('recursos', res, {})).catch((err) =>{ render('login-cadastro', res), console.log(err) });
+    render('recursos', res)
   else
     render('login-cadastro', res);
 });
 router.get('/opcoes', (req, res) =>
 {
   if(req.session.usuario)
-    MUtils.GetUserData(req).then(userdata => render('opcoes', res, {})).catch(() => render('login-cadastro', res));
+    render('opcoes', res);
   else
   { 
     res.status(403)
@@ -62,7 +62,7 @@ router.get('/topico-forum', (req, res, next) => {
 
 router.get('/recursos', (req, res) => {
   if(req.session.usuario)
-    MUtils.GetUserData(req).then(userdata => render('recursos', res, {})).catch(() => render('login-cadastro'));
+   render('recursos', res);
   else 
   {
     res.status(403)
@@ -100,14 +100,14 @@ router.get('/forum', (req, res) => {
 
 router.get('/ranking', (req, res) => {
   if(req.session.usuario)
-    MUtils.GetUserData(req).then(userdata => render('ranking', res, {resultadosPorPagina : Number(process.env.RANKING_MAX_RESULTADOS)})).catch(() =>render('login-cadastro', res));
+    render('ranking', res);
   else 
     render('login-cadastro', res);
 });
 
 router.get('/mensagens', (req, res) => {
   if(req.session.usuario)
-    MUtils.GetUserData(req).then(userdata => render('mensagens', res, {resultadosPorPagina : Number(process.env.MESSAGE_PAGE_COUNT)})).catch(() => render('login-cadastro', res));
+    render('mensagens', res);
   else 
     render('login-cadastro', res);
 });
@@ -129,16 +129,7 @@ router.get('/paginaExterna', (req, res) => {
       res.redirect(400, '/alianca');
     else
     {
-      models.Alianca.findOne({where : {id:req.query.id}}).then(alianca => {
-        if(!alianca)
-          res.redirect(400, '/alianca');
-        else
-        {
-          models.Alianca_Aplicacao.findOne({where : {usuarioID : req.session.usuario.id}}).then(aplicacao => {
-            models.Usuario_Participa_Alianca.count({where : {aliancaID : alianca.id}}).then(contagem => MUtils.GetUserData(req).then(userdata => render('paginaExterna', res, {alianca : alianca.dataValues, totalMembros : contagem, aplicacao : Boolean(aplicacao)})).catch(() => render('login-cadastro', res)))
-          })
-        }
-      })
+      render('paginaExterna', res)
     }
   }
   else
@@ -146,5 +137,10 @@ router.get('/paginaExterna', (req, res) => {
 })
 
 
-
+router.get('/galaxia', (req, res) => {
+  if(req.session.usuario)
+    render('galaxia', res);
+  else 
+    render('login-cadastro', res);
+});
 module.exports = router;
