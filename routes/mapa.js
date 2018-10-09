@@ -2,7 +2,7 @@ let express = require('express');
 let router = express.Router();
 const models = require('./../model/DBModels')
 const MUtils = require('./../services/DBModelsUtils')
-const path = require('path')
+const ranking = require('./../services/Ranking')
 require('dotenv/config')
 
 
@@ -30,19 +30,30 @@ router.get('/get-galaxia', (req, res) => {
                                                 if(participacao)
                                                 {
                                                     setor.setor['aliancaID'] = participacao.aliancaID
+                                                    models.Alianca.findOne({where : {id : participacao.aliancaID}, attributes : ['nome']})
+                                                        .then(alianca => {
+                                                            setor.setor['aliancaNome'] = alianca.nome
+                                                            resolvep()
+                                                        })
                                                 }
                                                 else
                                                 {
                                                     setor.setor['aliancaID'] = null
+                                                    resolvep()
                                                 }
-                                                resolvep()
+                                                
                                             })
                                         })
                                         let promessaNick = new Promise((resolvep => {   
-                                            models.Usuario.findOne({where : {id : setor.setor.usuarioID}, attributes : ['nick', 'ferias','banido', 'pontosPesquisa', 'pontosEconomia', 'pontosMilitar', 'pontosHonra']})
+                                            models.Usuario.findOne({where : {id : setor.setor.usuarioID}, attributes : ['id', 'nick', 'ferias','banido', 'pontosPesquisa', 'pontosEconomia', 'pontosMilitar', 'pontosHonra']})
                                                 .then(usuario => {
-                                                    setor.setor['usuario'] = usuario
-                                                    resolvep()     
+                                                    ranking.GetRankingUsuario(usuario.id).then(rank => {
+                                                        setor.setor['usuario'] = usuario
+                                                        setor.setor['usuario'].dataValues['classificacao'] = rank
+                                                        resolvep()    
+                                                    })
+                                                    
+                                                     
                                                 })
                                         }))
 

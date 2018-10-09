@@ -127,7 +127,7 @@ observer.Observar('userdata-ready',  () => {
                 htmlPlanetario = c1 + c2 + c3
             }
             let nickSetor = galaxia.setores[i].setor.usuario != null ? galaxia.setores[i].setor.usuario.nick : ""
-            htmlString += `<polygon class="mapa-setor ${casa.cor_classe}"  points="${htmlPontos}" stroke="black" stroke-width="2" stroke-linecap="butt"></polygon><text x="${casa.pontoTextoSetor.x}" y="${casa.pontoTextoSetor.y}" fill="black">${galaxia.setores[i].setor.nome}</text><text x="${casa.pontoTextoNick.x}" y="${casa.pontoTextoNick.y}" fill="black">${nickSetor}</text>${htmlPlanetario}`
+            htmlString += `<polygon data-index = "${i}" class="mapa-setor ${casa.cor_classe}"  points="${htmlPontos}" stroke="black" stroke-width="2" stroke-linecap="butt"></polygon><text x="${casa.pontoTextoSetor.x}" y="${casa.pontoTextoSetor.y}" fill="black">${galaxia.setores[i].setor.nome}</text><text x="${casa.pontoTextoNick.x}" y="${casa.pontoTextoNick.y}" fill="black">${nickSetor}</text>${htmlPlanetario}`
         }
 
         let mapa = $(".mapa-svg")
@@ -135,23 +135,90 @@ observer.Observar('userdata-ready',  () => {
         let altura_mapa = (galaxia.galaxia_tamanho_y + 1) * altura
         mapa.attr('width', largura_mapa ) 
         mapa.attr('height', altura_mapa )
-        htmlString += '<p class = "nome-setor">aaaa</p>'
         mapa.html(htmlString)
 
     }
 
     getGalaxiaInfo((info) => {
-        
         galaxia = info;
         console.log(galaxia)
         gerarHTMLMapa();
     })
-   
     
-   // $(".mapa-svg").on('mouseover', '.mapa-setor', function(){
-   //     $(this).attr('fill', '#000')
-   // })
-    
-    
+    $(".mapa-svg").on('click', '.mapa-setor', function(){
+
+        let setor = galaxia.setores[$(this).data('index')]
+        let popup = $('.setor-popup')
+        
+        let classificacao = popup.find('.classificacao')
+        let honra = popup.find('.honra')
+        let ferias = popup.find('.ferias')
+        let banido = popup.find('.banido')
+
+        let planetario = popup.find('.planetario')
+        let intensidade = popup.find('.intensidade-solar')
+        let planetas = popup.find('.total-planetas')
+        if(setor.setor.usuarioID == null)
+        {
+            $('.col-usuario').addClass('hidden')
+        }
+        
+        else
+        {
+            
+
+            
+            $('.col-usuario').removeClass('hidden')
+            let link = setor.setor.aliancaID != null ? `(<a href = 'paginaExterna?id=${setor.setor.aliancaID}' target = "_blank">${setor.setor.aliancaNome}</a>)` : ''
+            popup.find('.col-usuario h2').html(`${setor.setor.usuario.nick} ${link}`)
+
+            classificacao.text(setor.setor.usuario.classificacao)
+            if(setor.setor.usuario.classificacao >= userdata.rank)
+            {       
+               
+                classificacao.removeClass('text-danger')
+                classificacao.addClass('text-success')
+            }
+            else
+            {
+                classificacao.addClass('text-danger')
+                classificacao.removeClass('text-success')
+            }
+
+            honra.text(setor.setor.usuario.pontosHonra)
+            if(setor.setor.usuario.pontosHonra >= 0)
+            {
+                honra.removeClass('text-danger')
+                honra.addClass('text-success')
+            }
+            else
+            {
+                honra.addClass('text-danger')
+                honra.removeClass('text-success')
+            }
+
+            ferias.text(setor.setor.usuario.ferias ? "Sim" : "Não")
+            banido.text(setor.setor.usuario.banido ? "Sim" : "Não")
+        }
+        
+
+        /////////////////////////////////////////////////////////////////////
+        planetario.text(setor.setor.planetario ? "Sim" : "Não")
+        if(setor.setor.planetario >= 0)
+        {
+            planetario.removeClass('text-danger')
+            planetario.addClass('text-success')
+        }
+        else
+        {
+            planetario.addClass('text-danger')
+            planetario.removeClass('text-success')
+        }
+
+        intensidade.text(setor.setor.intensidadeSolar)
+        planetas.text(setor.planetas.length)
+        popup.removeClass('hidden')
+    })
+
 })
 

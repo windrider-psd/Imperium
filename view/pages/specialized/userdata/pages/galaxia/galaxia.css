@@ -47,3 +47,19 @@
 {
     fill: #3d3d3d;
 }
+
+.setor-popup
+{
+    position: fixed;
+    bottom: 0px;
+    left: 0px;
+    margin: 0;
+    width: 100% !important;
+    color:white;
+    z-index: 35;
+}
+
+.setor-popup h2
+{
+    font-family: 'Raleway', cursive;
+}

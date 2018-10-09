@@ -6,5 +6,62 @@ block content
     .mapa-container.imperium-scrollbar
         svg.mapa-svg
     
+    .setor-popup.imperium-gradient-background-medium.hidden
+        .container-fluid
+            .col-md-6.col-setor
+                h2 Setor
+                button.btn.btn-primary.btn-sm
+                    | Mapa
+                    i.fa.fa-arrow
+                .operacoes-ofensivas(style="display:inline")
+                    button.btn.btn-danger.btn-sm
+                        | Pilhar
+                    button.btn.btn-danger.btn-sm
+                        | Ocupar
+                    button.btn.btn-danger.btn-sm
+                        | Espionar
+                .operacoes-defensivas(style="display:inline")
+                    button.btn.btn-primary.btn-sm
+                        | Defender 
+                    button.btn.btn-primary.btn-sm
+                        | Transportar
+                    button.btn.btn-primary.btn-sm
+                        | Transferir
+                .operacoes-neutras(style="display:inline")
+                    button.btn.btn-primary.btn-sm
+                        | Anexar 
+                .table-responsive.imperium-scrollbar
+                    table.table.imperium-table
+                        tbody
+                            tr
+                                td Planetario: 
+                                td.planetario 
+                            tr
+                                td Intensidade Solar: 
+                                td.intensidade-solar 
+                            tr
+                                td Total de planetas
+                                td.total-planetas 
+            .col-md-6.col-usuario
+                    h2 
+                    button.btn.btn-primary.btn-sm
+                        i.fa.fa-comment
+                    .table-responsive.imperium-scrollbar
+                        table.table.imperium-table
+                            tbody
+                                tr
+                                    td Classificação: 
+                                    td.classificacao 
+                                tr
+                                    td Pontos de honra: 
+                                    td.honra 
+                                tr
+                                    td Em férias: 
+                                    td.ferias
+                                tr
+                                    td Banido: 
+                                    td.banido
+
+    
     
 block posscripts
