@@ -102,7 +102,7 @@ for (let i = 0; i < generic_pages.length; i++) {
 									loader: 'html-loader',
 								},
 								{
-									loader: 'pug-html-loader'
+									loader: 'pug-html-loader',
 								}
 							]
 						}
@@ -118,7 +118,7 @@ for (let i = 0; i < generic_pages.length; i++) {
 					new HtmlWebpackPlugin({
 						template: view,
 						filename: dirname + ".html",
-						inject : 'head'
+						inject : 'head',
 					}),
 				]
 			}

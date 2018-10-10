@@ -105,7 +105,6 @@ observer.Observar('userdata-ready',  () => {
         }
 
     }
-
     function gerarHTMLMapa()
     {
         let htmlString = ""
@@ -165,9 +164,7 @@ observer.Observar('userdata-ready',  () => {
         
         else
         {
-            
-
-            
+              
             $('.col-usuario').removeClass('hidden')
             let link = setor.setor.aliancaID != null ? `(<a href = 'paginaExterna?id=${setor.setor.aliancaID}' target = "_blank">${setor.setor.aliancaNome}</a>)` : ''
             popup.find('.col-usuario h2').html(`${setor.setor.usuario.nick} ${link}`)

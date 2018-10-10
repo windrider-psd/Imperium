@@ -1,7 +1,9 @@
 const sequalize = require ('sequelize')
-
 require('dotenv/config')
-var ready = false;
+
+let NavePrefabs = require('./../prefabs/Nave')
+
+let ready = false;
 
 const Op = sequalize.Op;
 const operatorsAlias = {
@@ -985,7 +987,7 @@ const RelatorioEspionagem = con.define('relatorio_espionagem', {
     } 
 })
 
-const Frota = con.define('frota', {
+let objFrota = {
     usuarioID:
     {
         type: sequalize.INTEGER,
@@ -1028,38 +1030,25 @@ const Frota = con.define('frota', {
             key : 'id',
         },
         onDelete : "CASCADE"
-    },
-    caca :
-    {
-        type : sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0
-    },
-    fragata :
-    {
-        type : sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0
-    },
-    encouracado :
-    {
-        type : sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0
-    },
-    sonda :
-    {
-        type : sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0
-    },
-    cargueiro :
-    {
+    }
+}
+
+
+//Adicionada os prefabs
+for(let chave in NavePrefabs)
+{
+    /**
+     * @type {Nave}
+     */
+    let nave = NavePrefabs[chave]
+    objFrota[nave.nome_tabela] = {
         type : sequalize.INTEGER,
         allowNull : false,
         defaultValue : 0
     }
-}, {timestamps : false})
+}
+
+const Frota = con.define('frota', objFrota, {timestamps : false})
 
 
 const RecursosPlanetarios = con.define('recursos_planetarios', {
