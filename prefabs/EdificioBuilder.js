@@ -6,12 +6,12 @@ let prefabs = require('./Edificio')
  */
 function getEdificio(nome_tabela)
 {
-    for(chave in prefabs)
+    for(let chave in prefabs)
     {
         /**
          * @type {Edificio}
          */
-        let edificio = prefabs[edificio]
+        let edificio = prefabs[chave]
         
         if(edificio.nome_tabela == nome_tabela)
         {
@@ -53,12 +53,12 @@ function getProducao(edificios, isp)
         ferro: 0,
         titanio: 0
     }
-    for(chave in edificios)
+    for(let chave in edificios)
     {
         /**
          * @type {Edificio}
          */
-        let edificio = edificios[edificio]
+        let edificio = edificios[chave]
         
         if(edificio.nome_tabela == "planta_solar" || edificio.nome_tabela == "reator_fusao")
         {
@@ -70,12 +70,12 @@ function getProducao(edificios, isp)
         }
     }
 
-    for(chave in edificios)
+    for(let chave in edificios)
     {
         /**
          * @type {Edificio}
          */
-        let edificio = edificios[edificio]
+        let edificio = edificios[chave]
         let producao = edificio.producao(edificio.nivel, consumo_energia, producao_energia, isp)
 
         for(let recurso_chave in producao)
