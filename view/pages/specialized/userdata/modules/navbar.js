@@ -27,22 +27,6 @@ observer.Observar('userdata-ready',  function (){
     textomensagem.text(textomensagem.text()  + " (" + userdata.caixaEntrada + ")")
     
 
-    $("aside").on('click', "#logout-link", function()
-    {
-        $.ajax({
-            url : "usuario/logout",
-            method : "POST",
-            success : function()
-            {
-                window.location.href = "/";
-            },
-            error : function(erro)
-            {
-                utils.GerarNotificacao(erro.responseText, "danger");
-            }
-        });
-    });
-
     function getPedidosDeAmizade()
     {
         
@@ -138,5 +122,23 @@ observer.Observar('userdata-ready',  function (){
             $("aside").css("width", "");
             estado_menu = 0;
         }
+    });
+})
+
+$(document).ready(function(){
+    $("aside").on('click', "#logout-link", function()
+    {
+        $.ajax({
+            url : "usuario/logout",
+            method : "POST",
+            success : function()
+            {
+                window.location.href = "/";
+            },
+            error : function(erro)
+            {
+                utils.GerarNotificacao(erro.responseText, "danger");
+            }
+        });
     });
 })

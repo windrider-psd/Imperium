@@ -405,7 +405,7 @@ main
   border-radius: 10px
 }
 
-.imperium-resource-iron
+.imperium-resource-ferro
 {
   background-image:url('/images/metal.png')
 }
@@ -414,12 +414,12 @@ main
 {
   background-image:url('/images/cristal.png')
 }
-.imperium-resource-titanium
+.imperium-resource-titanio
 {
   background-image:url('/images/titanium.jpg')
 }
 
-.imperium-resource-component
+.imperium-resource-componente
 {
   background-image:url('/images/component.jpg')
 }
@@ -429,7 +429,7 @@ main
   background-image:url('/images/food.jpg')
 }
 
-.imperium-resource-energy
+.imperium-resource-energia
 {
   background-image:url('/images/energy.png')
 }

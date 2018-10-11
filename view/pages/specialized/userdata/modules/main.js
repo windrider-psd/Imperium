@@ -1,14 +1,17 @@
 const $ = require('jquery')
 const utils = require('./../../../generic/modules/utils')
 const observer = require('./../../../generic/modules/observer')
-let planeta
-
+window.planeta = {}
+window.setorinfo = {}
 $(document).ready(function () {
 	$.ajax({
 		url: 'usuario/get-userdata',
 		method: 'get',
 		success: function (userdata) {
-			window.userdata = userdata
+            window.userdata = userdata
+
+            window.setorinfo = GetSetorInfo()
+            window.planeta = window.setorinfo.planeta
 			observer.Trigger('userdata-ready')
 		},
 
@@ -21,7 +24,7 @@ $(document).ready(function () {
 
 
 observer.Observar('userdata-ready', function () {
-	planeta = GetSetorInfo().planeta
+    
 	if (planeta)
 		$("#nome-planeta").text(planeta.nome);
 	else

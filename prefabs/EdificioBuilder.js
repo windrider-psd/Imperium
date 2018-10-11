@@ -43,8 +43,8 @@ function getIntensidadeSolarPlaneta (posSol, posPlaneta, intensidadeSol)
 
 function getProducao(edificios, isp)
 {
-    let producao_energia;
-    let consumo_energia;
+    let producao_energia = 0
+    let consumo_energia = 0
     let producao_total = {
         capacidade: 0,
         componente: 0,
@@ -60,7 +60,7 @@ function getProducao(edificios, isp)
          */
         let edificio = edificios[chave]
         
-        if(edificio.nome_tabela == "planta_solar" || edificio.nome_tabela == "reator_fusao")
+        if(edificio.produtor_energia == true)
         {
             producao_energia += edificio.producao(edificio.nivel, 0, 0, isp)
         }
@@ -84,11 +84,25 @@ function getProducao(edificios, isp)
         }
         
     }
+    return producao_total
 
+}
+
+function GetTempoConstrucao(custo, nivelFabricaRobos)
+{
+    let dividendo = 0;
+    for(let chave in custo)
+    {
+        dividendo += custo[chave];
+    }
+    
+    let divisor = 7 * (1 + nivelFabricaRobos)
+    return Math.ceil(dividendo / divisor)
 }
 
 module.exports = {
     getEdificio : getEdificio,
     getIntensidadeSolarPlaneta : getIntensidadeSolarPlaneta,
-    getProducao : getProducao
+    getProducao : getProducao,
+    getTempoConstrucao : GetTempoConstrucao
 }

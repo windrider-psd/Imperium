@@ -2,7 +2,7 @@ const sequalize = require ('sequelize')
 require('dotenv/config')
 
 let NavePrefabs = require('./../prefabs/Nave')
-
+let EdificioPrefabs = require('./../prefabs/Edificio')
 let ready = false;
 
 const Op = sequalize.Op;
@@ -1189,7 +1189,7 @@ const pesquisas = con.define('pesquisas', {
 }, {timestamps : false})
 
 
-const Edificios = con.define('edificios', {
+let objEdificio = {
     planetaID :
     {
         type : sequalize.INTEGER,
@@ -1210,62 +1210,23 @@ const Edificios = con.define('edificios', {
             key : 'id',
         },
         onDelete : "CASCADE"
-    },
-    minaFerro :
-    {
-        type :  sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0
-    },
-    minaCristal :
-    {
-        type : sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0
-    },
-    fabricaComponente :
-    {
-        type : sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0
-    },
-    minaTitanio :
-    {
-        type : sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0
-    },
-    fazenda :
-    {
-        type : sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0
-    },
-    plantaSolar :
-    {
-        type : sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0
-    },
-    reatorFusao : 
-    {
-        type : sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0
-    },
-    armazem : 
-    {
-        type : sequalize.INTEGER,
-        allowNull : false,
-        defaultValue : 0
-    },
-    fabricaRobos :
-    {
+    }
+}
+
+for(let chave in EdificioPrefabs)
+{
+    /**
+     * @type {Edificio}
+     */
+    let edificio = EdificioPrefabs[chave]
+    objEdificio[edificio.nome_tabela] = {
         type : sequalize.INTEGER,
         allowNull : false,
         defaultValue : 0
     }
-}, {timestamps : false})
+}
+
+const Edificios = con.define('edificios', objEdificio, {timestamps : false})
 
 const MensagemSistema = con.define('mensagem_sistema', {
     usuarioID:

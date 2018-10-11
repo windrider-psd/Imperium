@@ -6,6 +6,7 @@ const main = require('./../../modules/main')
 let setorinfo;
 let planeta;
 
+window.edificios = {}
 
 /**
  * 
@@ -43,7 +44,142 @@ function UndoMelhoria(JEdificio) {
     tempoMelhoria.addClass("hidden");
 }
 
+let prefabs = require('./../../../../../../prefabs/Edificio')
+let builder = require('./../../../../../../prefabs/EdificioBuilder')
+
+/**
+ * 
+ * @param {Edificio} edificio 
+ */
+function getHTMLEdificio(edificio, isp)
+{
+    let custoNivelAtual = edificio.melhoria(edificio.nivel, 0, 1)
+    let custoNivelProximo = edificio.melhoria(edificio.nivel + 1, 0, 1)
+
+    let custo = {}
+    for(let chave in custoNivelAtual)
+    {
+        custo[chave] = custoNivelProximo[chave] - custoNivelAtual[chave]
+    }
+
+    let consumo = edificio.consumo(edificio.nivel + 1) - edificio.consumo(edificio.nivel);
+    
+
+    let recursosString = ""
+
+    for(let chave in custo)
+    {
+        if(custo[chave] != 0)
+        {
+            recursosString += 
+            `
+            <div class="custo-${chave}">
+                <div class="imperium-resource imperium-resource-${chave}"></div>
+                <span><span>${custo.ferro}</span></span>
+            </div>
+            `
+        }
+    }
+    if(consumo != 0)
+    {
+        recursosString += 
+        `
+        <div class="custo-energia">
+            <div class="imperium-resource imperium-resource-energia"></div>
+            <span>${consumo}</span>
+        </div>
+        `
+    }
+    
+    
+
+
+    let producao = edificio.producao(edificio.nivel, 0,1, isp)
+
+    let producaoTotal = 0;
+    
+    for(let chave in producao)
+    {
+        producaoTotal += producao[chave]
+    }
+    console.log("total: " + producaoTotal)
+
+    let producaoString = ""
+    if(producaoTotal > 0)
+    {
+        let producaoProx = edificio.producao(edificio.nivel + 1, 0, 1, isp)
+        let producaoDif ={}
+        for(let chave in producaoProx)
+        {
+            producaoDif[chave] = producaoProx[chave] - producao[chave]
+        }
+        producaoString = 'Diferença em produção com melhoria: <span class="edificio-melhoria-producao text-success"><b>'
+        for(let chave in producaoDif)
+        {
+            if(producaoDif[chave] != 0)
+            {
+                producaoString += `${chave}:+${producaoDif[chave]}`
+            }
+           
+        }
+        producaoString += "</b></span>"
+    }
+
+    let htmlString = 
+    `
+    <div class="col-md-12 edificio" data-edificio="${edificio.nome_tabela}">
+        <div class="col-md-2 edificio-img imperium-gradient-background-medium">
+            <img src="/images/${edificio.icone}">
+            <div class="edificio-img-overlay-master">
+                <div class="edificio-img-overlay-fill"></div>
+                <div class="edificio-img-overlay-text"></div>
+            </div>
+        </div>
+        <div class="col-md-6 edificio-desc imperium-gradient-background-medium">
+            <div class="edificio-desc-titulo">
+                <h4>${edificio.nome}</h4>
+                <span>Nível:  <span class="edificio-nivel">${edificio.nivel}</span></span>
+            </div>
+            <div>
+                <span>Custo de melhoria</span>
+                <div class="imperium-resource-list">
+                    ${recursosString}
+                </div>
+                <div style="clear:both"><span class="edificio-tempo-melhoria-antes">Tempo de melhoria: <span>NaN</span> Segundos</span></div>
+                ${producaoString}<br><button class="btn-ugrade-edificio btn btn-success btn-sm btn-block imperium-input" style="margin-top:20px">Melhorar</button><span class="edificio-tempo-melhoria-depois hidden" style="display: block">Tempo de melhoria:<span></span></span><button class="btn-calcelar-melhoria btn btn-warning btn-sm hidden btn-block imperium-input" style="margin-top:10px">Calcelar Melhoria</button>
+            </div>
+        </div>
+    </div>
+    `
+    console.log(edificio.nome)
+    console.log(custo)
+    console.log(consumo)
+    console.log(recursosString)
+    console.log(producaoString)
+    console.log("------------")
+    return htmlString
+}
+
 function GetEdificios(posSolObj, posPlanetaObj, setor) {
+
+    let isp1 = builder.getIntensidadeSolarPlaneta(posSolObj, posPlanetaObj, setor.intensidadeSolar)
+
+    let htmlString = ""
+    for(let chave in prefabs)
+    {
+        let edit = builder.getEdificio(chave)
+        edit.nivel = planeta[chave]
+        window.edificios[chave] = edit
+
+        htmlString += getHTMLEdificio(edit, isp1)
+    }
+  
+    console.log(builder.getProducao(window.edificios, isp1));
+    
+
+    
+    
+
     let isp = GerenciadorRecursos.GetIntensidadeSolarPlaneta(posSolObj, posPlanetaObj, setor.intensidadeSolar)
     let consumo = GerenciadorRecursos.GetConsumoTotal(planeta.minaFerro, planeta.minaCristal, planeta.fabricaComponente, planeta.minaTitanio, planeta.fazenda)
     let producaoEnergia = GerenciadorRecursos.GetProducaoEnergia(planeta.plantaSolar, planeta.reatorFusao, isp);
@@ -127,6 +263,7 @@ function GetEdificios(posSolObj, posPlanetaObj, setor) {
     $("#edificio-fazenda .custo-energia span").html("<span>" + custoEnergia + "</span>");;
     $("#edificio-fazenda .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoComida(planeta.fazenda + 1, 1, 1, isp) - GerenciadorRecursos.GetProducaoComida(planeta.fazenda, consumo, producaoEnergia, isp)) * 6) + "/minuto");
     $("#edificio-fazenda .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
+    $("main").html(htmlString)
 }
 
 function GetConstrucoes() {
