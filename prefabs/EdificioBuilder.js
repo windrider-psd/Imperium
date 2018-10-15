@@ -44,14 +44,14 @@ function getIntensidadeSolarPlaneta (posSol, posPlaneta, intensidadeSol)
 function getProducao(edificios, isp)
 {
     let producao_energia = 0
-    let consumo_energia = 0
     let producao_total = {
         capacidade: 0,
         componente: 0,
         cristal: 0,
         energia: 0,
         ferro: 0,
-        titanio: 0
+        titanio: 0,
+        consumo : 0
     }
     for(let chave in edificios)
     {
@@ -66,7 +66,7 @@ function getProducao(edificios, isp)
         }
         else
         {
-            consumo_energia += edificio.consumo(edificio.nivel)
+            producao_total.consumo += edificio.consumo(edificio.nivel)
         }
     }
 
@@ -76,7 +76,7 @@ function getProducao(edificios, isp)
          * @type {Edificio}
          */
         let edificio = edificios[chave]
-        let producao = edificio.producao(edificio.nivel, consumo_energia, producao_energia, isp)
+        let producao = edificio.producao(edificio.nivel, producao_total.consumo, producao_energia, isp)
 
         for(let recurso_chave in producao)
         {

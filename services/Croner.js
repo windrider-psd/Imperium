@@ -5,6 +5,8 @@ const io = require('./../model/io');
 const MUtils = require('./DBModelsUtils')
 const ranking = require('./Ranking')
 const Bluebird = require('bluebird')
+const edificioBuiler = require('./../prefabs/EdificioBuilder')
+const edificioPrefab = require('./../prefabs/Edificio')
 /**
  * @type {Array.<{planetaID : number, edificioID : number, timeout : NodeJS.Timer}>}
  * @description Array que armazena as construções para serem executadas (timeout)
@@ -47,34 +49,31 @@ var adicionarRecurso = cron.schedule('*/10 * * * * *', function()
                                     .then((retorno) => {
                                         let recursos = retorno[0]
                                         let edificios = retorno[1]
-                                        let producao = GR.GetProducaoTotal({
-                                            fabricaComponente : edificios.fabricaComponente,
-                                            fazenda : edificios.fazenda,
-                                            minaCristal : edificios.minaCristal,
-                                            minaFerro : edificios.minaFerro,
-                                            minaTitanio : edificios.minaTitanio,
-                                        }, edificios.plantaSolar, edificios.reatorFusao, {
-                                            x: setor.solPosX,
-                                            y : setor.solPosY
-                                        }, {
-                                            x : planeta.posX,
-                                            y : planeta.posY
-                                        }, setor.intensidadeSolar);
-        
-                                        let capacidade = GR.GetTotalArmazenamentoRecursos(edificios.armazem);
                                         
+                                        let isp = edificioBuiler.getIntensidadeSolarPlaneta({x : setor.solPosX, y : setor.solPosY}, {x : planeta.posX, y : planeta.posY}, setor.intensidadeSolar);
+                                        let true_edificios = {};
+                                        for(let chave in edificioPrefab)
+                                        {
+                                            let edit = edificioBuiler.getEdificio(chave)
+                                            if(edit != null)
+                                            {
+                                                edit.nivel = edificios[chave]
+                                        
+                                                true_edificios[chave] = edit;
+                                            }
+                                            
+                                        }
+                                        let producao = edificioBuiler.getProducao(true_edificios, isp);
+                                        let capacidade = producao.capacidade
         
                                         let soma = producao.ferro + recursos.recursoFerro;
                                         let updateFerro = (soma < capacidade) ? soma : capacidade; 
-        
+
                                         soma = producao.cristal + recursos.recursoCristal;
                                         let updateCristal = (soma < capacidade) ? soma : capacidade; 
                                         
                                         soma = producao.componente + recursos.recursoComponente;
                                         let updateComponentes = (soma < capacidade) ? soma : capacidade; 
-        
-                                        soma = producao.comida + recursos.recursoComida;
-                                        let updateComida = (soma < capacidade) ? soma : capacidade; 
                                         
                                         soma = producao.titanio + recursos.recursoTitanio;
                                         let updateTitanio = (soma < capacidade) ? soma : capacidade; 
@@ -84,7 +83,6 @@ var adicionarRecurso = cron.schedule('*/10 * * * * *', function()
                                             recursoFerro : updateFerro, 
                                             recursoCristal : updateCristal,
                                             recursoTitanio : updateTitanio, 
-                                            recursoComida : updateComida,
                                             recursoComponente : updateComponentes
                                         }
         

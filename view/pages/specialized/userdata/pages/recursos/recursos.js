@@ -3,6 +3,9 @@ const utils = require('./../../../../generic/modules/utils')
 const GerenciadorRecursos = require('./../../../../../../services/shared/GerenciadorRecursos')
 const observer = require('./../../../../generic/modules/observer')
 const main = require('./../../modules/main')
+let prefabs = require('./../../../../../../prefabs/Edificio')
+let builder = require('./../../../../../../prefabs/EdificioBuilder')
+
 let setorinfo;
 let planeta;
 
@@ -44,8 +47,7 @@ function UndoMelhoria(JEdificio) {
     tempoMelhoria.addClass("hidden");
 }
 
-let prefabs = require('./../../../../../../prefabs/Edificio')
-let builder = require('./../../../../../../prefabs/EdificioBuilder')
+
 
 /**
  * 
@@ -102,7 +104,6 @@ function getHTMLEdificio(edificio, isp)
     {
         producaoTotal += producao[chave]
     }
-    console.log("total: " + producaoTotal)
 
     let producaoString = ""
     if(producaoTotal > 0)
@@ -151,12 +152,6 @@ function getHTMLEdificio(edificio, isp)
         </div>
     </div>
     `
-    console.log(edificio.nome)
-    console.log(custo)
-    console.log(consumo)
-    console.log(recursosString)
-    console.log(producaoString)
-    console.log("------------")
     return htmlString
 }
 
@@ -174,7 +169,6 @@ function GetEdificios(posSolObj, posPlanetaObj, setor) {
         htmlString += getHTMLEdificio(edit, isp1)
     }
   
-    console.log(builder.getProducao(window.edificios, isp1));
     
 
     
