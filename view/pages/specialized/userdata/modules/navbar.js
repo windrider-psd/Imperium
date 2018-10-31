@@ -125,20 +125,3 @@ observer.Observar('userdata-ready',  function (){
     });
 })
 
-$(document).ready(function(){
-    $("aside").on('click', "#logout-link", function()
-    {
-        $.ajax({
-            url : "usuario/logout",
-            method : "POST",
-            success : function()
-            {
-                window.location.href = "/";
-            },
-            error : function(erro)
-            {
-                utils.GerarNotificacao(erro.responseText, "danger");
-            }
-        });
-    });
-})
