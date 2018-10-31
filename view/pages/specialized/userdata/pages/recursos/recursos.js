@@ -25,12 +25,12 @@ function setEdificioMelhoria(JEdificio, tempo, id) {
     btnUpgrade.addClass('hidden')
     btnCancelar.removeClass('hidden');
     btnCancelar.data('id', id);
-    let overlaymaster = JEdificio.find("edificio-img-overlay-master")
-    overlaymaster.find("edificio-img-overlay-fill").css('top', '0px')
+    let overlaymaster = JEdificio.find(".edificio-img-overlay-master")
+    overlaymaster.find(".edificio-img-overlay-fill").css('top', '0px')
     overlaymaster.css('display', 'block');
 
     tempoMelhoria.find("span").text(tempo);
-    tempoMelhoria.find("JEdificio");
+    //tempoMelhoria.find("JEdificio");
     tempoMelhoria.removeClass("hidden");
 }
 
@@ -77,7 +77,7 @@ function getHTMLEdificio(edificio, isp)
             `
             <div class="custo-${chave}">
                 <div class="imperium-resource imperium-resource-${chave}"></div>
-                <span><span>${custo.ferro}</span></span>
+                <span><span>${custo[chave]}</span></span>
             </div>
             `
         }
@@ -92,7 +92,6 @@ function getHTMLEdificio(edificio, isp)
         </div>
         `
     }
-    
     
 
 
@@ -146,7 +145,7 @@ function getHTMLEdificio(edificio, isp)
                 <div class="imperium-resource-list">
                     ${recursosString}
                 </div>
-                <div style="clear:both"><span class="edificio-tempo-melhoria-antes">Tempo de melhoria: <span>NaN</span> Segundos</span></div>
+                <div style="clear:both"><span class="edificio-tempo-melhoria-antes">Tempo de melhoria: <span>${builder.getTempoConstrucao(custo, 0)}</span> Segundos</span></div>
                 ${producaoString}<br><button class="btn-ugrade-edificio btn btn-success btn-sm btn-block imperium-input" style="margin-top:20px">Melhorar</button><span class="edificio-tempo-melhoria-depois hidden" style="display: block">Tempo de melhoria:<span></span></span><button class="btn-calcelar-melhoria btn btn-warning btn-sm hidden btn-block imperium-input" style="margin-top:10px">Calcelar Melhoria</button>
             </div>
         </div>
@@ -165,112 +164,24 @@ function GetEdificios(posSolObj, posPlanetaObj, setor) {
         let edit = builder.getEdificio(chave)
         edit.nivel = planeta[chave]
         window.edificios[chave] = edit
-
         htmlString += getHTMLEdificio(edit, isp1)
     }
-  
     
 
-    
-    
-
-    let isp = GerenciadorRecursos.GetIntensidadeSolarPlaneta(posSolObj, posPlanetaObj, setor.intensidadeSolar)
-    let consumo = GerenciadorRecursos.GetConsumoTotal(planeta.minaFerro, planeta.minaCristal, planeta.fabricaComponente, planeta.minaTitanio, planeta.fazenda)
-    let producaoEnergia = GerenciadorRecursos.GetProducaoEnergia(planeta.plantaSolar, planeta.reatorFusao, isp);
-    let custo = GerenciadorRecursos.GetCustoUpgradeMinaFerro(planeta.minaFerro + 1);
-    let tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.componentes, custo.titanio, planeta.fabricaRobos);
-    let custoEnergia = GerenciadorRecursos.GetConsumoMinaFerro(planeta.minaFerro + 1) - GerenciadorRecursos.GetConsumoMinaFerro(planeta.minaFerro)
-    $("#edificio-ferro .edificio-nivel").text(planeta.minaFerro);
-    $("#edificio-ferro .custo-ferro span").html("<span>" + custo.ferro + "</span>");
-    $("#edificio-ferro .custo-cristal span").html("<span>" + custo.cristal + "</span>");
-    $("#edificio-ferro .custo-energia span").html("<span>" + custoEnergia + "</span>");;
-    $("#edificio-ferro .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoFerro(planeta.minaFerro + 1, 1, 1, isp) - GerenciadorRecursos.GetProducaoFerro(planeta.minaFerro, consumo, producaoEnergia, isp)) * 6) + "/minuto");
-    $("#edificio-ferro .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
-
-
-    custo = GerenciadorRecursos.GetCustoUpgradeMinaCristal(planeta.minaFerro + 1);
-    tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.componentes, custo.titanio, planeta.fabricaRobos);
-    custoEnergia = GerenciadorRecursos.GetConsumoMinaFerro(planeta.minaFerro + 1) - GerenciadorRecursos.GetConsumoMinaFerro(planeta.minaFerro)
-    $("#edificio-cristal .edificio-nivel").text(planeta.minaCristal);
-    $("#edificio-cristal .custo-ferro span").html("<span>" + custo.ferro + "</span>");
-    $("#edificio-cristal .custo-cristal span").html("<span>" + custo.cristal + "</span>");
-    $("#edificio-cristal .custo-energia span").html("<span>" + custoEnergia + "</span>");;
-    $("#edificio-cristal .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoCristal(planeta.minaCristal + 1, 1, 1, isp) - GerenciadorRecursos.GetProducaoCristal(planeta.minaCristal, consumo, producaoEnergia, isp)) * 6) + "/minuto");
-    $("#edificio-cristal .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
-
-    custo = GerenciadorRecursos.GetCustoUpgradePlantaSolar(planeta.plantaSolar + 1);
-    tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.componentes, custo.titanio, planeta.fabricaRobos);
-    custoEnergia = GerenciadorRecursos.GetConsumoMinaCristal(planeta.minaCristal + 1) - GerenciadorRecursos.GetConsumoMinaCristal(planeta.minaCristal)
-    $("#edificio-planta-solar .edificio-nivel").text(planeta.plantaSolar);
-    $("#edificio-planta-solar .custo-ferro span").html("<span>" + custo.ferro + "</span>");
-    $("#edificio-planta-solar .custo-cristal span").html("<span>" + custo.cristal + "</span>");
-    $("#edificio-planta-solar .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoEnergiaPlantaSolar(planeta.plantaSolar + 1, isp) - GerenciadorRecursos.GetProducaoEnergiaPlantaSolar(planeta.plantaSolar, isp)) * 6) + " total");
-    $("#edificio-planta-solar .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
-
-    custo = GerenciadorRecursos.GetCustoUpgradeReatorFusao(planeta.reatorFusao + 1);
-    tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.componentes, custo.titanio, planeta.fabricaRobos);
-    $("#edificio-reator-fusao .edificio-nivel").text(planeta.reatorFusao);
-    $("#edificio-reator-fusao .custo-ferro span").html("<span>" + custo.ferro + "</span>");
-    $("#edificio-reator-fusao .custo-cristal span").html("<span>" + custo.cristal + "</span>");
-    $("#edificio-reator-fusao .custo-titanio span").html("<span>" + custo.titanio + "</span>");
-    $("#edificio-reator-fusao .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoEnergiaReatorFusao(planeta.reatorFusao + 1) - GerenciadorRecursos.GetProducaoEnergiaReatorFusao(planeta.reatorFusao)) * 6) + " total");
-    $("#edificio-reator-fusao .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
-
-    custo = GerenciadorRecursos.GetCustoUpgradeMinaTitanio(planeta.minaTitanio + 1);
-    tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.componentes, custo.titanio, planeta.fabricaRobos);
-    custoEnergia = GerenciadorRecursos.GetConsumoMinaTitanio(planeta.minaTitanio + 1) - GerenciadorRecursos.GetConsumoMinaTitanio(planeta.minaTitanio)
-    $("#edificio-titanio .edificio-nivel").text(planeta.minaTitanio);
-    $("#edificio-titanio .custo-ferro span").html("<span>" + custo.ferro + "</span>");
-    $("#edificio-titanio .custo-cristal span").html("<span>" + custo.cristal + "</span>");
-    $("#edificio-titanio .custo-energia span").html("<span>" + custoEnergia + "</span>");;
-    $("#edificio-titanio .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoTitanio(planeta.minaTitanio + 1, 1, 1) - GerenciadorRecursos.GetProducaoTitanio(planeta.minaTitanio, consumo, producaoEnergia)) * 6) + "/minuto");
-    $("#edificio-titanio .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
-
-    custo = GerenciadorRecursos.GetCustoUpgradeFabricaComponente(planeta.fabricaComponente + 1);
-    tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.componentes, custo.titanio, planeta.fabricaRobos);
-    custoEnergia = GerenciadorRecursos.GetConsumoFabricaComponente(planeta.fabricaComponente + 1) - GerenciadorRecursos.GetConsumoFabricaComponente(planeta.fabricaComponente)
-    $("#edificio-fabrica-componente .edificio-nivel").text(planeta.fabricaComponente);
-    $("#edificio-fabrica-componente .custo-ferro span").html("<span>" + custo.ferro + "</span>");
-    $("#edificio-fabrica-componente .custo-cristal span").html("<span>" + custo.cristal + "</span>");
-    $("#edificio-fabrica-componente .custo-titanio span").html("<span>" + custo.titanio + "</span>");
-    $("#edificio-fabrica-componente .custo-energia span").html("<span>" + custoEnergia + "</span>");;
-    $("#edificio-fabrica-componente .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoComponente(planeta.fabricaComponente + 1, 1, 1) - GerenciadorRecursos.GetProducaoComponente(planeta.fabricaComponente, consumo, producaoEnergia)) * 6) + "/minuto");
-    $("#edificio-fabrica-componente .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
-
-
-    custo = GerenciadorRecursos.GetCustoUpgradeArmazem(planeta.armazem + 1);
-    tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.componentes, custo.titanio, planeta.fabricaRobos);
-    $("#edificio-armazem .edificio-nivel").text(planeta.armazem);
-    $("#edificio-armazem .custo-ferro span").html("<span>" + custo.ferro + "</span>");
-    $("#edificio-armazem .custo-cristal span").html("<span>" + custo.cristal + "</span>");
-    $("#edificio-armazem .custo-titanio span").html("<span>" + custo.titanio + "</span>");
-    $("#edificio-armazem .custo-componente span").html("<span>" + custo.componentes + "</span>")
-    $("#edificio-armazem .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetArmazenamentoArmazem(planeta.armazem + 1) - GerenciadorRecursos.GetArmazenamentoArmazem(planeta.armazem))) + " total de recursos");
-    $("#edificio-armazem .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
-
-    custo = GerenciadorRecursos.GetCustoUpgradeFazenda(planeta.fazenda + 1);
-    tempoMelhoria = GerenciadorRecursos.GetTempoConstrucao(custo.ferro, custo.cristal, custo.componentes, custo.titanio, planeta.fabricaRobos);
-    custoEnergia = GerenciadorRecursos.GetConsumoFazenda(planeta.fazenda + 1) - GerenciadorRecursos.GetConsumoFazenda(planeta.fazenda)
-    $("#edificio-fazenda .edificio-nivel").text(planeta.fazenda);
-    $("#edificio-fazenda .custo-ferro span").html("<span>" + custo.ferro + "</span>");
-    $("#edificio-fazenda .custo-cristal span").html("<span>" + custo.cristal + "</span>");
-    $("#edificio-fazenda .custo-energia span").html("<span>" + custoEnergia + "</span>");;
-    $("#edificio-fazenda .edificio-melhoria-producao").text("+" + String((GerenciadorRecursos.GetProducaoComida(planeta.fazenda + 1, 1, 1, isp) - GerenciadorRecursos.GetProducaoComida(planeta.fazenda, consumo, producaoEnergia, isp)) * 6) + "/minuto");
-    $("#edificio-fazenda .edificio-tempo-melhoria-antes span").text(tempoMelhoria);
     $("main").html(htmlString)
 }
 
 function GetConstrucoes() {
     let divs = $(".edificio")
     for (let i = 0; i < planeta.construcoes.length; i++) {
-
+        
         divs.each(function () {
             let dataEdificio = $(this).data('edificio');
-            let edificioID = planeta.construcoes[i].edificioID;
+            let edificioString = planeta.construcoes[i].edificio;
 
             let diferenca = (new Date().getTime() - new Date(planeta.construcoes[i].inicio).getTime()) / 1000
-            if (GerenciadorRecursos.GetEdificioID(dataEdificio) == edificioID) {
-                setEdificioMelhoria($(this), planeta.construcoes[i].duracao - diferenca.toFixed(0), planeta.construcoes[i].edificioID);
+            if (edificioString == dataEdificio) {
+                setEdificioMelhoria($(this), planeta.construcoes[i].duracao - diferenca.toFixed(0), planeta.construcoes[i].edificio);
                 $(this).find(".edificio-img-overlay-master").css('display', 'block')
                 return;
             }
@@ -291,9 +202,10 @@ observer.Observar('userdata-ready',  () => {
 		y: planeta.posY
 	}
 
-	$(".btn-calcelar-melhoria").on('click', function () {
+	$("main").on('click', ".btn-calcelar-melhoria", function () {
 		let btn = $(this);
-		let id = btn.data('id');
+        let id = btn.data('id');
+
 		let cancelar = function () {
 			$.ajax({
 				url: 'edificio/cancelar-melhoria',
@@ -323,10 +235,10 @@ observer.Observar('userdata-ready',  () => {
 
 	})
 
-	$(".btn-ugrade-edificio").on('click', function () {
+	$("main").on('click', ".btn-ugrade-edificio", function () {
 		let btn = $(this);
 		let divEdificio = $(this).closest('.edificio');
-		let edificio = divEdificio.data('edificio');
+        let edificio = divEdificio.data('edificio');
 		$.ajax({
 			url: 'edificio/melhorar',
 			data: {
@@ -382,7 +294,7 @@ observer.Observar('userdata-ready',  () => {
         let construcoes = planeta.construcoes
         let remover = []
         for (let i = 0; i < construcoes.length; i++) {
-            let stringid = GerenciadorRecursos.EdificioIDParaString(construcoes[i].edificioID)
+            let stringid = construcoes[i].edificio
             let JEdificio = $('.edificio[data-edificio="' + stringid + '"]')
             let diferenca = (new Date().getTime() - new Date(construcoes[i].inicio).getTime()) / 1000
             diferenca = diferenca.toFixed(0)
@@ -399,7 +311,7 @@ observer.Observar('userdata-ready',  () => {
             let px = (250 * porcentual) / 100
             px = (px - 250) * -1
     
-    
+        
             JEdificio.find(".edificio-img-overlay-master").css('display', 'block')
             JEdificio.find(".edificio-img-overlay-fill").css('top', px.toFixed(0) + "px")
             JEdificio.find(".edificio-img-overlay-text").text(construcoes[i].duracao - diferenca)
@@ -437,11 +349,11 @@ observer.Observar('socket-ready', () => {
 
 	socket.on('cancelar-melhoria', (data) => {
 		if (data.planetaID == planeta.id) {
-			let stringEdificio = GerenciadorRecursos.EdificioIDParaString(data.edificioID);
+			let stringEdificio = data.edificio;
             let JEdificio = $(".edificio[data-edificio='" + stringEdificio + "']");
             
 			for (let i = 0; i < planeta.construcoes.length; i++) {
-				if (planeta.construcoes[i].edificioID == data.edificioID) {
+				if (planeta.construcoes[i].edificio == stringEdificio) {
 					planeta.construcoes.splice(i, 1)
 					break
 				}
@@ -453,14 +365,14 @@ observer.Observar('socket-ready', () => {
 
 	socket.on('edificio-melhorando', (construcao) => {
 		if (construcao.planetaID == planeta.id) {
-			let stringEdificio = GerenciadorRecursos.EdificioIDParaString(construcao.edificioID);
+			let stringEdificio = construcao.edificio;
 			let JEdificio = $(".edificio[data-edificio='" + stringEdificio + "']");
 
-			setEdificioMelhoria(JEdificio, construcao.duracao, construcao.edificioID);
+			setEdificioMelhoria(JEdificio, construcao.duracao, construcao.edificio);
 			let esta = false
 			for (let i = 0; i < planeta.construcoes.length; i++) {
 
-				if (planeta.construcoes[i].edificioID == construcao.edificioID) {
+				if (planeta.construcoes[i].edificio == construcao.edificio) {
 					planeta.construcoes[i] = construcao
 					esta = true;
 					break

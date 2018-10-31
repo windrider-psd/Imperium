@@ -529,12 +529,14 @@ router.get('/getRankings', (req, res) => {
 router.get('/get-userdata', (req, res) => {
   MUtils.GetUserData(req)
     .then(userdata => {
+      
       userdata['WebServer'] = {}
       userdata['WebServer']['ip'] = req.app.locals.enderecoIP
       userdata['WebServer']['IOPort'] = req.app.locals.ioPort
       res.status(200).json(userdata)
     })
     .catch(err => {
+      console.log(err);
       res.status(500).end(err.message)
     })
 })

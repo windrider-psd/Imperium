@@ -286,4 +286,5 @@ let exports_obj = {
     reator_fusao : reator_fusao,
     armazem : armazem
 }
+
 module.exports = exports_obj

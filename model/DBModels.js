@@ -281,7 +281,7 @@ const Setor = con.define('setor',
     },
 }, {timestamps : false});
 
-const Asteroide = con.define("Asteroide", {
+const Asteroide = con.define("asteroide", {
     id:
     {
         type: sequalize.INTEGER,
@@ -306,10 +306,10 @@ const Asteroide = con.define("Asteroide", {
     }
 }, {timestamps :false});
 
-const Construcao = con.define("Construcao", {
-    edificioID:
+const Construcao = con.define("construcao", {
+    edificio:
     {
-        type:sequalize.TINYINT,
+        type:sequalize.STRING,
         allowNull : false,
         primaryKey : true,
     },

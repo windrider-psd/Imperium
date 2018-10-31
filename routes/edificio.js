@@ -5,6 +5,9 @@ const GR = require('./../services/shared/GerenciadorRecursos')
 const croner = require('./../services/Croner');
 const io = require('./../model/io')
 const Bluebird = require('bluebird')
+let edificioPrefabs = require('./../prefabs/Edificio')
+let edificioBuilder = require('./../prefabs/EdificioBuilder')
+
 router.post('/melhorar', function(req, res)
 {
     if(!req.session.usuario)
@@ -21,23 +24,10 @@ router.post('/melhorar', function(req, res)
         }
         else
         {
-            let coluna;
-            if(GR.VerificarIDEdificio(params.edificio))
-            {
-                if(typeof(params.edificio) === 'number')
-                    coluna = GR.EdificioIDParaString(params.edificio)
-                else
-                {
-                    if(isNaN(params.edificio))
-                        coluna = params.edificio;
-                    else
-                        coluna = GR.EdificioIDParaString(Number(params.edificio));
-                }
-            }
-            else
+            if(!edificioPrefabs[params.edificio])
             {
                 res.status(400).end("Edificio não é valido");
-                return;
+                return; 
             }
             models.Planeta.findOne({where : {id : params.planeta}}).then((planeta) =>
             {
@@ -71,14 +61,15 @@ router.post('/melhorar', function(req, res)
                                 .then((retorno) => {
                                     let recursos = retorno[0]
                                     let edificios = retorno[1]
-                                    let custo = GR.GetCustoEdificioPorId(coluna, edificios[coluna] + 1)
-                                    
-                                    if(custo.ferro > recursos.recursoFerro || custo.cristal > recursos.recursoCristal || custo.titanio > recursos.recursoTitanio || custo.componentes > recursos.recursoComponente)
+                                    //let custo = GR.GetCustoEdificioPorId(coluna, edificios[params.edificio] + 1)
+                                    let custo = edificioPrefabs[params.edificio].melhoria(edificios[params.edificio]);
+                                    if(custo.ferro > recursos.recursoFerro || custo.cristal > recursos.recursoCristal || custo.titanio > recursos.recursoTitanio || custo.componente > recursos.recursoComponente)
                                         res.status(400).end("Você não tem recursos necessários");
                                     else
                                     {
-                                        let tempo = GR.GetTempoConstrucao(custo.ferro, custo.cristal, custo.componentes, custo.titanio, edificios.fabricaRobos)
-                                        croner.AdicionarConstrucao(planeta.id, GR.GetEdificioID(coluna), tempo, (err, construcao) =>
+                                        //let tempo = GR.GetTempoConstrucao(custo.ferro, custo.cristal, custo.componentes, custo.titanio, edificios.fabricaRobos)
+                                        let tempo = edificioBuilder.getTempoConstrucao(custo, 0);
+                                        croner.AdicionarConstrucao(planeta.id, params.edificio, tempo, (err, construcao) =>
                                         {
                                             if(err)
                                             {
@@ -98,7 +89,7 @@ router.post('/melhorar', function(req, res)
                                                 {
                                                     recursoFerro : recursos.recursoFerro - custo.ferro,
                                                     recursoCristal : recursos.recursoCristal - custo.cristal,
-                                                    recursoComponente : recursos.recursoComponente - custo.componentes,
+                                                    recursoComponente : recursos.recursoComponente - custo.componente,
                                                     recursoTitanio : recursos.recursoTitanio - custo.titanio,
                                                 }
                                                 models.RecursosPlanetarios.update(update, {where : {planetaID : planeta.id}})
@@ -133,17 +124,11 @@ router.post('/cancelar-melhoria', function(req, res)
         let params = req.body
         if(!params.planeta || !params.edificio)
             res.status(400).end("Parâmetros inválidos")
-        else if(!GR.VerificarIDEdificio(params.edificio))
+        else if(!edificioPrefabs[params.edificio])
             res.status(400).end("Edificio inválido")
         else
         {
-            if(typeof(params.edificio) === 'string')
-            {
-                if(isNaN(params.edificio))
-                    params.edificio = GR.GetEdificioID(params.edificio)
-                else
-                    params.edificio = Number(params.edificio)
-            }
+           
 
             models.Con.query('SELECT * FROM planeta WHERE id = ' + Number(params.planeta) + ' and exists (select * from setors where usuarioID  = '+ req.session.usuario.id +' and setors.id = planeta.setorID) limit 1').spread((planeta) =>
             {
@@ -151,7 +136,7 @@ router.post('/cancelar-melhoria', function(req, res)
                     res.status(400).end('Planeta não encontrado');
                 else
                 {   
-                    models.Construcao.findOne({where : {planetaID: planeta[0].id, edificioID : params.edificio}}).then((construcao) =>
+                    models.Construcao.findOne({where : {planetaID: planeta[0].id, edificio : params.edificio}}).then((construcao) =>
                     {
                         if(!construcao)
                             res.status(400).end("Edificio não está sendo melhorado")
