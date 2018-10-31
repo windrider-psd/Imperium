@@ -58,7 +58,7 @@ const con = new sequalize(process.env.DB_NAME, process.env.DB_USER, process.env.
     }
 });
 
-const Usuario = con.define('Usuario', {
+const Usuario = con.define('usuario', {
     id : {
         type : sequalize.INTEGER,
         autoIncrement : true,
@@ -326,7 +326,7 @@ const Construcao = con.define("construcao", {
     }
 }, {timestamps : false});
 
-const MensagemPrivada = con.define("Mensagem_Privada",{
+const MensagemPrivada = con.define("mensagem_privada",{
     id:
     {
         type: sequalize.INTEGER,
