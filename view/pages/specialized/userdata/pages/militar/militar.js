@@ -1,4 +1,5 @@
 let $ = require('jquery')
+require('bootstrap')
 const observer = require('./../../../../generic/modules/observer')
 const utils = require('./../../../../generic/modules/utils')
 const navePrefabs = require('./../../../../../../prefabs/Nave')
@@ -39,10 +40,17 @@ function montarHTMLUnidades(unidades)
 
         let prefab = encontrarPrefab(unidade)
         
+        let custoString = "";
+        for(let recurso in prefab.custo)
+        {
+            custoString += `${recurso}:${prefab.custo[recurso]}<br />`
+        }
+
         htmlString += 
         `
-            <tr>
+            <tr data-unidade="${unidade}" class = "unidade">
                 <td>${prefab.nome}</td>
+                <td>${custoString}</td>
                 <td>${prefab.hp}</td>
                 <td>${prefab.armadura}</td>
                 <td>${prefab.escudo}</td>
@@ -51,8 +59,11 @@ function montarHTMLUnidades(unidades)
                 <td>${prefab.velocidade}</td>
                 <td>${prefab.dano}</td>
                 <td>${prefab.quantidade_armas}</td>
-                <td>${unidades[unidade]}</td> <!--total-->
-                <td></td>
+                <td class = "total">${unidades[unidade]}</td>
+                <td>
+                    <button class = "btn btn-primary imperium-input btn-construir">Construir</button>
+                    <button class = "btn btn-warning imperium-input btn-desmontar">Desmontar</button>
+                </td>
             </tr>
         `
     }
@@ -69,4 +80,13 @@ observer.Observar('userdata-ready',  () => {
         let htmlUnidades = montarHTMLUnidades(unidades);
         $("#table-unidades tbody").html(htmlUnidades);
     })
+
+    $("#table-unidades").on('click', ".btn-construir", function()
+    {
+        let unidade = $(this).parent().parent().data('unidade')
+
+        $(`#form-construir-unidade input[name="unidade"]`).val(unidade)
+        $("#modal-construir-unidade").modal('show')
+    })
+
 })

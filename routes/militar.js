@@ -81,5 +81,47 @@ router.get('/frota', (req, res) => {
     }
 })
 
+router.put('/frota', (req, res) => {
+    if(req.session.usuario)
+    {
+        /**
+         * @type {{planetaid : number, quantidade: number, unidade: string}}
+         */
+        let params = req.query;
+        if(params.planetaid || !isNaN(params.planetaid) || !params.quantidade || !params.unidade)
+        {
+            models.Frota.findOne({where : {planetaID : params.planetaid}})
+                .then(frota => {
+                    if(frota)
+                    {
+                        if(frota.usuarioID != req.session.usuario.id)
+                        {
+                            res.status(403).end("planetaid inválido")
+                        }
+                        else
+                        {
+                            models.Planeta.findOne
+                        }
+                    }
+                    else
+                    {
+                        res.status(400).end("Frota não encontrada");
+                    }
+                })
+                .catch(err => {
+                    res.status(500).end(err.message)
+                })  
+        }
+        else
+        {
+            res.status(400).end("Parâmetros precisa conter planetaid (número), quantidade (número) e unidade (string)");
+        }
+    }
+    else
+    {
+        res.status(403).end("")
+    }
+})
+
 
 module.exports = router;
