@@ -10,6 +10,8 @@ let edificiosRouter = require("./routes/edificio")
 let comunicacaoRouter = require('./routes/comunicacao')
 let aliancaRouter = require("./routes/alianca")
 let mapaRouter = require("./routes/mapa")
+let militarRouter = require('./routes/militar')
+
 let helmet = require('helmet')
 let DDDoS = require('dddos')
 let webpack = require('webpack');
@@ -45,7 +47,7 @@ module.exports = function CriarApp(sessao)
   app.use('/comunicacao', comunicacaoRouter)
   app.use('/alianca', aliancaRouter)
   app.use('/mapa', mapaRouter)
-  
+  app.use('/militar', militarRouter)
 
 
   // catch 404 and forward to error handler

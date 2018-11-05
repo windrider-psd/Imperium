@@ -1,5 +1,5 @@
-var express = require('express');
-var router = express.Router();
+let express = require('express');
+let router = express.Router();
 const models = require('./../model/DBModels')
 const MUtils = require('./../services/DBModelsUtils')
 const path = require('path')
@@ -73,10 +73,8 @@ router.get('/recursos', (req, res) => {
 router.get('/alianca', (req, res) => {
   if(req.session.usuario)
   {
-      MUtils.GetUserData(req).then(userdata => render('alianca', res)).catch(() => render('login-cadastro', res));
-
+    MUtils.GetUserData(req).then(userdata => render('alianca', res)).catch(() => render('login-cadastro', res));
   }
-    
   else 
     render('login-cadastro');
 });
@@ -143,4 +141,12 @@ router.get('/galaxia', (req, res) => {
   else 
     render('login-cadastro', res);
 });
+
+router.get('/militar', (req, res) => {
+  if(req.session.usuario)
+    render('militar', res);
+  else 
+    render('login-cadastro', res);
+});
+
 module.exports = router;
