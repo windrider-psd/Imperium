@@ -5,7 +5,8 @@
   "scripts": {
     "start": "nodemon ./bin/www.js",
     "game-builder": "node ./bin/builder.js",
-    "webpack": "node_modules/.bin/webpack --config webpack.config.js"
+    "webpack": "node_modules/.bin/webpack --config webpack.config.js",
+    "generatepage" : "node ./bin/generate_page.js"
   },
   "nodemonConfig": {
     "ignore": [
