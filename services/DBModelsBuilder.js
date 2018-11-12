@@ -199,6 +199,7 @@ class DBBuilder {
                                             if(callback)
                                                 callback()
                                         });
+                                        models.Frota_Construcao.sync({force: force})
                                     });    
                                 });
                             });

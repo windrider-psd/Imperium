@@ -1,17 +1,26 @@
 const models = require('./../model/DBModels');
 const cron = require('node-cron');
-const GR = require('./shared/GerenciadorRecursos');
 const io = require('./../model/io');
 const MUtils = require('./DBModelsUtils')
 const ranking = require('./Ranking')
 const Bluebird = require('bluebird')
 const edificioBuiler = require('./../prefabs/EdificioBuilder')
 const edificioPrefab = require('./../prefabs/Edificio')
+const navePrefab = require('./../prefabs/Nave')
+const naveBuilder = require('./../prefabs/NaveBuilder')
 /**
  * @type {Array.<{planetaID : number, edificioID : number, timeout : NodeJS.Timer}>}
  * @description Array que armazena as construções para serem executadas (timeout)
  */
 var construcoes = new Array();
+
+/**
+ * @type {Array.<{planetaID : number, unidade : string, usuarioID: number, quantidade: number timeout : NodeJS.Timer}>}
+ * @description Array que armazena as construções de frota para serem executadas (timeout)
+ */
+var construcoes_frota = new Array();
+
+
 /**
  * @description Cron job para adicionar recursos para os jogadores
  */
@@ -98,6 +107,31 @@ var adicionarRecurso = cron.schedule('*/10 * * * * *', function()
     }
 })
 
+
+function CriarConstrucaoFrotaTimer(unidade, quantidade, duracao, usuarioID, planetaID, nave)
+{
+    return setTimeout(() => {
+        models.Frota.findOne({where : {planetaID : planetaID, usuarioID: usuarioID}})
+            .then((frota) => {
+                let total = Number(frota.dataValues[unidade]) + Number(quantidade);
+    
+                frota[unidade] = total;
+                frota.save()
+                    .then(() => {
+                        for(let chave in nave.custo)
+                        {
+                            nave.custo[chave] = nave.custo[chave] * quantidade;
+                        }
+                        models.Frota_Construcao.destroy({where :{planetaID : planetaID}});
+                        ranking.AdicionarPontos(usuarioID, nave.custo, ranking.TipoPontos.pontosMilitar);
+                        //Emitir para id da sessão
+                    })
+            })
+
+    }, duracao * 1000)
+}
+
+
 /**
  * @param {string} edificio 
  * @param {number} planetaID 
@@ -106,22 +140,18 @@ var adicionarRecurso = cron.schedule('*/10 * * * * *', function()
  */
 function CriarConstrucaoTimer(edificio, planetaID, duracao)
 {   
-    console.log(duracao)
     return setTimeout(() => 
     {
-       console.log("aaaaaaaaaaaaaaaaaaaaa")
         models.Planeta.findOne({where : {id : planetaID}}).then((planeta) =>{
             
             models.Edificios.findOne({where : {planetaID : planetaID}})
                 .then((edi) => {
                     edi[edificio] = edi[edificio] + 1
-                    console.log(edi);
                     edi.save().then(() => {
                         MUtils.GetUsuarioPlaneta(planeta).then((usuario) =>
                         {
                             //let custo = GR.GetCustoEdificioPorId(edificioID, edi[edificio]);
                             let custo = edificioPrefab[edificio].melhoria(edi[edificio])
-                            console.log(custo);
                             ranking.AdicionarPontos(usuario, custo, ranking.TipoPontos.pontosEconomia);
                             io.EmitirParaSessao(usuario.id, 'edificio-melhoria-completa', {planetaID : planetaID, edificio : edificio});
                         });
@@ -132,6 +162,86 @@ function CriarConstrucaoTimer(edificio, planetaID, duracao)
     }, duracao * 1000)
 }
 
+/**
+ * @param {number} usuarioID
+ * @param {number} planetaID 
+ * @param {string} unidade
+ * @param {number} quantidade
+ * @param {number} nivelHangar
+ * @returns {Promise}
+ */
+function AdicionarFrota(usuarioID, planetaID, unidade, quantidade, nivelHangar)
+{
+    return new Promise((resolve, reject) => {
+        let nave = naveBuilder.getNavePorNomeTabela(unidade);
+        if(nave == null)
+        {
+            reject(new Error(`Nave "${unidade}" não existe`))
+        }
+        else
+        {
+            for(let chave in nave.custo)
+            {
+                nave.custo[chave] = nave.custo[chave] * quantidade;
+            }
+            models.RecursosPlanetarios.findOne({where : {planetaID : planetaID}})
+                .then(recursos => {
+                    let valido = true
+
+                    let updateFerro = recursos.dataValues.recursoFerro - nave.custo.ferro * quantidade;
+                    if(updateFerro < 0)
+                    {
+                        reject(new Error("Ferro insuficiente"))
+                        valido = false
+                    }
+                    
+                    let updateCristal = recursos.dataValues.recursoCristal - nave.custo.cristal * quantidade;
+                    if(updateCristal < 0)
+                    {
+                        reject(new Error("Cristal insuficiente"))
+                        valido = false
+                    }
+
+                    
+                    let updateComponente = recursos.dataValues.recursoComponente - nave.custo.componente * quantidade;
+                    if(updateComponente < 0)
+                    {
+                        reject(new Error("Componentes insuficiente"))
+                        valido = false
+                    }
+
+                    
+                    let updateTitanio = recursos.dataValues.recursoTitanio - nave.custo.titanio * quantidade;
+                    if(updateTitanio < 0)
+                    {
+                        reject(new Error("Titanio insuficiente"))
+                        valido = false
+                    }
+
+                    recursos['recursoFerro'] = updateFerro
+                    recursos['recursoCristal'] = updateCristal
+                    recursos['recursoComponente'] = updateComponente
+                    recursos['recursoTitanio'] = updateTitanio
+
+                    if(valido)
+                    {
+                        recursos.save()
+                            .then(() => console.log("sucesso"))
+                            .catch(err => {console.log(err)})   
+                        
+                        let duracao = naveBuilder.getTempoConstrucao(nave, nivelHangar) * quantidade;
+                        models.Frota_Construcao.create({unidade: unidade, inicio : new Date(), duracao : duracao, planetaID : planetaID})
+                            .then((construcao) => {
+                                let timer = CriarConstrucaoFrotaTimer(unidade, quantidade, duracao, usuarioID, planetaID, nave);
+                                construcoes_frota.push({planetaID: planetaID, quantidade: quantidade, usuarioID : usuarioID, timeout : timer})
+                                resolve(construcao)
+                            })
+                    }
+                })
+        }
+    })
+    
+}
 
 /**
  * @param {number} planetaID O ID do planeta da construção
@@ -161,12 +271,10 @@ function AdicionarConstrucao(planetaID, edificio, duracao, callback)
  */
 function RemoverConstrucao(idPlaneta, edificio)
 {
-    console.log("removendo...")
     for(let i = 0; i < construcoes.length; i++)
     {
         if(construcoes[i].planetaID == idPlaneta && construcoes[i].edificio == edificio)
         {
-            console.log("removido")
             clearTimeout(construcoes[i].timeout);
             models.Construcao.destroy({where : {planetaID : construcoes[i].planetaID, edificio : construcoes[i].edificio}});
             construcoes.splice(i, 1);
@@ -198,5 +306,6 @@ let recuperarConstrucoes = setInterval(() =>{
 module.exports = {
     Recursos : adicionarRecurso,
     AdicionarConstrucao : AdicionarConstrucao,
-    RemoverConstrucao : RemoverConstrucao
+    RemoverConstrucao : RemoverConstrucao,
+    AdicionarFrota : AdicionarFrota
 }

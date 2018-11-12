@@ -61,14 +61,14 @@ module.exports = function CriarApp(sessao)
     // set locals, only providing error in development
     res.locals.message = err.message
     res.locals.error = req.app.get('env') === 'development' ? err : {}
-
+    console.log(err);
     // render the error page
     res.status(err.status || 500)
     res.json(err)
   });
   app.locals.enderecoIP = require('ip').address()
-  console.log(process.env.mode)
-  if(process.env.mode == 'development' && !yargs.nowebpack)
+  console.log(`Modo: ${process.env.MODE}`)
+  if(process.env.MODE == 'development' && !yargs.nowebpack)
   {
     app.use(require("webpack-dev-middleware")(compiler, {
       publicPath: __dirname + '/dist/', writeToDisk : true

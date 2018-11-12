@@ -14,7 +14,7 @@ function getMilitar(planetaID, callback = () => {})
             callback(unidades)
         },
         error : (err) => {
-            utils.GerarNotificacao(err.responseText, "error");
+            utils.GerarNotificacao(err.responseText, "danger");
         }
     })
 }
@@ -70,6 +70,7 @@ function montarHTMLUnidades(unidades)
     return htmlString;
 }
 
+
 observer.Observar('userdata-ready',  () => {
     getMilitar(window.planeta.id, (unidades) => {
         delete unidades.operacaoID
@@ -87,6 +88,22 @@ observer.Observar('userdata-ready',  () => {
 
         $(`#form-construir-unidade input[name="unidade"]`).val(unidade)
         $("#modal-construir-unidade").modal('show')
+    })
+
+    $("#form-construir-unidade").on('submit', function() {
+        let params = utils.FormToAssocArray($(this))
+        params['planetaid'] = window.planeta.id
+        $.ajax({
+            url : "militar/frota",
+            method : "PUT",
+            data: params,
+            success : () => {
+                console.log("sucesso")
+            },
+            error : (err) => {
+                utils.GerarNotificacao(err.responseText, "danger");
+            }
+        })
     })
 
 })

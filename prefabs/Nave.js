@@ -6,6 +6,7 @@
  * @property {number} componente
  */
 
+
 class Nave {
     /**
      * 

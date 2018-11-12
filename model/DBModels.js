@@ -1275,6 +1275,27 @@ const MensagemSistema = con.define('mensagem_sistema', {
     } 
 }, {timestamps : false})
 
+
+const Frota_Construcao = con.define("frota_construcao", {
+    unidade:
+    {
+        type:sequalize.STRING,
+        allowNull : false,
+        primaryKey : true,
+    },
+    inicio:
+    {
+        type: sequalize.DATE,
+        allowNull : false,
+        defaultValue : sequalize.NOW,
+    },
+    duracao:
+    {
+        type:sequalize.INTEGER,
+        allowNull : false
+    }
+}, {timestamps : false})
+
 Usuario.hasOne(EsqueciSenha, {foreignKey : {name : "usuarioID", allowNull : false, primaryKey : true}, onDelete : "CASCADE"})
 EsqueciSenha.removeAttribute('id')
 Edificios.removeAttribute('id')
@@ -1283,6 +1304,7 @@ Setor.hasMany(Planeta, {foreignKey : {name : "setorID", allowNull : false}, onDe
 Setor.hasMany(Asteroide, {foreignKey : {name : "setorID", allowNull : false}, onDelete : "CASCADE"})
 Usuario.hasMany(Setor, {foreignKey : {name : "usuarioID", allowNull : true}, onDelete: "SET NULL"})
 Planeta.hasMany(Construcao,  {foreignKey : {name : "planetaID", allowNull : false, primaryKey : true}, onDelete: "CASCADE"})
+Planeta.hasMany(Frota_Construcao,  {foreignKey : {name : "planetaID", allowNull : false, primaryKey : true}, onDelete: "CASCADE"})
 
 //Reseta os attributos dos planetas e asteroides do usuario após o usuário ser apagado da base de dados
 Usuario.afterDestroy(function(usuario)
@@ -1329,6 +1351,7 @@ module.exports = {
     RelatorioEspionagem : RelatorioEspionagem,
     Pesquisas : pesquisas,
     Edificios  : Edificios,
+    Frota_Construcao : Frota_Construcao,
     isReady : function(){return ready;}
 };
 

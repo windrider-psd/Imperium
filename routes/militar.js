@@ -2,6 +2,7 @@ let express = require('express');
 let router = express.Router();
 const models = require('./../model/DBModels')
 const MUtils = require('./../services/DBModelsUtils')
+let croner  = require('./../services/Croner')
 router.get('/frota', (req, res) => {
     if(req.session.usuario)
     {
@@ -87,10 +88,10 @@ router.put('/frota', (req, res) => {
         /**
          * @type {{planetaid : number, quantidade: number, unidade: string}}
          */
-        let params = req.query;
+        let params = req.body;
         if(params.planetaid || !isNaN(params.planetaid) || !params.quantidade || !params.unidade)
         {
-            models.Frota.findOne({where : {planetaID : params.planetaid}})
+            models.Frota.findOne({where : {planetaID : params.planetaid, usuarioID : req.session.usuario.id}})
                 .then(frota => {
                     if(frota)
                     {
@@ -100,7 +101,14 @@ router.put('/frota', (req, res) => {
                         }
                         else
                         {
-                            models.Planeta.findOne
+
+                            croner.AdicionarFrota(req.session.usuario.id, params.planetaid, params.unidade, params.quantidade, 1)
+                                .then(() => {
+                                    res.status(200).end("")
+                                })
+                                .catch((err) => {
+                                    res.status(500).end(err.message)
+                                })
                         }
                     }
                     else
