@@ -76,9 +76,6 @@ module.exports = function CriarApp(sessao)
   
     app.use(require("webpack-hot-middleware")(compiler));
   }
-  
-
-  
 
   return app
 }

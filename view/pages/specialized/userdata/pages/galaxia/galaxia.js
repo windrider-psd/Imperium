@@ -20,6 +20,83 @@ function getGalaxiaInfo(callback = () => {})
 }
 
 
+function getCentroSetor(JSetor)
+{
+    let attrPontos = JSetor.attr('points');
+    let pontosArr = attrPontos.trim().split(' ');
+    let maiorX = 0;
+    let menorX = 9999999999999999999999;
+
+    let maiorY = 0;
+    let menorY = 99999999999999999999999;
+    
+    for(let pontoMapa of pontosArr)
+    {
+        let posicoes = pontoMapa.split(','); //x = [0] e y = [1]
+        
+        if(posicoes[0] > maiorX)
+        {
+            maiorX = posicoes[0]
+        }
+        if(posicoes[0] < menorX)
+        {
+            menorX = posicoes[0]
+        }
+
+        if(posicoes[1] > maiorY)
+        {
+            maiorY = posicoes[1]
+        }
+        if(posicoes[1] < menorY)
+        {
+            menorY = posicoes[1]
+        }
+    }
+    
+    let centroX = Number(((maiorX - menorX) / 2)) + Number(menorX)
+    let centroY = Number((maiorY - menorY) / 2) + Number(menorY)
+
+    return {
+        posX : centroX,
+        posY : centroY
+    }
+}
+
+function encontrarRota(setor)
+{
+    let params = {
+        origemPosX : window.setorinfo.setor.posX,
+        origemPosY : window.setorinfo.setor.posY,
+        destinoPosX: setor.setor.posX,
+        destinoPosY: setor.setor.posY
+    }
+
+    $.ajax({
+        url : 'militar/path',
+        method : 'GET',
+        data: params,
+        dataType : 'JSON',
+        success : function(rota)
+        {
+            console.log(rota);
+            let htmlRota = ''; 
+            let setorAtual = $(`.mapa-setor[data-posicao="${window.setorinfo.setor.posX} ${ window.setorinfo.setor.posY}"]`)
+            let centroAtual = getCentroSetor(setorAtual);
+            let centroAnterior = centroAtual;
+            for(let ponto of rota)
+            {
+                let centro = getCentroSetor($(`.mapa-setor[data-posicao="${ponto.posX} ${ponto.posY}"]`));
+
+                htmlRota += `<line class = "mapa-path" x1="${centroAnterior.posX}" y1="${centroAnterior.posY}" x2="${centro.posX}" y2="${centro.posY}" style="stroke:rgb(255,0,0);stroke-width:2" />`
+                centroAnterior = centro;
+            }
+            $(".mapa-path").remove();
+            $(".mapa-svg").html($(".mapa-svg").html() + htmlRota)
+        }
+    })
+}
+
+
 observer.Observar('userdata-ready',  () => {
     let galaxia;
     function gerarCasa(setor)
@@ -50,7 +127,7 @@ observer.Observar('userdata-ready',  () => {
         }
         let pontos = [p1, p2, p3, p4, p5, p6]
         let offsetX = (setor.setor.posX) * (largura / 4 + largura / 2)
-        let offsetY = altura * setor.setor.posY 
+        let offsetY = altura * setor.setor.posY
         if(setor.setor.posX % 2 != 0)
         {
             offsetY += altura / 2
@@ -126,7 +203,7 @@ observer.Observar('userdata-ready',  () => {
                 htmlPlanetario = c1 + c2 + c3
             }
             let nickSetor = galaxia.setores[i].setor.usuario != null ? galaxia.setores[i].setor.usuario.nick : ""
-            htmlString += `<polygon data-index = "${i}" class="mapa-setor ${casa.cor_classe}"  points="${htmlPontos}" stroke="black" stroke-width="2" stroke-linecap="butt"></polygon><text x="${casa.pontoTextoSetor.x}" y="${casa.pontoTextoSetor.y}" fill="black">${galaxia.setores[i].setor.nome}</text><text x="${casa.pontoTextoNick.x}" y="${casa.pontoTextoNick.y}" fill="black">${nickSetor}</text>${htmlPlanetario}`
+            htmlString += `<polygon data-index = "${i}" data-posicao = "${galaxia.setores[i].setor.posX} ${galaxia.setores[i].setor.posY}" class="mapa-setor ${casa.cor_classe}"  points="${htmlPontos}" stroke="black" stroke-width="2" stroke-linecap="butt"></polygon><text x="${casa.pontoTextoSetor.x}" y="${casa.pontoTextoSetor.y}" fill="black">${galaxia.setores[i].setor.nome}</text><text x="${casa.pontoTextoNick.x}" y="${casa.pontoTextoNick.y}" fill="black">${nickSetor}</text>${htmlPlanetario}`
         }
 
         let mapa = $(".mapa-svg")
@@ -140,13 +217,13 @@ observer.Observar('userdata-ready',  () => {
 
     getGalaxiaInfo((info) => {
         galaxia = info;
-        console.log(galaxia)
         gerarHTMLMapa();
     })
     
     $(".mapa-svg").on('click', '.mapa-setor', function(){
 
         let setor = galaxia.setores[$(this).data('index')]
+        encontrarRota(setor);
         let popup = $('.setor-popup')
         
         let classificacao = popup.find('.classificacao')

@@ -42,17 +42,37 @@ function getVizinhos(ponto)
 
     for(let i = 0; i < pontosTotais.length; i++)
     {
-        let p = pontosTotais[i]
-        if((p.posX == ponto.posX && p.posY == ponto.posY + 1) || //top
-            (p.posX == ponto.posX - 1 && p.posY == ponto.posY) || //left
-            (p.posX == ponto.posX + 1 && p.posY == ponto.posY) || //right
-            (p.posX == ponto.posX && p.posY == ponto.posY - 1))
+        let p = pontosTotais[i] //funcionado se ponto.posX for par
+        
+        if(ponto.posX % 2 != 0)
         {
-           retorno.push({posX : p.posX, posY : p.posY});
-        } //bottom
+            if((p.posX == ponto.posX && p.posY == ponto.posY - 1) || //top
+            (p.posX == ponto.posX + 1 && p.posY == ponto.posY) || //right - top
+            (p.posX == ponto.posX + 1 && p.posY == ponto.posY + 1) || //right - bottom
+            (p.posX == ponto.posX && p.posY == ponto.posY + 1) || // bottom
+            (p.posX == ponto.posX - 1 && p.posY == ponto.posY + 1) || // left-bottom
+            (p.posX == ponto.posX - 1 && p.posY == ponto.posY)) //left- top
+            {
+                retorno.push({posX : p.posX, posY : p.posY});
+            }
+        }
+        else
+        {
+            if((p.posX == ponto.posX && p.posY == ponto.posY - 1) || //top
+            (p.posX == ponto.posX + 1 && p.posY == ponto.posY - 1) || //right - top
+            (p.posX == ponto.posX + 1 && p.posY == ponto.posY) || //right - bottom
+            (p.posX == ponto.posX && p.posY == ponto.posY + 1) || // bottom
+            (p.posX == ponto.posX - 1 && p.posY == ponto.posY) || // left-bottom
+            (p.posX == ponto.posX - 1 && p.posY == ponto.posY - 1)) //left- top
+            {
+                retorno.push({posX : p.posX, posY : p.posY});
+            }
+        }
+        
     }
     return retorno;
 }
+
 
 /**
  * 

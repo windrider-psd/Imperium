@@ -3,6 +3,9 @@ let router = express.Router();
 const models = require('./../model/DBModels')
 const MUtils = require('./../services/DBModelsUtils')
 let croner  = require('./../services/Croner')
+let pathfinder = require('./../services/Pathfinder')
+
+
 router.get('/frota', (req, res) => {
     if(req.session.usuario)
     {
@@ -131,5 +134,38 @@ router.put('/frota', (req, res) => {
     }
 })
 
+
+router.get('/path', (req, res) => 
+{
+    if(req.session.usuario)
+    {
+        /**
+         * @type {{origemPosX : number, origemPosY : number, destinoPosX : number, destinoPosY : number}}
+         */
+        let params = req.query;
+
+        if((params.origemPosX && params.origemPosY && params.destinoPosX && params.destinoPosY))
+        {
+            res.status(200).json(pathfinder.encontrarRota(
+                {
+                    posX : Number(params.origemPosX),
+                    posY : Number(params.origemPosY)
+                },
+                {
+                    posX : Number(params.destinoPosX),
+                    posY : Number(params.destinoPosY)
+                },
+            ))
+        }
+        else
+        {
+            res.status(400).end("Parâmetros inválidos")
+        }
+    }
+    else
+    {
+        res.status(403).end("")
+    }
+})
 
 module.exports = router;
