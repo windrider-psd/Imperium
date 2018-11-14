@@ -214,9 +214,8 @@ router.post('/operacao', (req, res) => {
                     let frotaOperacao = {}
                     for(let chave in frota.dataValues)
                     {
-                        if(params[chave] != null && frota.dataValues[chave] <= params[chave])
+                        if(params[chave] != null && frota.dataValues[chave] >= params[chave])
                         {
-                            console.log()
                             if(params[chave] == '')
                             {
                                 params[chave] = 0

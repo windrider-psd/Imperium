@@ -9,7 +9,7 @@ const edificioPrefab = require('./../prefabs/Edificio')
 const navePrefab = require('./../prefabs/Nave')
 const naveBuilder = require('./../prefabs/NaveBuilder')
 const pathFinder = require('./../services/Pathfinder')
-
+const operacaoControler = require('./OperacaoController')
 /**
  * @type {Array.<{planetaID : number, edificioID : number, timeout : NodeJS.Timer}>}
  * @description Array que armazena as construções para serem executadas (timeout)
@@ -307,17 +307,10 @@ let recuperarConstrucoes = setInterval(() =>{
 
 
 
+
 function IniciarOperacao(usuarioid, operacao, frotaID, frotaOperacao, idPlanetaOrigem, idSetorDestino)
 {
-    let menorVelocidade = 99999999999999999;
-    for(let n in frotaOperacao)
-    {
-        let nave = naveBuilder.getNavePorNomeTabela(n)
-        if(nave.velocidade < menorVelocidade)
-        {
-            menorVelocidade = nave.velocidade
-        }
-    }
+    
 
     models.Planeta.findOne({where : {id : idPlanetaOrigem}, attributes: ['setorID']})
         .then(planeta => {
@@ -392,6 +385,7 @@ function IniciarOperacao(usuarioid, operacao, frotaID, frotaOperacao, idPlanetaO
                                                         models.Frota.update(objUpdateFrota, {where : {id : frotaID}, transaction : transacao})
                                                             .then(() => {
                                                                 transacao.commit();
+                                                                operacaoControler.Colonizar(operacao)
                                                             })
                                                     })
                                             })
