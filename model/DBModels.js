@@ -881,9 +881,9 @@ const Operacao_Militar = con.define('operacao_militar', {
         unique : true,
         primaryKey : true,
     },
-    codigo :
+    operacao :
     {
-        type : sequalize.INTEGER,
+        type : sequalize.STRING,
         allowNull : false,
     },
     origem :
@@ -918,6 +918,11 @@ const Operacao_Militar = con.define('operacao_militar', {
         },
         onDelete : "CASCADE"
     },
+    estagio: {
+        type : sequalize.INTEGER,
+        allowNull : false,
+        defaultValue : 1
+    }
     
 }, {timestamps : false})
 

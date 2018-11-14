@@ -14,22 +14,25 @@ block content
                     | Mapa
                     i.fa.fa-arrow
                 .operacoes-ofensivas(style="display:inline")
-                    button.btn.btn-danger.btn-sm
+                    button.btn.btn-danger.btn-sm.operacao-btn(data-operacao="")
                         | Pilhar
-                    button.btn.btn-danger.btn-sm
+                    button.btn.btn-danger.btn-sm.operacao-btn(data-operacao="")
                         | Ocupar
-                    button.btn.btn-danger.btn-sm
+                    button.btn.btn-danger.btn-sm.operacao-btn(data-operacao="")
                         | Espionar
                 .operacoes-defensivas(style="display:inline")
-                    button.btn.btn-primary.btn-sm
+                    button.btn.btn-primary.btn-sm.operacao-btn(data-operacao="")
                         | Defender 
-                    button.btn.btn-primary.btn-sm
+                    button.btn.btn-primary.btn-sm.operacao-btn(data-operacao="")
                         | Transportar
-                    button.btn.btn-primary.btn-sm
+                    button.btn.btn-primary.btn-sm.operacao-btn(data-operacao="")
                         | Transferir
                 .operacoes-neutras(style="display:inline")
-                    button.btn.btn-primary.btn-sm
-                        | Anexar 
+                    button.btn.btn-primary.btn-sm.operacao-btn(data-operacao="")
+                        | Anexar
+                .operacoes-neutras(style="display:inline")
+                    button.btn.btn-primary.btn-sm.operacao-btn(data-operacao="colonizar")
+                        | Colonizar
                 .table-responsive.imperium-scrollbar
                     table.table.imperium-table
                         tbody
@@ -61,7 +64,20 @@ block content
                                 tr
                                     td Banido: 
                                     td.banido
-
-    
-    
+    #modal-operacao.modal.fade(role='dialog').imperium-modal
+        .modal-dialog
+            .modal-content
+                .modal-header
+                    button.close(type='button', data-dismiss='modal') ×
+                    h4.modal-title Operação militar
+                .modal-body
+                    .container-fluid
+                        .row
+                            .col-md-offset-1.col-md-10.col-sm-12
+                                form(onsubmit='return false')#form-operacao
+                                    input(type="hidden", name="operacao", value="")#form-operacao-operacao
+                                    #div-frota
+                                    .row
+                                        .col-md-offset-3.col-md-6.text-center
+                                            button.btn.btn-primary.btn-lg.btn-block(type='submit').imperium-input Enviar
 block posscripts

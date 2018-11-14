@@ -3,7 +3,7 @@ let altura = 170;
 let $ = require('jquery')
 const utils = require('./../../../../generic/modules/utils')
 const observer = require('./../../../../generic/modules/observer')
-
+const navePrefabs = require('./../../../../../../prefabs/Nave')
 
 
 function getGalaxiaInfo(callback = () => {})
@@ -17,6 +17,19 @@ function getGalaxiaInfo(callback = () => {})
             callback(resposta);
         }
     })
+}
+
+function encontrarPrefab(nomeTabela)
+{
+    for(let prefab in navePrefabs)
+    {
+        let obj = navePrefabs[prefab];
+        if(nomeTabela == obj.nome_tabela)
+        {
+            return obj;
+        }
+    }
+    return null
 }
 
 
@@ -78,7 +91,6 @@ function encontrarRota(setor)
         dataType : 'JSON',
         success : function(rota)
         {
-            console.log(rota);
             let htmlRota = ''; 
             let setorAtual = $(`.mapa-setor[data-posicao="${window.setorinfo.setor.posX} ${ window.setorinfo.setor.posY}"]`)
             let centroAtual = getCentroSetor(setorAtual);
@@ -96,8 +108,51 @@ function encontrarRota(setor)
     })
 }
 
+function MontarFrota()
+{
+    
+    $.ajax({
+        url : "militar/frota",
+        method : "GET",
+        data: {planetaid : window.planeta.id},
+        dataType : "JSON",
+        success : (unidades) => {
+            console.log(unidades);
+            delete unidades.usuarioID
+            delete unidades.planetaID
+            delete unidades.id
+            delete unidades.operacaoID
+            delete unidades.relatorioID
+            let htmlString = ''
+            for(let unidade in unidades)
+            {
+                let prefab = encontrarPrefab(unidade)
+                let disabled = unidades[unidade] > 0 ? "" : "disabled"
+                let value = disabled ? ""  : "value = '0'"
+                htmlString += 
+                `
+                    <div class = "form-group">
+                        <label class = "imperium-label">${prefab.nome}</label>
+                        <input type = "number" class = "form-control imperium-input" ${value} min= "0" max = "${unidades[unidade]}" ${disabled}/>
+                    </div>
+                `
+                
+            }
+            $("#div-frota").html(htmlString)
+        },
+        error : (err) => {
+            utils.GerarNotificacao(err.responseText, "danger");
+        }
+    })
+}
+
+
+
 
 observer.Observar('userdata-ready',  () => {
+
+    MontarFrota();
+    
     let galaxia;
     function gerarCasa(setor)
     {
@@ -292,6 +347,14 @@ observer.Observar('userdata-ready',  () => {
         intensidade.text(setor.setor.intensidadeSolar)
         planetas.text(setor.planetas.length)
         popup.removeClass('hidden')
+    })
+
+
+
+    $(".operacao-btn").on('click', function(){
+        let operacao = $(this).data('operacao')
+        $("#form-operacao-operacao").val(operacao)
+        $("#modal-operacao").modal('show');
     })
 
 })
