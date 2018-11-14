@@ -8,6 +8,8 @@ const edificioBuiler = require('./../prefabs/EdificioBuilder')
 const edificioPrefab = require('./../prefabs/Edificio')
 const navePrefab = require('./../prefabs/Nave')
 const naveBuilder = require('./../prefabs/NaveBuilder')
+const pathFinder = require('./../services/Pathfinder')
+
 /**
  * @type {Array.<{planetaID : number, edificioID : number, timeout : NodeJS.Timer}>}
  * @description Array que armazena as construções para serem executadas (timeout)
@@ -301,11 +303,120 @@ let recuperarConstrucoes = setInterval(() =>{
     }
 }, 5000)
 
+
+
+
+
+function IniciarOperacao(usuarioid, operacao, frotaID, frotaOperacao, idPlanetaOrigem, idSetorDestino)
+{
+    let menorVelocidade = 99999999999999999;
+    for(let n in frotaOperacao)
+    {
+        let nave = naveBuilder.getNavePorNomeTabela(n)
+        if(nave.velocidade < menorVelocidade)
+        {
+            menorVelocidade = nave.velocidade
+        }
+    }
+
+    models.Planeta.findOne({where : {id : idPlanetaOrigem}, attributes: ['setorID']})
+        .then(planeta => {
+            models.Setor.findAll(
+            {
+                where : 
+                {
+                    $or:
+                    [
+                        {id : planeta.setorID},
+                        {id : idSetorDestino}
+                    ]
+                    
+                }
+            }
+            )
+                .then(setores => 
+                {
+                    let setorOrigem = null
+                    let setorDestino = null
+                    
+                    for(let i = 0; i < setores.length; i++)
+                    {
+                        if(setorOrigem == null && setores[i].id == planeta.setorID)
+                        {
+                            setorOrigem = setores[i]
+                        }
+                        else if(setores[i].id == idSetorDestino)
+                        {
+                            setorDestino = setores[i]
+                        }
+                    }
+
+                    models.Con.transaction()
+                        .then(transacao => {
+                            models.Frota.findOne({where : {id : frotaID}, transaction : transacao})
+                                .then(frota => {
+                                    delete frota.dataValues.usuarioID
+                                    delete frota.dataValues.planetaID
+                                    delete frota.dataValues.id
+                                    delete frota.dataValues.operacaoID
+                                    delete frota.dataValues.relatorioID
+                                    for(let chave in frotaOperacao)
+                                    {
+                                        frota.dataValues[chave] = frota.dataValues[chave] - frotaOperacao[chave]
+                                    }
+                                    models.Operacao_Militar.create(
+                                        {
+                                            usuarioID : usuarioid, 
+                                            operacao : operacao,
+                                            origem : setorOrigem.id,
+                                            destino: setorDestino.id,
+                                            atual: setorOrigem.id,
+                                        }, {transaction : transacao})
+                                            .then(operacaoCriada => {
+                                                let objCreateFrota = {
+                                                    usuarioID : usuarioid,
+                                                    operacaoID : operacaoCriada.id
+                                                }
+                                                let objUpdateFrota = {
+
+                                                }
+                                                for(let chave in frota.dataValues)
+                                                {
+                                                    //objCreateFrota[chave] = frota.dataValues[chave]
+                                                    //objUpdateFrota[chave] = frota
+                                                    objCreateFrota[chave] =  frotaOperacao[chave]
+                                                    objUpdateFrota[chave] = frota.dataValues[chave]
+                                                }
+                                                models.Frota.create(objCreateFrota, {transaction : transacao})
+                                                    .then(() => {
+                                                        models.Frota.update(objUpdateFrota, {where : {id : frotaID}, transaction : transacao})
+                                                            .then(() => {
+                                                                transacao.commit();
+                                                            })
+                                                    })
+                                            })
+
+                                })
+                                .catch(err => {
+                                    console.log(err);
+                                    transacao.rollback()
+                                })
+                        })
+                        
+
+                })
+        })
+    
+}
+
+
+
    
 
 module.exports = {
     Recursos : adicionarRecurso,
     AdicionarConstrucao : AdicionarConstrucao,
     RemoverConstrucao : RemoverConstrucao,
-    AdicionarFrota : AdicionarFrota
+    AdicionarFrota : AdicionarFrota,
+    IniciarOperacao : IniciarOperacao
 }

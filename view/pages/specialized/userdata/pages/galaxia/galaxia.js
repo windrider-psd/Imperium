@@ -5,6 +5,7 @@ const utils = require('./../../../../generic/modules/utils')
 const observer = require('./../../../../generic/modules/observer')
 const navePrefabs = require('./../../../../../../prefabs/Nave')
 
+let setorSelecionado;
 
 function getGalaxiaInfo(callback = () => {})
 {
@@ -133,7 +134,7 @@ function MontarFrota()
                 `
                     <div class = "form-group">
                         <label class = "imperium-label">${prefab.nome}</label>
-                        <input type = "number" class = "form-control imperium-input" ${value} min= "0" max = "${unidades[unidade]}" ${disabled}/>
+                        <input type = "number" class = "form-control imperium-input" name = "${unidade}" ${value} min= "0" max = "${unidades[unidade]}" ${disabled}/>
                     </div>
                 `
                 
@@ -152,7 +153,7 @@ function MontarFrota()
 observer.Observar('userdata-ready',  () => {
 
     MontarFrota();
-    
+    $("#form-operacao-planeta").val(window.planeta.id)
     let galaxia;
     function gerarCasa(setor)
     {
@@ -278,7 +279,8 @@ observer.Observar('userdata-ready',  () => {
     $(".mapa-svg").on('click', '.mapa-setor', function(){
 
         let setor = galaxia.setores[$(this).data('index')]
-        encontrarRota(setor);
+        encontrarRota(setor)
+        setorSelecionado = setor
         let popup = $('.setor-popup')
         
         let classificacao = popup.find('.classificacao')
@@ -354,7 +356,26 @@ observer.Observar('userdata-ready',  () => {
     $(".operacao-btn").on('click', function(){
         let operacao = $(this).data('operacao')
         $("#form-operacao-operacao").val(operacao)
+        $("#form-operacao-setorDestino").val(setorSelecionado.setor.id)
         $("#modal-operacao").modal('show');
+        
+    })
+
+    $("#form-operacao").on('submit', function(){
+        let params = utils.FormToAssocArray($(this))
+        $.ajax({
+            url : 'militar/operacao',
+            method : 'POST',
+            data : params,
+            success : function()
+            {
+                alert("sucesso")
+            },
+            error : function(err)
+            {
+                alert(err.responseText)
+            }
+        })
     })
 
 })
