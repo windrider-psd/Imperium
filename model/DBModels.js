@@ -878,7 +878,6 @@ const Operacao_Militar = con.define('operacao_militar', {
             key : 'id',
         },
         onDelete : "CASCADE",
-        unique : true,
         primaryKey : true,
     },
     operacao :
@@ -1328,6 +1327,8 @@ MensagemPrivada.afterUpdate((instancia) => {
     if(instancia.excluidoDestinatario == true && instancia.excluidoRemetente)
         instancia.destroy();
 })
+
+
 
 module.exports = {
     Con : con, 

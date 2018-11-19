@@ -385,7 +385,7 @@ function IniciarOperacao(usuarioid, operacao, frotaID, frotaOperacao, idPlanetaO
                                                         models.Frota.update(objUpdateFrota, {where : {id : frotaID}, transaction : transacao})
                                                             .then(() => {
                                                                 transacao.commit();
-                                                                operacaoControler.Colonizar(operacao)
+                                                                operacaoControler.Colonizar(operacaoCriada.id)
                                                             })
                                                     })
                                             })

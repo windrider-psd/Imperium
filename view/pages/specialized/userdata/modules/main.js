@@ -31,7 +31,28 @@ observer.Observar('userdata-ready', function () {
 		utils.GerarNotificacao("Planeta não encontrado", 'danger');
 
 
-	$("#select-planeta option[value='" + planeta.id + "']").attr('selected', true)
+    let selectstring = ""
+    for (let i = 0; i < userdata.setores.length; i++)
+    {
+        let setor = userdata.setores[i]
+        selectstring += '<optgroup label="' + setor.setor.nome + '[' + setor.setor.posX + ',' + setor.setor.posY + ']">';
+        for (let j = 0; j < setor.planetas.length; j++)
+        {
+            if (setor.planetas[j].colonizado == true)
+            {
+                let selected = (planeta == setor.planetas[j].id) ? "selected" : ""
+                selectstring += '<option value = "' + setor.planetas[j].id + '" ' + selected + '>' + setor.planetas[j].nome + '</option>'
+            }
+        }
+        selectstring += "</optgroup>"
+    }
+    $("#select-planeta").html(selectstring)
+    $('#select-planeta').select2(
+    {
+        width: '100%'
+    });
+
+	$(`#select-planeta option[value="${planeta.id}"]`).attr('selected', true)
 
 	$('#select-planeta').on('change', function () {
 		let val = $(this).val();

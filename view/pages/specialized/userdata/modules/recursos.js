@@ -9,7 +9,7 @@ require('select2')
 
 observer.Observar('userdata-ready', function ()
 {
-	let selectstring = ""
+	/*let selectstring = ""
 	for (let i = 0; i < userdata.setores.length; i++)
 	{
 		let setor = userdata.setores[i]
@@ -28,7 +28,7 @@ observer.Observar('userdata-ready', function ()
 	$('#select-planeta').select2(
 	{
 		width: '100%'
-	});
+	});*/
 
 
 	if (planeta)
