@@ -120,12 +120,15 @@ function CriarConstrucaoFrotaTimer(unidade, quantidade, duracao, usuarioID, plan
                 frota[unidade] = total;
                 frota.save()
                     .then(() => {
+                        let custo = {}
+
                         for(let chave in nave.custo)
                         {
-                            nave.custo[chave] = nave.custo[chave] * quantidade;
+                            custo[chave] = nave.custo[chave] * quantidade;
                         }
+                        
                         models.Frota_Construcao.destroy({where :{planetaID : planetaID}});
-                        ranking.AdicionarPontos(usuarioID, nave.custo, ranking.TipoPontos.pontosMilitar);
+                        ranking.AdicionarPontos(usuarioID, custo, ranking.TipoPontos.pontosMilitar);
                         //Emitir para id da sessão
                     })
             })
@@ -182,14 +185,11 @@ function AdicionarFrota(usuarioID, planetaID, unidade, quantidade, nivelHangar)
         }
         else
         {
-            for(let chave in nave.custo)
-            {
-                nave.custo[chave] = nave.custo[chave] * quantidade;
-            }
             models.RecursosPlanetarios.findOne({where : {planetaID : planetaID}})
                 .then(recursos => {
                     let valido = true
-
+                    console.log(recursos.dataValues)
+                    console.log(nave.custo)
                     let updateFerro = recursos.dataValues.recursoFerro - nave.custo.ferro * quantidade;
                     if(updateFerro < 0)
                     {
@@ -385,7 +385,15 @@ function IniciarOperacao(usuarioid, operacao, frotaID, frotaOperacao, idPlanetaO
                                                         models.Frota.update(objUpdateFrota, {where : {id : frotaID}, transaction : transacao})
                                                             .then(() => {
                                                                 transacao.commit();
-                                                                operacaoControler.Colonizar(operacaoCriada.id)
+                                                                if(operacao == "colonizar")
+                                                                {
+                                                                    operacaoControler.Colonizar(operacaoCriada.id)
+                                                                }
+                                                                else if(operacao == "pilhar")
+                                                                {
+                                                                    operacaoControler.Pilhar(operacaoCriada.id)
+                                                                }
+                                                                
                                                             })
                                                     })
                                             })

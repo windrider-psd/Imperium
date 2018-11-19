@@ -196,6 +196,7 @@ router.post('/operacao', (req, res) => {
     if(req.session.usuario)
     {
         let params = req.body
+        console.log(params)
         if(!params.operacao || !params.planetaID || !params.setorDestino)
         {
             res.status(400).end("Parâmetros inválidos")

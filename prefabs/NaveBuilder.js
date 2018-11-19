@@ -12,7 +12,7 @@ function getNavePorNomeTabela(nome)
 
         if(nave.nome_tabela == nome)
         {
-            return nave
+            return Object.assign( Object.create( Object.getPrototypeOf(nave)), nave)
         }
     }
 }

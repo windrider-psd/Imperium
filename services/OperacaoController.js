@@ -94,7 +94,6 @@ async function Combater(frotaAtacante, frotaDefensora)
             setFrotaObjAlvo(objFrotaDefensora, objFrotaAtacante)
             
             executarDanoFrotaObj(objFrotaAtacante, objFrotaDefensora)
-            console.log("?????????????????????????")
             executarDanoFrotaObj(objFrotaDefensora, objFrotaAtacante)
 
             objFrotaAtacante = getSobreviventesFrotaObj(objFrotaAtacante)
@@ -128,7 +127,7 @@ async function Combater(frotaAtacante, frotaDefensora)
                 resolve({atacante : frotaAtacante, defensora : frotaDefensora})                
             }
 
-        }, 1000)   
+        }, 10000)   
 
     })
 }
@@ -347,11 +346,194 @@ function Colonizar(operacaoID)
                         }
 
                     })
-
         })
-    
 }
 
+
+function Pilhar(operacaoID)
+{
+    models.Operacao_Militar.findOne({where : {id : operacaoID}})
+    .then((operacao) => {
+        let setorOrigem = null
+        let setorDestino = null
+        let setorAtual = null
+        var rotaIterator = null;
+        var rotaIteradorIndex = null
+        var rota = null
+        
+        /*let menorVelocidade = 99999999999999999;
+        for(let n in frotaOperacao)
+        {
+            let nave = naveBuilder.getNavePorNomeTabela(n)
+            if(nave != null && nave.velocidade < menorVelocidade)
+            {
+                menorVelocidade = nave.velocidade
+            }
+        }*/
+
+
+        function Fase2()
+        {
+            models.Frota.findOne({where : {operacaoID : operacaoID}})
+                .then(frotaOP => {
+
+                    delete frotaOP.dataValues.usuarioID
+                    delete frotaOP.dataValues.planetaID
+                    delete frotaOP.dataValues.id
+                    delete frotaOP.dataValues.operacaoID
+                    delete frotaOP.dataValues.relatorioID
+
+                    models.Planeta.findAll({where : {setorID : setorDestino.id}})
+                        .then(planetasDefensores => {
+                            
+                            /**
+                             * @type {Array.<Promise>}
+                             */
+                            let promesas = []
+                            
+                            for(let i = 0; i < planetasDefensores.length; i++)
+                            {
+                                promesas.push(new Promise((resolve) => {
+                                    
+                                    models.Frota.findOne({where : {planetaID : planetasDefensores[i].id}})
+                                        .then(frota => {
+                                            delete frota.dataValues.usuarioID
+                                            delete frota.dataValues.planetaID
+                                            delete frota.dataValues.id
+                                            delete frota.dataValues.operacaoID
+                                            delete frota.dataValues.relatorioID
+                                            resolve(frota)
+                                        })
+                                }))
+                            }
+
+                            Promise.all(promesas)
+                                .then(frotasDefensoras => {
+                                    let frotaDefensora = {}
+                                    for(let i = 0; i < frotasDefensoras; i++)
+                                    {
+                                        for(let chave in frotaOP)
+                                        {
+                                            if(frotaDefensora[chave] == null)
+                                            {
+                                                frotaDefensora[chave] = 0
+                                            }
+                                            frotaDefensora[chave] += frotasDefensoras[i][chave]
+                                        }
+                                    }
+                                    console.log(frotaOP)
+                                    console.log(frotaDefensora)
+                                    Combater(frotaOP, frotaDefensora)
+                                        .then((resultado) => {
+                                            console.log(resultado)
+                                        })
+
+                                })
+
+                        })
+                })
+        }
+
+        function Fase1()
+        {
+            let mover = function() {
+                return new Promise((resolve, reject) => {
+                    MoverFrota(operacao.id, setorAtual, setorDestino, {})
+                        .then(() => {
+                            rotaIteradorIndex++
+                            rotaIterator = rota[rotaIteradorIndex]
+                            models.Setor.findOne({where : {posX : rotaIterator.posX, posY : rotaIterator.posY}})
+                                .then((setor) => {
+                                    setorAtual = setor;
+                                    if(setorAtual.id != setorDestino.id)
+                                    {
+                                        mover()
+                                            .then(() => {
+                                                resolve();
+                                            })
+                                    }
+                                    else
+                                    {
+                                        resolve()
+                                    }
+                                })
+
+                        });
+                    })
+                }
+            return new Promise((resolve, reject) => {
+                mover()
+                    .then(() => {
+                        resolve();
+                    }) 
+            })
+        }
+
+
+
+        models.Setor.findAll(
+            {
+                where : 
+                {
+                    $or:
+                    [
+                        {id : operacao.origem},
+                        {id : operacao.destino},
+                        {id : operacao.atual}
+                    ]
+                    
+                }
+            }
+            )
+                .then(setores => 
+                {
+                   
+                    for(let i = 0; i < setores.length; i++)
+                    {
+                        if(setores[i].id == operacao.origem)
+                        {
+                            setorOrigem = setores[i]
+                        }
+                        if(setores[i].id == operacao.destino)
+                        {
+                            setorDestino = setores[i]
+                        }
+                        if(setores[i].id == operacao.atual)
+                        {
+                            setorAtual = setores[i]
+                        }
+                    }
+
+                    if(operacao.estagio == 1)
+                    {
+                        if(setorAtual.id != setorDestino.id)
+                        {
+                            rota = pathFinder.encontrarRota({posX : setorAtual.posX, posY : setorAtual.posY}, {posX : setorDestino.posX, posY : setorDestino.posY})
+                            rotaIteradorIndex = 0
+                            rotaIterator = rota[rotaIteradorIndex]
+                            Fase1()
+                                .then(() => {
+                                    models.Operacao_Militar.update({estagio : 2}, {where : {id : operacaoID}})
+                                        .then(() => {
+                                            Fase2()
+                                        })
+                                    
+                                })
+                                .catch(err => {
+                                    console.log(err);
+                                })
+                        }
+                        else if(operacao.estagio == 2)
+                        {
+                            Fase2()
+                        }
+                        
+                    }
+
+                })
+    })
+}
 module.exports = {
-    Colonizar : Colonizar
+    Colonizar : Colonizar,
+    Pilhar : Pilhar
 }
