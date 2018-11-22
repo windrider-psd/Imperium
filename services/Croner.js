@@ -388,10 +388,16 @@ function IniciarOperacao(usuarioid, operacao, frotaID, frotaOperacao, idPlanetaO
                                                                 if(operacao == "colonizar")
                                                                 {
                                                                     operacaoControler.Colonizar(operacaoCriada.id)
+                                                                        .then(() => {
+                                                                            models.Operacao_Militar.destroy({where : {id : operacaoCriada.id}})
+                                                                        })
                                                                 }
                                                                 else if(operacao == "pilhar")
                                                                 {
                                                                     operacaoControler.Pilhar(operacaoCriada.id)
+                                                                        .then(() => {
+                                                                            models.Operacao_Militar.destroy({where : {id : operacaoCriada.id}})
+                                                                        })
                                                                 }
                                                                 
                                                             })
