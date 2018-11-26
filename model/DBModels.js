@@ -55,7 +55,13 @@ const con = new sequalize(process.env.DB_NAME, process.env.DB_USER, process.env.
     {
         collate : 'utf8_general_ci',
         charset : 'utf8'
-    }
+    },
+    logging : ((query, info) => {
+        if(info.type != "SELECT")
+        {
+            console.log(query)
+        }
+    })
 });
 
 const Usuario = con.define('usuario', {
