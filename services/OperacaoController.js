@@ -403,47 +403,64 @@ function Pilhar(operacaoID)
                 }
             return new Promise((resolve, reject) => {
                 models.Operacao_Militar.update({estagio : 3}, {where : {id : operacaoID}})
-                mover()
-                    .then(() => {
+                models.Frota.findOne({where : {operacaoID : operacaoID}})
+                    .then(frotaOP => {
+                        delete frotaOP.dataValues.usuarioID
+                        delete frotaOP.dataValues.planetaID
+                        delete frotaOP.dataValues.id
+                        delete frotaOP.dataValues.operacaoID
+                        delete frotaOP.dataValues.relatorioID
 
-                        models.Planeta.findOne({where : {setor : setorOrigem.id, colonizado : true}})
-                            .then(planeta => {
-                                if(planeta)
-                                {
-                                    models.Frota.findOne({where : {id : operacaoID}})
-                                        .then(frotaOP => {
-                                            delete frotaOP.dataValues.usuarioID
-                                            delete frotaOP.dataValues.planetaID
-                                            delete frotaOP.dataValues.id
-                                            delete frotaOP.dataValues.operacaoID
-                                            delete frotaOP.dataValues.relatorioID
+                        let frotaDestruida = true
+                        for(let chave in frotaOP.dataValues)
+                        {
+                            if(frotaOP.dataValues > 0)
+                            {
+                                frotaDestruida = false;
+                                break
+                            }
+                        }
 
-                                            models.Frota.findOne({where : {planetaID : planeta.id}})
-                                                .then(frotaPlaneta => {
-                                                    let frotaUpdateObj = {}
-                                                    for(let chave in frotaOP.dataValues)
-                                                    {
-                                                        frotaUpdateObj[chave] = frotaPlaneta.dataValues[chave] + frotaOP.dataValues[chave]
-                                                    }
+                        if(frotaDestruida)
+                        {
+                            resolve()
+                        }
+                        else
+                        {
+                            mover()
+                                .then(() => {
 
-                                                    models.Frota.update(frotaUpdateObj, {where : {planetaID : planeta.id}})
-                                                        .then(() => {
-                                                            resolve()
-                                                        })
-                                                })
-                                            models.Frota.findOne({where : {}})
-                                            models.Frota.update({})
+                                    models.Planeta.findOne({where : {setorID : setorOrigem.id, colonizado : true}})
+                                        .then(planeta => {
+                                            if(planeta)
+                                            {  
+                                                models.Frota.findOne({where : {planetaID : planeta.id}})
+                                                    .then(frotaPlaneta => {
+                                                        let frotaUpdateObj = {}
+
+                                                        for(let chave in frotaOP.dataValues)
+                                                        {
+                                                            frotaUpdateObj[chave] = frotaPlaneta.dataValues[chave] + frotaOP.dataValues[chave]
+                                                        }
+
+                                                        models.Frota.update(frotaUpdateObj, {where : {planetaID : planeta.id}})
+                                                            .then(() => {
+                                                                resolve()
+                                                            })
+                                                    })
+                                            }
+                                            else
+                                            {
+                                                resolve()
+                                            }
+                                            
+                                            
                                         })
-                                }
-                                else
-                                {
-                                    resolve()
-                                }
                                 
-                                
-                            })
-                       
-                    }) 
+                                }) 
+                        }
+                    })
+                
             })
         }
 
@@ -486,7 +503,6 @@ function Pilhar(operacaoID)
                                             {
                                                 frotaUpdate[chave] = 0
                                             }
-                                            console.log(frota.dataValues)
                                             
                                             models.Frota.update(frotaUpdate, {where : {planetaID : id}})
                                                 .then(() => {
@@ -534,7 +550,6 @@ function Pilhar(operacaoID)
                                                         })
                                                 })
                                                 .catch(err => {
-
 
                                                     console.log(err)
                                                 })

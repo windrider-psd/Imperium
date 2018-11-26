@@ -10,13 +10,22 @@
     transition: 0.75s all;
 }
 
-.mapa-setor-jogador
+.mapa-setor-atual
 {
     fill: #3b58ff;
 }
-.mapa-setor-jogador:hover
+.mapa-setor-atual:hover
 {
     fill: #2d4cda;
+}
+
+.mapa-setor-jogador
+{
+    fill: #0ab3e7;
+}
+.mapa-setor-jogador:hover
+{
+    fill: #0a7ce7;
 }
 
 .mapa-setor-alianca

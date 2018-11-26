@@ -38,7 +38,7 @@ class Nave {
     }
 }
 
-let caca = new Nave("Caça", "caca", 1, 20, 100, 2, 50, 70, 8, 100, {ferro : 5000, cristal: 1500, componente: 1500, titanio: 0})
+let caca = new Nave("Caça", "caca", 1, 20, 100, 2, 50, 70, 8, 100, {ferro : 1, cristal: 1, componente: 1, titanio: 0})
 let cargueiro = new Nave("Cargueiro", "cargueiro", 1, 20, 100, 2, 50, 70, 8, 100, {ferro : 15000, cristal: 2000, componente: 1500, titanio: 0})
 let sonda_espionagem = new Nave("Sonda de espionagem", "sonda", 1, 20, 100, 2, 50, 70, 8, 100, {ferro : 4000, cristal: 4000, componente: 1000, titanio: 1000})
 

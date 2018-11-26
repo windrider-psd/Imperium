@@ -214,6 +214,10 @@ observer.Observar('userdata-ready',  () => {
         {
             cor_classe = 'mapa-setor-sem'
         }
+        else if(setor.setor.posX == window.setorinfo.setor.posX && setor.setor.posY == window.setorinfo.setor.posY)
+        {
+            cor_classe = "mapa-setor-atual"
+        }
         else if(setor.setor.usuarioID == userdata.session.id)
         {
             cor_classe = 'mapa-setor-jogador'

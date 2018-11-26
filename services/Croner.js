@@ -188,8 +188,6 @@ function AdicionarFrota(usuarioID, planetaID, unidade, quantidade, nivelHangar)
             models.RecursosPlanetarios.findOne({where : {planetaID : planetaID}})
                 .then(recursos => {
                     let valido = true
-                    console.log(recursos.dataValues)
-                    console.log(nave.custo)
                     let updateFerro = recursos.dataValues.recursoFerro - nave.custo.ferro * quantidade;
                     if(updateFerro < 0)
                     {
@@ -384,21 +382,24 @@ function IniciarOperacao(usuarioid, operacao, frotaID, frotaOperacao, idPlanetaO
                                                     .then(() => {
                                                         models.Frota.update(objUpdateFrota, {where : {id : frotaID}, transaction : transacao})
                                                             .then(() => {
-                                                                transacao.commit();
-                                                                if(operacao == "colonizar")
-                                                                {
-                                                                    operacaoControler.Colonizar(operacaoCriada.id)
-                                                                        .then(() => {
-                                                                            models.Operacao_Militar.destroy({where : {id : operacaoCriada.id}})
-                                                                        })
-                                                                }
-                                                                else if(operacao == "pilhar")
-                                                                {
-                                                                    operacaoControler.Pilhar(operacaoCriada.id)
-                                                                        .then(() => {
-                                                                            models.Operacao_Militar.destroy({where : {id : operacaoCriada.id}})
-                                                                        })
-                                                                }
+                                                                transacao.commit()
+                                                                    .then(() => {
+                                                                        if(operacao == "colonizar")
+                                                                        {
+                                                                            operacaoControler.Colonizar(operacaoCriada.id)
+                                                                                .then(() => {
+                                                                                    models.Operacao_Militar.destroy({where : {id : operacaoCriada.id}})
+                                                                                })
+                                                                        }
+                                                                        else if(operacao == "pilhar")
+                                                                        {
+                                                                            operacaoControler.Pilhar(operacaoCriada.id)
+                                                                                .then(() => {
+                                                                                    models.Operacao_Militar.destroy({where : {id : operacaoCriada.id}})
+                                                                                })
+                                                                        }
+                                                                    })
+                                                                
                                                                 
                                                             })
                                                     })
