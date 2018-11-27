@@ -124,11 +124,11 @@ async function Combater(frotaAtacante, frotaDefensora)
 }
 
 class Combate {
-    constructor(frotaAtacante,frotaDefensora, callback)
+    constructor(operacaoId, setorAlvoId, callback)
     {
-        this.frotaAtacante = frotaAtacante
-        this.frotaDefensora = frotaDefensora
-        this,callback = callback
+        this.operacaoId = operacaoId
+        this.setorAlvoId = setorAlvoId
+        this.callback = callback
     }
     executar()
     {
@@ -138,22 +138,28 @@ class Combate {
 
 let reservas = {}
 
-async function reservarCombate(setorId, frotaAtacante, frotaDefensora, callback)
+async function reservarCombate(operacaoId, setorDefensorId, callback)
 {
     if(reservas[setorId] == null)
     {
-        reservas[setorId] = []
+        reservas[setorId] = {combatendo : false, combates : []}
     }
     
-    reservas[setorId].push(new Combate(frotaAtacante, frotaDefensora, callback))
-
+    reservas[setorId].combates.push(new Combate(operacaoId, setorDefensorId, callback))
 }
 
 
+function combaterEmSetor(operacaoID, setorDefensorId, callback)
+{
+    reservarCombate(operacaoID, setorDefensorId, callback)
+}
+
 async function combatev2(operacaoID, setorDefensorId, callback)
 {
-
-    models.Frota.findOne({where : {operacaoID : operacaoID}})
+    reservarCombate(operacaoID, setorDefensorId, callback)
+    
+    let promise = new Promsise(resolve =>{
+        models.Frota.findOne({where : {operacaoID : operacaoID}})
         .then(frotaOP => {
 
             delete frotaOP.dataValues.usuarioID
@@ -235,6 +241,8 @@ async function combatev2(operacaoID, setorDefensorId, callback)
                         })
                 })
             })
+    })
+    
                                     
 }
 
