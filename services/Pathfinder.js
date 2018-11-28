@@ -42,7 +42,7 @@ function getVizinhos(ponto)
 
     for(let i = 0; i < pontosTotais.length; i++)
     {
-        let p = pontosTotais[i] //funcionado se ponto.posX for par
+        let p = pontosTotais[i] 
         
         if(ponto.posX % 2 != 0)
         {

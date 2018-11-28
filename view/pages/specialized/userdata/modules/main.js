@@ -46,6 +46,7 @@ observer.Observar('userdata-ready', function () {
         }
         selectstring += "</optgroup>"
     }
+    $("#session-username").text(window.userdata.session.nick)
     $("#select-planeta").html(selectstring)
     $('#select-planeta').select2(
     {

@@ -118,7 +118,7 @@ function getHTMLEdificio(edificio, isp)
         {
             if(producaoDif[chave] != 0)
             {
-                producaoString += `${chave}:+${producaoDif[chave]}`
+                producaoString += `${chave}:+${producaoDif[chave] * 6}`
             }
            
         }
