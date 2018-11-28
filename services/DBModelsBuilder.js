@@ -185,22 +185,32 @@ class DBBuilder {
                                     models.Operacao_Militar.sync({force : force}).then(() => {
                                         models.RelatorioEspionagem.sync({force : force}).then(() => {
                                             models.Frota.sync({force : force})
-                                        models.RecursosPlanetarios.sync({force : force})
+                                                .then(() => {
+                                                    models.RecursosPlanetarios.sync({force : force})
+                                                        .then(() => {
+                                                            models.Edificios.sync({force : force})
+                                                                .then(() => {
+                                                                    models.Asteroide.sync({force : force}).then(() =>
+                                                                    {
+                                                                        models.Construcao.sync({force : force}).then(() =>
+                                                                        {
+                                                                            if(callback)
+                                                                                callback()
+                                                                        });
+                                                                        models.Frota_Construcao.sync({force: force})
+                                                                    });  
+                                                                })
+                                                            
+                                                        })
+                                                })
+                                        
                                         models.Pesquisas.sync({force : force})
-                                        models.Edificios.sync({force : force})
+                                        
                                         })
                                         
                                     })
                                     
-                                    models.Asteroide.sync({force : force}).then(() =>
-                                    {
-                                        models.Construcao.sync({force : force}).then(() =>
-                                        {
-                                            if(callback)
-                                                callback()
-                                        });
-                                        models.Frota_Construcao.sync({force: force})
-                                    });    
+                                      
                                 });
                             });
                         }); 

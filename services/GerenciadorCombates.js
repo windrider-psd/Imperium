@@ -1,3 +1,8 @@
+const models = require('./../model/DBModels');
+const naveBuilder = require('./../prefabs/NaveBuilder')
+let ranking = require('./Ranking')
+let aleatorio = require("./Aleatorio")
+
 async function Combater(frotaAtacante, frotaDefensora)
 {
     return new Promise((resolve, reject) => 
@@ -132,33 +137,34 @@ class Combate {
     }
     executar()
     {
-       return Combater(this.frotaAtacante, this.frotaDefensora) 
+        combatev2(this.operacaoId, this.setorAlvoId)
+            .then((resultado) => {
+                liberarReserva(this.setorAlvoId)
+                this.callback(resultado)
+            }) 
     }
 }
 
 let reservas = {}
 
-async function reservarCombate(operacaoId, setorDefensorId, callback)
+function reservarCombate(operacaoId, setorDefensorId, callback)
 {
-    if(reservas[setorId] == null)
+    if(reservas[setorDefensorId] == null)
     {
-        reservas[setorId] = {combatendo : false, combates : []}
+        reservas[setorDefensorId] = {combatendo : false, combates : []}
     }
     
-    reservas[setorId].combates.push(new Combate(operacaoId, setorDefensorId, callback))
+    reservas[setorDefensorId].combates.push(new Combate(operacaoId, setorDefensorId, callback))
 }
 
 
-function combaterEmSetor(operacaoID, setorDefensorId, callback)
-{
-    reservarCombate(operacaoID, setorDefensorId, callback)
-}
 
-async function combatev2(operacaoID, setorDefensorId, callback)
+
+
+
+async function combatev2(operacaoID, setorDefensorId)
 {
-    reservarCombate(operacaoID, setorDefensorId, callback)
-    
-    let promise = new Promsise(resolve =>{
+    return new Promise(resolve =>{
         models.Frota.findOne({where : {operacaoID : operacaoID}})
         .then(frotaOP => {
 
@@ -170,7 +176,6 @@ async function combatev2(operacaoID, setorDefensorId, callback)
 
             models.Planeta.findAll({where : {setorID : setorDefensorId}})
                 .then(planetasDefensores => {
-                    
                     /**
                      * @type {Array.<Promise>}
                      */
@@ -218,21 +223,74 @@ async function combatev2(operacaoID, setorDefensorId, callback)
                                     frotaDefensora[chave] += frotasDefensoras[i][chave]
                                 }
                             }
-                            console.log(frotaOP.dataValues)
-                            console.log(frotaDefensora)
-
+                            let backupDefensora = Object.assign({}, frotaDefensora)
+                            let backupAtacante = Object.assign({}, frotaOP.dataValues)
                             Combater(frotaOP.dataValues, frotaDefensora)
                                 .then(resultado => {
                                     console.log(resultado)
+                                    let custoAtacante = {}
+                                    for(let chave in resultado.atacante)
+                                    {
+                                        let diferenca = backupAtacante[chave] - resultado.atacante[chave]
+                                        
+                                        let nave = naveBuilder.getNavePorNomeTabela(chave)
+                                        for(let chaveCusto in nave.custo)
+                                        {
+                                            if(custoAtacante[chaveCusto] == null)
+                                            {
+                                                custoAtacante[chaveCusto] = 0
+                                            }
+                                            custoAtacante[chaveCusto] += nave.custo[chaveCusto] * diferenca;
+                                        }
+                                    }
+                                    for(let chave in custoAtacante)
+                                    {
+                                        custoAtacante[chave] = custoAtacante[chave]  * -1
+                                    }
+        
+                                    let custoDefensor = {}
+                                    for(let chave in resultado.defensora)
+                                    {
+                                        let diferenca = backupDefensora[chave] - resultado.defensora[chave]
+                                       
+                                        let nave = naveBuilder.getNavePorNomeTabela(chave)
+                                        for(let chaveCusto in nave.custo)
+                                        {
+                                            
+                                            if(custoDefensor[chaveCusto] == null)
+                                            {
+                                                custoDefensor[chaveCusto] = 0
+                                            }
+                                            custoDefensor[chaveCusto] += nave.custo[chaveCusto] * diferenca;
+
+                                        }
+                                    }
+                                    for(let chave in custoDefensor)
+                                    {
+                                        custoDefensor[chave] = custoDefensor[chave]  * -1
+                                    }
+                                    models.Operacao_Militar.findOne({where : {id : operacaoID}, attributes : ['usuarioID']})
+                                        .then(op => {
+                                            ranking.AdicionarPontos(op.usuarioID, custoAtacante, ranking.TipoPontos.pontosMilitar);
+                                        })
+                                    
+
+                                    models.Setor.findOne({where : {id : setorDefensorId}, attributes : ['usuarioID']})
+                                        .then(set => {
+                                            ranking.AdicionarPontos(set.usuarioID, custoDefensor, ranking.TipoPontos.pontosMilitar);
+                                        })
+                                    
+                                    
+
                                     models.Frota.update(resultado.atacante, {where : {operacaoID : operacaoID}})
                                         .then(() => {
-                                            models.Planeta.findOne({where : {setorID : setorDestino.id, colonizado : true}})
+                                            models.Planeta.findOne({where : {setorID : setorDefensorId, colonizado : true}})
                                                 .then(planeta => {
                                                     if(planeta)
                                                     {
                                                         models.Frota.update(resultado.defensora, {where : {planetaID : planeta.id}})
                                                             .then(() => {
-                                                                resolve()
+                                                                resolve(resultado)
                                                             })
                                                     }
                                                 })
@@ -246,24 +304,34 @@ async function combatev2(operacaoID, setorDefensorId, callback)
                                     
 }
 
+
+
+
 setInterval(() => {
     for(let chave in reservas)
     {
-        if(reservas[chave].length > 0)
+        if(reservas[chave].combates.length > 0 && reservas[chave].combatendo == false)
         {
-            reservas[chave][0].executar()
-                .then(resultado => {
-                    reservas[chave][0].callback(resultado);
-                })
+            console.log("Executando combate...")
+            reservas[chave].combatendo = true;
+            reservas[chave].combates[0].executar()
         }
     }
 }, 5000)
 
 function liberarReserva(setorId)
 {
-    reservas[setorId][0]
+    console.log("Liberando combate...")
+    reservas[setorId].combates.splice(0, 1)
+    reservas[setorId].combatendo = false
+}
+
+function combaterEmSetor(operacaoID, setorDefensorId, callback)
+{
+    console.log("Reservando combate...")
+    reservarCombate(operacaoID, setorDefensorId, callback)
 }
 
 module.exports = {
-    reservarCombate : reservarCombate,
+    combaterEmSetor : combaterEmSetor,
 }

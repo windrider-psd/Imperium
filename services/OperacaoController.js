@@ -1,12 +1,8 @@
 const models = require('./../model/DBModels');
-const Bluebird = require('bluebird')
-const edificioBuiler = require('./../prefabs/EdificioBuilder')
-const edificioPrefab = require('./../prefabs/Edificio')
-const navePrefab = require('./../prefabs/Nave')
 const naveBuilder = require('./../prefabs/NaveBuilder')
 const pathFinder = require('./../services/Pathfinder')
 let aleatorio = require("./Aleatorio")
-
+let GerenciadorCombates = require('./GerenciadorCombates')
 async function Combater(frotaAtacante, frotaDefensora)
 {
     return new Promise((resolve, reject) => 
@@ -375,15 +371,17 @@ function Pilhar(operacaoID)
         }*/
         function Fase3()
         {
+            
             let mover = function() {
                 return new Promise((resolve, reject) => {
-                    MoverFrota(operacao.id, setorAtual, setorOrigem, {})
+                    MoverFrota(operacao.id, setorAtual, setorAtual, {})
                         .then(() => {
 
                             rotaIteradorIndex--
                             rotaIterator = rota[rotaIteradorIndex]
                             models.Setor.findOne({where : {posX : rotaIterator.posX, posY : rotaIterator.posY}})
                                 .then((setor) => {
+                                    console.log(`setorAtual : ${setorAtual.id} | setor : ${setor.id}`)
                                     setorAtual = setor;
                                     if(setorAtual.id != setorOrigem.id)
                                     {
@@ -414,50 +412,140 @@ function Pilhar(operacaoID)
                         let frotaDestruida = true
                         for(let chave in frotaOP.dataValues)
                         {
-                            if(frotaOP.dataValues > 0)
+                            if(frotaOP.dataValues[chave] > 0)
                             {
                                 frotaDestruida = false;
                                 break
                             }
                         }
-
+                        console.log(frotaDestruida)
                         if(frotaDestruida)
                         {
                             resolve()
                         }
                         else
                         {
-                            mover()
-                                .then(() => {
-
-                                    models.Planeta.findOne({where : {setorID : setorOrigem.id, colonizado : true}})
-                                        .then(planeta => {
-                                            if(planeta)
-                                            {  
-                                                models.Frota.findOne({where : {planetaID : planeta.id}})
-                                                    .then(frotaPlaneta => {
-                                                        let frotaUpdateObj = {}
-
-                                                        for(let chave in frotaOP.dataValues)
-                                                        {
-                                                            frotaUpdateObj[chave] = frotaPlaneta.dataValues[chave] + frotaOP.dataValues[chave]
-                                                        }
-
-                                                        models.Frota.update(frotaUpdateObj, {where : {planetaID : planeta.id}})
-                                                            .then(() => {
-                                                                resolve()
-                                                            })
-                                                    })
-                                            }
-                                            else
+                            models.Planeta.findAll({where : {setorID : setorDestino.id, colonizado : true}, attributes : ['id']})
+                                .then(planetas =>
+                                {
+                                    let promesasRecursos = []
+                                    for(let i = 0; i < planetas.length; i++)
+                                    {
+                                        promesasRecursos.push(new Promise(resolve => {
+                                            let planeta = planetas[i]
+                                            models.RecursosPlanetarios.findOne({where : {planetaID : planeta.id}})
+                                                .then(recursos => {
+                                                    delete recursos.dataValues.planetaID
+                                                    delete recursos.dataValues.operacaoID
+                                                    delete recursos.dataValues.relatorioID
+                                                    resolve({planeta : planeta.id, recursos : recursos.dataValues})
+                                                })
+                                        })) 
+                                    }
+                                    Promise.all(promesasRecursos)
+                                        .then(recursosInd => {
+                                            let loot = {} //Recursos roubados
+                                            let chavesRecursos = []
+                                            for(let i = 0; i < recursosInd.length; i++)
                                             {
-                                                resolve()
+                                                for(let chave in recursosInd[i].recursos)
+                                                {
+                                                    if(loot[chave] == null)
+                                                    {
+                                                        chavesRecursos.push(chave)
+                                                        loot[chave] = 0
+                                                    }
+                                                }
                                             }
                                             
-                                            
+                                            let capacidadeTotal = 0
+                                            for(let chave in frotaOP.dataValues)
+                                            {
+                                                let nave = naveBuilder.getNavePorNomeTabela(chave)
+                                                capacidadeTotal += nave.capacidade_transporte * frotaOP.dataValues[chave]
+                                            }
+                                            let capacidadeTomada = 0
+                                            let chavesIndex = 0
+                                            console.log(capacidadeTotal)
+                                            console.log(recursosInd)
+                                            console.log(chavesRecursos)
+                                            while(capacidadeTomada < capacidadeTotal)
+                                            {
+                                                for(let i = 0; i < recursosInd.length; i++)
+                                                {
+                                                    if(recursosInd[i].recursos[chavesRecursos[chavesIndex]] > 0)
+                                                    {
+                                                        recursosInd[i].recursos[chavesRecursos[chavesIndex]]--
+                                                        loot[chavesRecursos[chavesIndex]]++
+                                                        capacidadeTomada++
+                                                    }
+                                                }
+
+                                                chavesIndex == chavesRecursos.length - 1 ? chavesIndex = 0 : chavesIndex++
+                                            }
+                                            loot['operacaoID'] = operacaoID
+                                            let promessas = []
+                                            for(let i = 0; i < recursosInd.length; i++)
+                                            {
+                                                models.RecursosPlanetarios.update(recursosInd[i].recursos, {where : {planetaID : recursosInd[i].planeta}})
+                                            }
+                                            models.RecursosPlanetarios.create(loot)
+                                                .then(() => {
+                                                    mover()
+                                                        .then(() => {
+
+                                                            models.Planeta.findOne({where : {setorID : setorOrigem.id, colonizado : true}})
+                                                                .then(planeta => {
+                                                                    if(planeta)
+                                                                    {  
+                                                                        models.Frota.findOne({where : {planetaID : planeta.id}})
+                                                                            .then(frotaPlaneta => {
+                                                                                let frotaUpdateObj = {}
+
+                                                                                for(let chave in frotaOP.dataValues)
+                                                                                {
+                                                                                    frotaUpdateObj[chave] = frotaPlaneta.dataValues[chave] + frotaOP.dataValues[chave]
+                                                                                }
+
+
+                                                                                models.Frota.update(frotaUpdateObj, {where : {planetaID : planeta.id}})
+                                                                                    .then(() => {
+                                                                                        models.RecursosPlanetarios.findOne({where :{planetaID : planeta.id}})
+                                                                                            .then(recursosPlaneta => {
+                                                                                                delete recursosPlaneta.dataValues.planetaID
+                                                                                                delete recursosPlaneta.dataValues.operacaoID
+                                                                                                delete recursosPlaneta.dataValues.relatorioID
+
+                                                                                                let recursosUpdateObj = {}
+
+                                                                                                for(let chave in recursosPlaneta.dataValues)
+                                                                                                {
+                                                                                                    recursosUpdateObj[chave] = recursosPlaneta.dataValues[chave] + loot[chave]
+                                                                                                }
+                                                                                                models.RecursosPlanetarios.update(recursosUpdateObj, {where : {planetaID : planeta.id}})
+                                                                                                    .then(() => {
+                                                                                                        resolve()
+                                                                                                    })
+                                                                                            })
+                                                                                        
+                                                                                    })
+                                                                            })
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        resolve()
+                                                                    }
+                                                                    
+                                                                    
+                                                                })
+                                                        
+                                                        })
+                                                })
+
                                         })
-                                
-                                }) 
+                                })
+
+                             
                         }
                     })
                 
@@ -467,7 +555,7 @@ function Pilhar(operacaoID)
         function Fase2()
         {
             return new Promise((resolve, reject) => {
-                models.Operacao_Militar.update({estagio : 2}, {where : {id : operacaoID}})
+                /*models.Operacao_Militar.update({estagio : 2}, {where : {id : operacaoID}})
                 models.Frota.findOne({where : {operacaoID : operacaoID}})
                 .then(frotaOP => {
 
@@ -480,9 +568,7 @@ function Pilhar(operacaoID)
                     models.Planeta.findAll({where : {setorID : setorDestino.id}})
                         .then(planetasDefensores => {
                             
-                            /**
-                             * @type {Array.<Promise>}
-                             */
+        
                             let promesas = []
                             
                             for(let i = 0; i < planetasDefensores.length; i++)
@@ -557,8 +643,23 @@ function Pilhar(operacaoID)
 
                                 })
 
+                                
+
+                        })
+                })*/
+
+
+
+                        
+                GerenciadorCombates.combaterEmSetor(operacaoID, setorDestino.id, () =>{
+                    Fase3()
+                        .then(() => {
+                            resolve()
                         })
                 })
+                
+
+                
             })
             
         }
@@ -567,12 +668,14 @@ function Pilhar(operacaoID)
         {
             let mover = function() {
                 return new Promise((resolve, reject) => {
-                    MoverFrota(operacao.id, setorAtual, setorDestino, {})
+                    MoverFrota(operacao.id, setorAtual, setorAtual, {})
                         .then(() => {
                             rotaIteradorIndex++
                             rotaIterator = rota[rotaIteradorIndex]
+                            
                             models.Setor.findOne({where : {posX : rotaIterator.posX, posY : rotaIterator.posY}})
                                 .then((setor) => {
+                                    console.log(`setorAtual : ${setorAtual.id} | setor : ${setor.id}`)
                                     setorAtual = setor;
                                     if(setorAtual.id != setorDestino.id)
                                     {
@@ -644,11 +747,17 @@ function Pilhar(operacaoID)
                     {
                         if(setorAtual.id != setorDestino.id)
                         {
-                            Fase1()    
+                            Fase1()  
+                                .then(() => {
+                                    resolve()
+                                })  
                         }
                         else
                         {
                             Fase2()
+                                .then(() => {
+                                    resolve()
+                                })
                         }
                         
                     }

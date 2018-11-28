@@ -117,7 +117,9 @@ function AdicionarPontos(user, recursos, tipo)
             if(usuario)
             {
                 let updateObj = {};
+                //console.log(`Atual: ${usuario[TipoPontos[tipo]]}| Pontos ${pontos}. Att = ${pontos + usuario[TipoPontos[tipo]]} | Attteste = ${usuario[TipoPontos[tipo]] - pontos}`)
                 updateObj[TipoPontos[tipo]] = pontos + usuario[TipoPontos[tipo]];
+                
                 models.Usuario.update(updateObj, {where : {id : usuario.id}, limit : 1}).catch((err) => {
                     console.log(err);
                 })

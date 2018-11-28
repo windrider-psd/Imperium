@@ -8,15 +8,37 @@ console.log("Construindo a base de dados");
 
 builder.ClearForeignKeys();
 
+function criarReferenciasPlaneta(planetaId)
+{
+    let criarRecursos = () =>{
+        models.RecursosPlanetarios.create({planetaID : planetaId})
+        .catch(() => {
+            criarRecursos()
+        })
+    }
+    let criarFrota = () =>{
+        models.Frota.create({planetaID : planetaId})
+        .catch(() => {
+            criarFrota()
+        })
+    }
+    let criarEdificios = () =>{
+        models.Edificios.create({planetaID : planetaId})
+        .catch(() => {
+            criarEdificios()
+        })
+    }
 
+    criarEdificios()
+    criarFrota()
+    criarRecursos()
+}
 setTimeout(() =>
 {
     builder.SyncDatabase(forca,  () =>
     {
         models.Planeta.afterCreate((intancia) => {
-            models.RecursosPlanetarios.create({planetaID : intancia.id})
-            models.Edificios.create({planetaID : intancia.id})
-            models.Frota.create({planetaID : intancia.id})
+            criarReferenciasPlaneta(intancia.id)
         })
         console.log("Sincronização completa");
         console.log("Gerando Setores");
