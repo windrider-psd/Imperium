@@ -97,13 +97,18 @@ router.post('/cadastrar', function(req, res) {
                 let planetaInicial = planetas[random.GerarIntAleatorio(planetas.length - 1, 0)]
                 Planeta.update({colonizado : true, recursoFerro : 500, recursoCristal : 300, recursoEletronica : 200, recursoUranio: 100, recursoComida : 500 }, {where : {id : planetaInicial.id}, transaction: transacao}).then(() =>
                 {
-                  models.Frota.update({usuarioID : data.id}, {where : {planetaID : planetaInicial.id}, transaction : transacao})
+                  
+                  models.RecursosPlanetarios.update({planetaID : planetaInicial.id, recursoFerro : 500, recursoCristal : 300, recursoEletronica : 200, recursoUranio: 100, recursoComida : 500}, { where : {planetaID : planetaInicial.id}, transaction : transacao})
                     .then(() => {
-                      transacao.commit().then(() => {
-                        req.session.usuario = data.dataValues
-                        res.status(200).end("Conta Cadastrada com sucesso")
-                        EnviarEmailAtivacao(req, data.id, data.chave_ativacao, data.email)
+                      models.Frota.update({usuarioID : data.id}, {where : {planetaID : planetaInicial.id}, transaction : transacao})
+                      .then(() => {
+                        transacao.commit().then(() => {
+                          req.session.usuario = data.dataValues
+                          res.status(200).end("Conta Cadastrada com sucesso")
+                          EnviarEmailAtivacao(req, data.id, data.chave_ativacao, data.email)
+                      })
                     })
+                  
                   
                   })
 

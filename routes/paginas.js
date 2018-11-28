@@ -149,4 +149,11 @@ router.get('/militar', (req, res) => {
     render('login-cadastro', res);
 });
 
+router.get('/operacoes', (req, res) => {
+  if(req.session.usuario)
+    render('operacoes', res);
+  else 
+    render('login-cadastro', res);
+})
+
 module.exports = router;

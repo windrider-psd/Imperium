@@ -1291,7 +1291,6 @@ const Frota_Construcao = con.define("frota_construcao", {
     {
         type:sequalize.STRING,
         allowNull : false,
-        primaryKey : true,
     },
     inicio:
     {
@@ -1300,6 +1299,11 @@ const Frota_Construcao = con.define("frota_construcao", {
         defaultValue : sequalize.NOW,
     },
     duracao:
+    {
+        type:sequalize.INTEGER,
+        allowNull : false
+    },
+    quantidade:
     {
         type:sequalize.INTEGER,
         allowNull : false

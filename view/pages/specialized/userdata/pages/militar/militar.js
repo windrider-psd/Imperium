@@ -3,6 +3,8 @@ require('bootstrap')
 const observer = require('./../../../../generic/modules/observer')
 const utils = require('./../../../../generic/modules/utils')
 const navePrefabs = require('./../../../../../../prefabs/Nave')
+const naveBuilder = require('./../../../../../../prefabs/NaveBuilder')
+
 function getMilitar(planetaID, callback = () => {})
 {
     $.ajax({
@@ -18,6 +20,7 @@ function getMilitar(planetaID, callback = () => {})
         }
     })
 }
+
 
 function encontrarPrefab(nomeTabela)
 {
@@ -62,7 +65,7 @@ function montarHTMLUnidades(unidades)
                 <td class = "total">${unidades[unidade]}</td>
                 <td>
                     <button class = "btn btn-primary imperium-input btn-construir">Construir</button>
-                    <button class = "btn btn-warning imperium-input btn-desmontar">Desmontar</button>
+                    <!-- <button class = "btn btn-warning imperium-input btn-desmontar">Desmontar</button> -->
                 </td>
             </tr>
         `
@@ -70,6 +73,42 @@ function montarHTMLUnidades(unidades)
     return htmlString;
 }
 
+function getConstrucoesFrota(callback = () => {})
+{
+    $.ajax({
+        url : "militar/frota-construcoes",
+        method : "GET",
+        data: {planetaID : window.planeta.id},
+        dataType : "JSON",
+        success : (construcoes) => {
+            callback(construcoes)
+        },
+        error : (err) => {
+            utils.GerarNotificacao(err.responseText, "danger");
+        }
+    })
+}
+
+
+function gerarHtmlConstrucoes(construcoes)
+{
+    let htmlString = ""
+
+    for(let i = 0; i < construcoes.length; i++)
+    {
+        let tipoString = naveBuilder.getNavePorNomeTabela(construcoes[i].unidade).nome
+        let diferenca = (new Date().getTime() - new Date(construcoes[i].inicio).getTime()) / 1000
+        htmlString += 
+        `
+        <tr>
+            <td>${tipoString}</td>
+            <td class = "construcao-duracao">${construcoes[i].duracao - diferenca.toFixed(0)}</td>
+            <td>${construcoes[i].quantidade}</td>
+        </tr>
+        `
+    }
+    return htmlString;
+}
 
 observer.Observar('userdata-ready',  () => {
     getMilitar(window.planeta.id, (unidades) => {
@@ -80,6 +119,11 @@ observer.Observar('userdata-ready',  () => {
         delete unidades.usuarioID
         let htmlUnidades = montarHTMLUnidades(unidades);
         $("#table-unidades tbody").html(htmlUnidades);
+    })
+
+    getConstrucoesFrota(construcoes => {
+        let htmlConstrucoes = gerarHtmlConstrucoes(construcoes)
+        $("#table-construcoes tbody").html(htmlConstrucoes)
     })
 
     $("#table-unidades").on('click', ".btn-construir", function()
@@ -98,7 +142,7 @@ observer.Observar('userdata-ready',  () => {
             method : "PUT",
             data: params,
             success : () => {
-                console.log("sucesso")
+                utils.GerarNotificacao("Naves sendo construidas", "success")
             },
             error : (err) => {
                 utils.GerarNotificacao(err.responseText, "danger");
@@ -107,3 +151,17 @@ observer.Observar('userdata-ready',  () => {
     })
 
 })
+
+setInterval(() => {
+    $(".construcao-duracao").each(function(){
+        let tempo = Number($(this).text())
+        if(tempo <= 0)
+        {
+            $(this).parent().remove()
+        }
+        else
+        {
+            $(this).text(tempo - 1)
+        }
+    })
+}, 1000)

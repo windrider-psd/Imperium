@@ -1,7 +1,8 @@
 extends ../../../../../templates/userdata-layout
 block titulo
   | Militar
-block content     
+block content
+  h1.imperium-title Construção de frotas
   .table-responsive.imperium-scrollbar
       table.table.table-bordered.imperium-table#table-unidades.imperium-table-background
         thead
@@ -18,6 +19,15 @@ block content
             th Quantidade de armas
             th Total
             th Ações
+        tbody
+  h1.imperium-title Construção em andamento
+  .table-responsive.imperium-scrollbar
+      table.table.table-bordered.imperium-table#table-construcoes.imperium-table-background
+        thead
+          tr
+            th Nave
+            th Tempo restante
+            th Quantidade
         tbody
   #modal-construir-unidade.modal.fade(role='dialog').imperium-modal
     .modal-dialog

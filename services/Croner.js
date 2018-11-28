@@ -33,84 +33,127 @@ var adicionarRecurso = cron.schedule('*/10 * * * * *', function()
 
         models.Usuario.findAll({attributes : ['id']}).then((usuarios) => {
             
-            usuarios.forEach((usuario) =>
-            {
-                models.Setor.findAll({where : {usuarioID :usuario.id}, attributes: ['id', 'solPosX', 'solPosY', 'solPosX', 'intensidadeSolar']}).then((setores) =>
-                {
-                    setores.forEach((setor) =>
+            models.Con.transaction({autocommit : false, isolationLevel : 'READ COMMITTED'})
+                .then(transacao => {
+                    let promesasUsuarios = new Array()
+                    usuarios.forEach((usuario) =>
                     {
-                        models.Planeta.findAll({where : {colonizado : true, setorID : setor.id}}).then((planetas) =>
-                        {
-                            planetas.forEach((planeta) =>
+                        promesasUsuarios.push(new Promise(resolveU => {
+                            models.Setor.findAll({where : {usuarioID :usuario.id}, attributes: ['id', 'solPosX', 'solPosY', 'solPosX', 'intensidadeSolar'], transaction : transacao}).then((setores) =>
                             {
-                                let promessas = []
-                                promessas.push(
-                                    new Bluebird((resolve) => {
-                                        models.RecursosPlanetarios.findOne({where : {planetaID : planeta.id}})
-                                            .then(recursos => resolve(recursos.dataValues))
-                                    })
-                                )
-                                promessas.push(
-                                    new Bluebird((resolve) => {
-                                        models.Edificios.findOne({where : {planetaID : planeta.id}})
-                                            .then(edificios => resolve(edificios.dataValues))
-                                    })
-                                )
-                                Bluebird.all(promessas)
-                                    .then((retorno) => {
-                                        let recursos = retorno[0]
-                                        let edificios = retorno[1]
-                                        
-                                        let isp = edificioBuiler.getIntensidadeSolarPlaneta({x : setor.solPosX, y : setor.solPosY}, {x : planeta.posX, y : planeta.posY}, setor.intensidadeSolar);
-                                        let true_edificios = {};
-                                        for(let chave in edificioPrefab)
-                                        {
-                                            let edit = edificioBuiler.getEdificio(chave)
-                                            if(edit != null)
-                                            {
-                                                edit.nivel = edificios[chave]
-                                        
-                                                true_edificios[chave] = edit;
-                                            }
-                                            
-                                        }
-                                        let producao = edificioBuiler.getProducao(true_edificios, isp);
-                                        let capacidade = producao.capacidade
-        
-                                        let soma = producao.ferro + recursos.recursoFerro;
-                                        let updateFerro = (soma < capacidade) ? soma : capacidade; 
+                                let promesasSetor = new Array()
 
-                                        soma = producao.cristal + recursos.recursoCristal;
-                                        let updateCristal = (soma < capacidade) ? soma : capacidade; 
-                                        
-                                        soma = producao.componente + recursos.recursoComponente;
-                                        let updateComponentes = (soma < capacidade) ? soma : capacidade; 
-                                        
-                                        soma = producao.titanio + recursos.recursoTitanio;
-                                        let updateTitanio = (soma < capacidade) ? soma : capacidade; 
+                                
+                                setores.forEach((setor) =>
+                                {
+                                    promesasSetor.push(new Promise(resolveS => {
+                                        models.Planeta.findAll({where : {colonizado : true, setorID : setor.id}, transaction : transacao}).then((planetas) =>
+                                        {
+                                            let promessasPlanetas = new Array()
+
+                                            planetas.forEach((planeta) =>
+                                            {
+                                                promessasPlanetas.push(new Promise(resolveP => {
+                                                    let promessas = []
+                                                    promessas.push(
+                                                        new Bluebird((resolve) => {
+                                                            models.RecursosPlanetarios.findOne({where : {planetaID : planeta.id}, transaction : transacao})
+                                                                .then(recursos => resolve(recursos.dataValues))
+                                                        })
+                                                    )
+                                                    promessas.push(
+                                                        new Bluebird((resolve) => {
+                                                            models.Edificios.findOne({where : {planetaID : planeta.id}, transaction : transacao})
+                                                                .then(edificios => resolve(edificios.dataValues))
+                                                        })
+                                                    )
+                                                    Bluebird.all(promessas)
+                                                        .then((retorno) => {
+                                                            let recursos = retorno[0]
+                                                            let edificios = retorno[1]
+                                                            
+                                                            let isp = edificioBuiler.getIntensidadeSolarPlaneta({x : setor.solPosX, y : setor.solPosY}, {x : planeta.posX, y : planeta.posY}, setor.intensidadeSolar);
+                                                            let true_edificios = {};
+                                                            for(let chave in edificioPrefab)
+                                                            {
+                                                                let edit = edificioBuiler.getEdificio(chave)
+                                                                if(edit != null)
+                                                                {
+                                                                    edit.nivel = edificios[chave]
+                                                            
+                                                                    true_edificios[chave] = edit;
+                                                                }
+                                                                
+                                                            }
+                                                            let producao = edificioBuiler.getProducao(true_edificios, isp);
+                                                            let capacidade = producao.capacidade
+                            
+                                                            let soma = producao.ferro + recursos.recursoFerro;
+                                                            let updateFerro = (soma < capacidade) ? soma : capacidade; 
         
+                                                            soma = producao.cristal + recursos.recursoCristal;
+                                                            let updateCristal = (soma < capacidade) ? soma : capacidade; 
+                                                            
+                                                            soma = producao.componente + recursos.recursoComponente;
+                                                            let updateComponentes = (soma < capacidade) ? soma : capacidade; 
+                                                            
+                                                            soma = producao.titanio + recursos.recursoTitanio;
+                                                            let updateTitanio = (soma < capacidade) ? soma : capacidade; 
+                            
+                                                            
+                                                            let update = {
+                                                                recursoFerro : updateFerro, 
+                                                                recursoCristal : updateCristal,
+                                                                recursoTitanio : updateTitanio, 
+                                                                recursoComponente : updateComponentes
+                                                            }
+                            
+                                                            models.RecursosPlanetarios.update(update, {where : {planetaID : planeta.id}, transaction : transacao})
+                                                                .then(() => {
+                                                                    resolveP()
+                                                                });
+                                                            io.EmitirParaSessao(usuario.id, 'recurso-planeta' + planeta.id, update);
+                                                        })
+                                                }))
+                                                
+                                            });
+                                            Promise.all(promessasPlanetas)
+                                                .then(() => {
+                                                    resolveS()
+                                                })
+                                        }) 
+                                    }))
+                                    
+                                }) 
+                                Promise.all(promesasSetor)
+                                    .then(() => {
+                                        resolveU()
+                                    })
+                                    .catch(err => {
+                                        console.log(err)
                                         
-                                        let update = {
-                                            recursoFerro : updateFerro, 
-                                            recursoCristal : updateCristal,
-                                            recursoTitanio : updateTitanio, 
-                                            recursoComponente : updateComponentes
-                                        }
-        
-                                        models.RecursosPlanetarios.update(update, {where : {planetaID : planeta.id}});
-                                        io.EmitirParaSessao(usuario.id, 'recurso-planeta' + planeta.id, update);
                                     })
                             });
+                           
+                        }))
+                        
+                    })
+                    Promise.all(promesasUsuarios)
+                        .then(() => {
+                            transacao.commit()
+                        })
+                        .catch(err => {
+                            console.log(err)
+                            transacao.rollback()
                         })  
-                    }) 
-                });
-            })  
+                })
+            
         });
     }
 })
 
 
-function CriarConstrucaoFrotaTimer(unidade, quantidade, duracao, usuarioID, planetaID, nave)
+function CriarConstrucaoFrotaTimer(id, unidade, quantidade, duracao, usuarioID, planetaID, nave)
 {
     return setTimeout(() => {
         models.Frota.findOne({where : {planetaID : planetaID, usuarioID: usuarioID}})
@@ -126,8 +169,7 @@ function CriarConstrucaoFrotaTimer(unidade, quantidade, duracao, usuarioID, plan
                         {
                             custo[chave] = nave.custo[chave] * quantidade;
                         }
-                        
-                        models.Frota_Construcao.destroy({where :{planetaID : planetaID}});
+                        models.Frota_Construcao.destroy({where :{id : id}})
                         ranking.AdicionarPontos(usuarioID, custo, ranking.TipoPontos.pontosMilitar);
                         //Emitir para id da sessão
                     })
@@ -230,9 +272,9 @@ function AdicionarFrota(usuarioID, planetaID, unidade, quantidade, nivelHangar)
                             .catch(err => {console.log(err)})   
                         
                         let duracao = naveBuilder.getTempoConstrucao(nave, nivelHangar) * quantidade;
-                        models.Frota_Construcao.create({unidade: unidade, inicio : new Date(), duracao : duracao, planetaID : planetaID})
+                        models.Frota_Construcao.create({unidade: unidade, inicio : new Date(), duracao : duracao, planetaID : planetaID, quantidade : quantidade})
                             .then((construcao) => {
-                                let timer = CriarConstrucaoFrotaTimer(unidade, quantidade, duracao, usuarioID, planetaID, nave);
+                                let timer = CriarConstrucaoFrotaTimer(construcao.id, unidade, quantidade, duracao, usuarioID, planetaID, nave);
                                 construcoes_frota.push({planetaID: planetaID, quantidade: quantidade, usuarioID : usuarioID, timeout : timer})
                                 resolve(construcao)
                             })

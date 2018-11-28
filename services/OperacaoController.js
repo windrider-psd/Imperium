@@ -164,7 +164,8 @@ function MoverFrota(operacaoID, setorOrigem, setorDestino, frota)
 
 function Colonizar(operacaoID)
 {
-    models.Operacao_Militar.findOne({where : {id : operacaoID}})
+    return new Promise(resolve => {
+        models.Operacao_Militar.findOne({where : {id : operacaoID}})
         .then((operacao) => {
             let setorOrigem = null
             let setorDestino = null
@@ -186,7 +187,8 @@ function Colonizar(operacaoID)
 
             function Fase2()
             {
-                models.Usuario.findOne({where : {id : operacao.usuarioID}})
+                return new Promise(resolve => {
+                    models.Usuario.findOne({where : {id : operacao.usuarioID}})
                     .then(usuario => {
                         models.Setor.update({usuarioID : usuario.id}, {where : {id : setorDestino.id}})
                             .then(() => {
@@ -232,6 +234,9 @@ function Colonizar(operacaoID)
                                                                     frotaUpdateOBJ[chave] = frotaOP.dataValues[chave] + frotaPlaneta.dataValues[chave]
                                                                 }
                                                                 models.Frota.update(frotaUpdateOBJ, {where : {planetaID : primeiro.id}})
+                                                                    .then(() => {
+                                                                        resolve()
+                                                                    })
                                                                 
                                                             })
                                                       
@@ -243,6 +248,8 @@ function Colonizar(operacaoID)
                                     })
                             })
                     })
+                })
+                
             }
 
             function Fase1()
@@ -327,6 +334,9 @@ function Colonizar(operacaoID)
                                         models.Operacao_Militar.update({estagio : 2}, {where : {id : operacaoID}})
                                             .then(() => {
                                                 Fase2()
+                                                    .then(() => {
+                                                        resolve()
+                                                    })
                                             })
                                         
                                     })
@@ -337,12 +347,17 @@ function Colonizar(operacaoID)
                             else if(operacao.estagio == 2)
                             {
                                 Fase2()
+                                    .then(() => {
+                                        resolve()
+                                    })
                             }
                             
                         }
 
                     })
         })
+    })
+    
 }
 
 
@@ -373,7 +388,7 @@ function Pilhar(operacaoID)
         {
             
             let mover = function() {
-                return new Promise((resolve, reject) => {
+                return new Promise(resolve => {
                     MoverFrota(operacao.id, setorAtual, setorAtual, {})
                         .then(() => {
 
@@ -399,7 +414,7 @@ function Pilhar(operacaoID)
                         });
                     })
                 }
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => {
                 models.Operacao_Militar.update({estagio : 3}, {where : {id : operacaoID}})
                 models.Frota.findOne({where : {operacaoID : operacaoID}})
                     .then(frotaOP => {
@@ -425,7 +440,11 @@ function Pilhar(operacaoID)
                         }
                         else
                         {
-                            models.Planeta.findAll({where : {setorID : setorDestino.id, colonizado : true}, attributes : ['id']})
+                            models.Con.transaction({isolationLevel : "READ COMMITTED", autocommit : false})
+                                .then(transacao => {
+
+                                
+                            models.Planeta.findAll({where : {setorID : setorDestino.id, colonizado : true}, attributes : ['id'], /*transaction : transacao*/})
                                 .then(planetas =>
                                 {
                                     let promesasRecursos = []
@@ -433,7 +452,7 @@ function Pilhar(operacaoID)
                                     {
                                         promesasRecursos.push(new Promise(resolve => {
                                             let planeta = planetas[i]
-                                            models.RecursosPlanetarios.findOne({where : {planetaID : planeta.id}})
+                                            models.RecursosPlanetarios.findOne({where : {planetaID : planeta.id}, /*transaction : transacao*/})
                                                 .then(recursos => {
                                                     delete recursos.dataValues.planetaID
                                                     delete recursos.dataValues.operacaoID
@@ -466,9 +485,6 @@ function Pilhar(operacaoID)
                                             }
                                             let capacidadeTomada = 0
                                             let chavesIndex = 0
-                                            console.log(capacidadeTotal)
-                                            console.log(recursosInd)
-                                            console.log(chavesRecursos)
                                             while(capacidadeTomada < capacidadeTotal)
                                             {
                                                 for(let i = 0; i < recursosInd.length; i++)
@@ -487,65 +503,72 @@ function Pilhar(operacaoID)
                                             let promessas = []
                                             for(let i = 0; i < recursosInd.length; i++)
                                             {
-                                                models.RecursosPlanetarios.update(recursosInd[i].recursos, {where : {planetaID : recursosInd[i].planeta}})
+                                                
+                                                promessas.push(models.RecursosPlanetarios.update(recursosInd[i].recursos, {where : {planetaID : recursosInd[i].planeta}, /*transaction : transacao*/}))
                                             }
-                                            models.RecursosPlanetarios.create(loot)
+                                            Promise.all(promessas)
                                                 .then(() => {
-                                                    mover()
+
+                                                    models.RecursosPlanetarios.create(loot)
                                                         .then(() => {
+                                                            mover()
+                                                                .then(() => {
 
-                                                            models.Planeta.findOne({where : {setorID : setorOrigem.id, colonizado : true}})
-                                                                .then(planeta => {
-                                                                    if(planeta)
-                                                                    {  
-                                                                        models.Frota.findOne({where : {planetaID : planeta.id}})
-                                                                            .then(frotaPlaneta => {
-                                                                                let frotaUpdateObj = {}
+                                                                    models.Planeta.findOne({where : {setorID : setorOrigem.id, colonizado : true}, /*transaction : transacao*/})
+                                                                        .then(planeta => {
+                                                                            if(planeta)
+                                                                            {  
+                                                                                models.Frota.findOne({where : {planetaID : planeta.id}, /*transaction : transacao*/})
+                                                                                    .then(frotaPlaneta => {
+                                                                                        let frotaUpdateObj = {}
 
-                                                                                for(let chave in frotaOP.dataValues)
-                                                                                {
-                                                                                    frotaUpdateObj[chave] = frotaPlaneta.dataValues[chave] + frotaOP.dataValues[chave]
-                                                                                }
+                                                                                        for(let chave in frotaOP.dataValues)
+                                                                                        {
+                                                                                            frotaUpdateObj[chave] = frotaPlaneta.dataValues[chave] + frotaOP.dataValues[chave]
+                                                                                        }
 
 
-                                                                                models.Frota.update(frotaUpdateObj, {where : {planetaID : planeta.id}})
-                                                                                    .then(() => {
-                                                                                        models.RecursosPlanetarios.findOne({where :{planetaID : planeta.id}})
-                                                                                            .then(recursosPlaneta => {
-                                                                                                delete recursosPlaneta.dataValues.planetaID
-                                                                                                delete recursosPlaneta.dataValues.operacaoID
-                                                                                                delete recursosPlaneta.dataValues.relatorioID
+                                                                                        models.Frota.update(frotaUpdateObj, {where : {planetaID : planeta.id}, /*transaction : transacao*/})
+                                                                                            .then(() => {
+                                                                                                models.RecursosPlanetarios.findOne({where :{planetaID : planeta.id}, /*transaction : transacao*/})
+                                                                                                    .then(recursosPlaneta => {
+                                                                                                        delete recursosPlaneta.dataValues.planetaID
+                                                                                                        delete recursosPlaneta.dataValues.operacaoID
+                                                                                                        delete recursosPlaneta.dataValues.relatorioID
 
-                                                                                                let recursosUpdateObj = {}
+                                                                                                        let recursosUpdateObj = {}
 
-                                                                                                for(let chave in recursosPlaneta.dataValues)
-                                                                                                {
-                                                                                                    recursosUpdateObj[chave] = recursosPlaneta.dataValues[chave] + loot[chave]
-                                                                                                }
-                                                                                                models.RecursosPlanetarios.update(recursosUpdateObj, {where : {planetaID : planeta.id}})
-                                                                                                    .then(() => {
-                                                                                                        resolve()
+                                                                                                        for(let chave in recursosPlaneta.dataValues)
+                                                                                                        {
+                                                                                                            recursosUpdateObj[chave] = recursosPlaneta.dataValues[chave] + loot[chave]
+                                                                                                        }
+                                                                                                        models.RecursosPlanetarios.update(recursosUpdateObj, {where : {planetaID : planeta.id}, /*transaction : transacao*/})
+                                                                                                            .then(() => {
+                                                                                                                transacao.commit()
+                                                                                                                resolve()
+                                                                                                            })
                                                                                                     })
+                                                                                                
                                                                                             })
-                                                                                        
                                                                                     })
-                                                                            })
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        resolve()
-                                                                    }
-                                                                    
-                                                                    
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                transacao.commit()
+                                                                                resolve()
+                                                                                
+                                                                            }
+                                                                            
+                                                                            
+                                                                        })
+                                                                
                                                                 })
-                                                        
                                                         })
-                                                })
+                                                    })
 
                                         })
                                 })
-
-                             
+                            })
                         }
                     })
                 
@@ -554,103 +577,8 @@ function Pilhar(operacaoID)
 
         function Fase2()
         {
-            return new Promise((resolve, reject) => {
-                /*models.Operacao_Militar.update({estagio : 2}, {where : {id : operacaoID}})
-                models.Frota.findOne({where : {operacaoID : operacaoID}})
-                .then(frotaOP => {
-
-                    delete frotaOP.dataValues.usuarioID
-                    delete frotaOP.dataValues.planetaID
-                    delete frotaOP.dataValues.id
-                    delete frotaOP.dataValues.operacaoID
-                    delete frotaOP.dataValues.relatorioID
-
-                    models.Planeta.findAll({where : {setorID : setorDestino.id}})
-                        .then(planetasDefensores => {
-                            
-        
-                            let promesas = []
-                            
-                            for(let i = 0; i < planetasDefensores.length; i++)
-                            {
-                                promesas.push(new Promise((resolve) => {
-                                    let id = planetasDefensores[i].id
-                                    models.Frota.findOne({where : {planetaID : id}})
-                                        .then(frota => {
-                                            delete frota.dataValues.usuarioID
-                                            delete frota.dataValues.planetaID
-                                            delete frota.dataValues.id
-                                            delete frota.dataValues.operacaoID
-                                            delete frota.dataValues.relatorioID
-
-                                            let frotaUpdate = {}
-
-                                            for(let chave in frota.dataValues)
-                                            {
-                                                frotaUpdate[chave] = 0
-                                            }
-                                            
-                                            models.Frota.update(frotaUpdate, {where : {planetaID : id}})
-                                                .then(() => {
-                                                    resolve(frota.dataValues)
-                                                })
-                                            
-                                        })
-                                }))
-                            }
-
-                            Promise.all(promesas)
-                                .then(frotasDefensoras => {
-                                    let frotaDefensora = {}
-                                    for(let i = 0; i < frotasDefensoras.length; i++)
-                                    {
-                                        for(let chave in frotaOP.dataValues)
-                                        {
-                                            if(frotaDefensora[chave] == null)
-                                            {
-                                                frotaDefensora[chave] = 0
-                                            }
-                                            frotaDefensora[chave] += frotasDefensoras[i][chave]
-                                        }
-                                    }
-                                    console.log(frotaOP.dataValues)
-                                    console.log(frotaDefensora)
-
-                                    Combater(frotaOP.dataValues, frotaDefensora)
-                                        .then(resultado => {
-                                            console.log(resultado)
-                                            models.Frota.update(resultado.atacante, {where : {operacaoID : operacaoID}})
-                                                .then(() => {
-                                                    models.Planeta.findOne({where : {setorID : setorDestino.id, colonizado : true}})
-                                                        .then(planeta => {
-                                                            if(planeta)
-                                                            {
-                                                                models.Frota.update(resultado.defensora, {where : {planetaID : planeta.id}})
-                                                                    .then(() => {
-                                                                        Fase3()
-                                                                            .then(() => {
-                                                                                resolve()
-                                                                            })
-                                                                    })
-                                                            }
-                                                        })
-                                                })
-                                                .catch(err => {
-
-                                                    console.log(err)
-                                                })
-                                        })
-
-                                })
-
-                                
-
-                        })
-                })*/
-
-
-
-                        
+            models.Operacao_Militar.update({estagio : 2}, {where : {id : operacaoID}})
+            return new Promise((resolve) => {  
                 GerenciadorCombates.combaterEmSetor(operacaoID, setorDestino.id, () =>{
                     Fase3()
                         .then(() => {
@@ -686,6 +614,7 @@ function Pilhar(operacaoID)
                                     }
                                     else
                                     {
+                                        models.Operacao_Militar.update({setorAtual : setorDestino.id}, {where : {operacaoID : operacaoID}})
                                         resolve()
                                     }
                                 })

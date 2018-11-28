@@ -196,7 +196,6 @@ router.post('/operacao', (req, res) => {
     if(req.session.usuario)
     {
         let params = req.body
-        console.log(params)
         if(!params.operacao || !params.planetaID || !params.setorDestino)
         {
             res.status(400).end("Parâmetros inválidos")
@@ -249,4 +248,121 @@ router.post('/operacao', (req, res) => {
     }
 })
 
+
+router.get('/operacao', (req, res) => {
+    if(req.session.usuario)
+    {
+        models.Operacao_Militar.findAll({where: {usuarioID : req.session.usuario.id}})
+            .then(operacoes => {
+                let promessas = []
+                for(let i = 0; i < operacoes.length; i++)
+                {
+                    promessas.push(new Promise((resolve, reject) => {
+                        let op = operacoes[i]
+                        models.RecursosPlanetarios.findOne({where : {operacaoID : op.id},
+                            attributes : 
+                            [
+                               ['recursoFerro', "ferro"], 
+                               ['recursoCristal', "cristal"],
+                               ['recursoComponente', "componente"],
+                               ['recursoTitanio', "titanio"]
+                            ]})
+                            .then(recursos => {
+                                models.Frota.findOne({where : {operacaoID : op.id}})
+                                    .then(frota => {
+                                        if(frota)
+                                        {
+                                            delete frota.dataValues.id
+                                            delete frota.dataValues.planetaID
+                                            delete frota.dataValues.usuarioID
+                                            delete frota.dataValues.operacaoID
+                                            delete frota.dataValues.relatorioID
+                                            op.dataValues['frota'] = frota.dataValues
+                                        }
+                                        else
+                                        {
+                                            op.dataValues['frota'] = {}
+                                        }
+                                        if(recursos)
+                                        {
+                                            op.dataValues['recursos'] = recursos.dataValues
+                                        }
+                                        else
+                                        {
+                                            op.dataValues['recursos'] = {}
+                                        }
+                                        let promessasSetores = []
+                                        promessasSetores.push(new Promise(resolve => {
+                                            models.Setor.findOne({where : {id : op.origem}, attributes : ['nome']})
+                                                .then(origem => {
+                                                    op.dataValues['nomeOrigem'] = origem.nome
+                                                    resolve()
+                                                })
+                                        }))
+                                        
+                                        promessasSetores.push(new Promise(resolve => {
+                                            models.Setor.findOne({where : {id : op.destino}, attributes : ['nome']})
+                                                .then(destino => {
+                                                    op.dataValues['nomeDestino'] = destino.nome
+                                                    resolve()
+                                                })
+                                        }))
+
+                                        promessasSetores.push(new Promise(resolve => {
+                                            models.Setor.findOne({where : {id : op.atual}, attributes : ['nome']})
+                                                .then(atual => {
+                                                    op.dataValues['nomeAtual'] = atual.nome
+                                                    resolve()
+                                                })
+                                        }))
+                                        Promise.all(promessasSetores)
+                                            .then(() => {
+                                                resolve(op)
+                                            })
+                                        
+                                    })
+                            })
+                    }))
+                }
+
+                Promise.all(promessas)
+                    .then(ops => {
+                        res.status(200).json(ops)
+                    })
+                    .catch(err => {
+                        res.status(500).end(err.message)
+                    })
+            })
+            .catch(err => {
+                res.status(500).json(err)
+            })
+    }
+    else
+    {
+        res.status(403).end("Sem permição")
+    }
+})
+
+
+router.get('/frota-construcoes', (req, res) => {
+    if(req.session.usuario)
+    {
+        let params = req.query
+        if(!params.planetaID)
+        {  
+            res.status(400).end("Parâmetros inválidos")
+        }
+        else
+        {
+            models.Frota_Construcao.findAll({where : {planetaID : params.planetaID}})
+                .then(construcoes => {
+                    res.status(200).json(construcoes)
+                })
+        }
+    }
+    else
+    {
+        res.status(403).end("Sem permição")
+    }
+})
 module.exports = router;

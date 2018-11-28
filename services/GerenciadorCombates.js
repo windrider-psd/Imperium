@@ -25,19 +25,23 @@ async function Combater(frotaAtacante, frotaDefensora)
                 let alvo = frotaVitima[naveOBJ.alvo]
 
                 let quantidadesHits = 0
-                for(let j = 0; j < naveOBJ.nave.quantidade_armas; j++)
+                if(alvo != null)
                 {
-                    let hitValor = aleatorio.GerarIntAleatorio(100, 0)
-                    if(hitValor <= alvo.nave.evasao)
+                    for(let j = 0; j < naveOBJ.nave.quantidade_armas; j++)
                     {
-                        quantidadesHits++
+                        let hitValor = aleatorio.GerarIntAleatorio(100, 0)
+                        if(hitValor <= alvo.nave.evasao)
+                        {
+                            quantidadesHits++
+                        }
                     }
-                }
                 
-                let dano = (naveOBJ.nave.dano - naveOBJ.nave.armadura) * quantidadesHits
+                
+                    let dano = (naveOBJ.nave.dano - naveOBJ.nave.armadura) * quantidadesHits
 
-                alvo.nave.hp -= dano
-                
+                    alvo.nave.hp -= dano
+                }
+
             }
         }
 

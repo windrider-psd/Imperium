@@ -356,7 +356,9 @@ observer.Observar('userdata-ready',  () => {
     })
 
 
-
+    $(".btn-fechar-setor-popup").on('click', function(){
+        $('.setor-popup').addClass("hidden")
+    })
     $(".operacao-btn").on('click', function(){
         let operacao = $(this).data('operacao')
         $("#form-operacao-operacao").val(operacao)
@@ -373,11 +375,11 @@ observer.Observar('userdata-ready',  () => {
             data : params,
             success : function()
             {
-                alert("sucesso")
+                utils.GerarNotificacao("Operação iniciada com sucesso", "success")
             },
             error : function(err)
             {
-                alert(err.responseText)
+                utils.GerarNotificacao(err.responseText, "danger")
             }
         })
     })
