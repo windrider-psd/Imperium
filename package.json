@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "bbcode-parser": "^1.0.10",
-    "bcrypt": "^3.0.0",
+    "bcrypt": "^5.0.0",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.3",
     "bootbox": "^5.1.3",
